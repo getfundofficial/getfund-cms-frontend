@@ -1,0 +1,162 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { LoginPage } from './pages/LoginPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { NewsListPage } from './pages/NewsListPage';
+import { NewsEditorPage } from './pages/NewsEditorPage';
+import { NewsViewPage } from './pages/NewsViewPage';
+import { HeroSlidesListPage } from './pages/HeroSlidesListPage';
+import { HeroSlideEditorPage } from './pages/HeroSlideEditorPage';
+import { HeroSlideViewPage } from './pages/HeroSlideViewPage';
+import { ReviewQueuePage } from './pages/ReviewQueuePage';
+import { ApprovalQueuePage } from './pages/ApprovalQueuePage';
+import { ProtectedRoute } from './components/Layout/ProtectedRoute';
+import { AdminLayout } from './components/Layout/AdminLayout';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <DashboardPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* News Routes */}
+          <Route
+            path="/admin/news"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <NewsListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/news/new"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <NewsEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/news/:id"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <NewsViewPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/news/:id/edit"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <NewsEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Hero Slides Routes */}
+          <Route
+            path="/admin/hero-slides"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <HeroSlidesListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/hero-slides/new"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <HeroSlideEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/hero-slides/:id"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <HeroSlideViewPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/hero-slides/:id/edit"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <HeroSlideEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Review Queue Route */}
+          <Route
+            path="/admin/review"
+            element={
+              <ProtectedRoute requiredRoles={['reviewer', 'admin']}>
+                <AdminLayout>
+                  <ReviewQueuePage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Approval Queue Route */}
+          <Route
+            path="/admin/approval"
+            element={
+              <ProtectedRoute requiredRoles={['approver', 'admin']}>
+                <AdminLayout>
+                  <ApprovalQueuePage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Default Redirects */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+          {/* Catch all - redirect to login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;

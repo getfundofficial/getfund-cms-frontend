@@ -1,0 +1,318 @@
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { contentService } from '../services/contentService';
+import { Content, WorkflowStatus } from '../types/content.types';
+import { Button } from '../components/Common/Button';
+import { useNavigate } from 'react-router-dom';
+
+export const HeroSlidesListPage: React.FC = () => {
+  const { user, hasPermission } = useAuth();
+  const navigate = useNavigate();
+  const [content, setContent] = useState<Content[]>([]);
+  const [filteredContent, setFilteredContent] = useState<Content[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<WorkflowStatus | 'all'>('all');
+
+  useEffect(() => {
+    loadContent();
+  }, []);
+
+  useEffect(() => {
+    filterContent();
+  }, [content, statusFilter]);
+
+  const loadContent = async () => {
+    try {
+      setIsLoading(true);
+      const data = await contentService.getAll({ type: 'hero_slide' });
+      setContent(data);
+    } catch (error) {
+      console.error('Failed to load hero slides:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterContent = () => {
+    let filtered = [...content];
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(item => item.status === statusFilter);
+    }
+
+    setFilteredContent(filtered);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this hero slide?')) return;
+
+    try {
+      await contentService.delete(id);
+      setContent(content.filter(item => item.id !== id));
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to delete hero slide');
+    }
+  };
+
+  const handleSubmitForReview = async (id: string) => {
+    try {
+      await contentService.submit(id);
+      await loadContent();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to submit for review');
+    }
+  };
+
+  const handlePublish = async (id: string) => {
+    try {
+      await contentService.publish(id);
+      await loadContent();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to publish');
+    }
+  };
+
+  const handleUnpublish = async (id: string) => {
+    if (!confirm('Are you sure you want to unpublish this hero slide?')) return;
+
+    try {
+      await contentService.unpublish(id);
+      await loadContent();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to unpublish');
+    }
+  };
+
+  const getStatusBadge = (status: WorkflowStatus) => {
+    const styles = {
+      draft: 'bg-gray-100 text-gray-800',
+      in_review: 'bg-yellow-100 text-yellow-800',
+      changes_requested: 'bg-orange-100 text-orange-800',
+      approved: 'bg-green-100 text-green-800',
+      published: 'bg-blue-100 text-blue-800',
+    };
+
+    const labels = {
+      draft: 'Draft',
+      in_review: 'In Review',
+      changes_requested: 'Changes Requested',
+      approved: 'Approved',
+      published: 'Published',
+    };
+
+    return (
+      <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[status]}`}>
+        {labels[status]}
+      </span>
+    );
+  };
+
+  const canEdit = (item: Content) => {
+    if (user?.role === 'admin') return true;
+    if (user?.role === 'creator' && item.created_by === user?.id) {
+      return ['draft', 'changes_requested'].includes(item.status);
+    }
+    return false;
+  };
+
+  const canDelete = (item: Content) => {
+    if (user?.role === 'admin') return true;
+    if (user?.role === 'creator' && item.created_by === user?.id) {
+      return item.status === 'draft';
+    }
+    return false;
+  };
+
+  const canSubmit = (item: Content) => {
+    if (user?.role !== 'creator' && user?.role !== 'admin') return false;
+    return item.status === 'draft' || item.status === 'changes_requested';
+  };
+
+  const canPublish = (item: Content) => {
+    if (user?.role !== 'approver' && user?.role !== 'admin') return false;
+    return item.status === 'approved';
+  };
+
+  const canUnpublish = (item: Content) => {
+    if (user?.role !== 'admin') return false;
+    return item.status === 'published';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading hero slides...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Hero Slides</h1>
+          <p className="text-gray-600 mt-1">
+            Manage homepage carousel slides
+          </p>
+        </div>
+        {hasPermission('hero_slide') && (
+          <Button
+            variant="primary"
+            onClick={() => navigate('/admin/hero-slides/new')}
+          >
+            + Create Hero Slide
+          </Button>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex items-center justify-between">
+          <div className="w-64">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as WorkflowStatus | 'all')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="in_review">In Review</option>
+              <option value="changes_requested">Changes Requested</option>
+              <option value="approved">Approved</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+
+          <div className="text-sm text-gray-600">
+            Showing {filteredContent.length} of {content.length} slides
+          </div>
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      {filteredContent.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No hero slides found</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {statusFilter !== 'all'
+              ? 'Try adjusting your filter'
+              : 'Get started by creating a new hero slide'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredContent.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
+              {/* Image */}
+              {item.featured_image_url && (
+                <div className="aspect-video bg-gray-200 relative">
+                  <img
+                    src={item.featured_image_url}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x225?text=No+Image';
+                    }}
+                  />
+                  <div className="absolute top-2 right-2">
+                    {getStatusBadge(item.status)}
+                  </div>
+                </div>
+              )}
+
+              {/* Content */}
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                  {item.title}
+                </h3>
+                {item.excerpt && (
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {item.excerpt}
+                  </p>
+                )}
+                <div className="text-xs text-gray-500 mb-3">
+                  By {item.creator_name} • {new Date(item.updated_at).toLocaleDateString()}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => navigate(`/admin/hero-slides/${item.id}`)}
+                    className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    View
+                  </button>
+
+                  {canEdit(item) && (
+                    <button
+                      onClick={() => navigate(`/admin/hero-slides/${item.id}/edit`)}
+                      className="flex-1 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+                  )}
+
+                  {canSubmit(item) && (
+                    <button
+                      onClick={() => handleSubmitForReview(item.id)}
+                      className="flex-1 text-yellow-600 hover:text-yellow-800 text-sm font-medium"
+                    >
+                      Submit
+                    </button>
+                  )}
+
+                  {canPublish(item) && (
+                    <button
+                      onClick={() => handlePublish(item.id)}
+                      className="flex-1 text-green-600 hover:text-green-800 text-sm font-medium"
+                    >
+                      Publish
+                    </button>
+                  )}
+
+                  {canUnpublish(item) && (
+                    <button
+                      onClick={() => handleUnpublish(item.id)}
+                      className="flex-1 text-orange-600 hover:text-orange-800 text-sm font-medium"
+                    >
+                      Unpublish
+                    </button>
+                  )}
+
+                  {canDelete(item) && (
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="flex-1 text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

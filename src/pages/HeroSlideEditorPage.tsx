@@ -1,0 +1,324 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { contentService } from '../services/contentService';
+import { Button } from '../components/Common/Button';
+import { Input } from '../components/Common/Input';
+
+export const HeroSlideEditorPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isEditMode = !!id;
+
+  const [isLoading, setIsLoading] = useState(isEditMode);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const [formData, setFormData] = useState({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    featured_image: '',
+  });
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      loadContent(id);
+    }
+  }, [id, isEditMode]);
+
+  const loadContent = async (contentId: string) => {
+    try {
+      setIsLoading(true);
+      const data = await contentService.getById(contentId);
+
+      // Check if user can edit this content
+      if (user?.role !== 'admin' && data.created_by !== user?.id) {
+        setError('You do not have permission to edit this content');
+        return;
+      }
+
+      if (!['draft', 'changes_requested'].includes(data.status)) {
+        setError('You can only edit content in draft or changes_requested status');
+        return;
+      }
+
+      setFormData({
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || '',
+        content: data.body || '',
+        featured_image: data.featured_image_url || '',
+      });
+    } catch (error: any) {
+      setError(error.response?.data?.error || 'Failed to load content');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  const handleTitleChange = (title: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title,
+      slug: (!isEditMode || !prev.slug) ? generateSlug(title) : prev.slug,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSaving(true);
+
+    try {
+      const payload = {
+        type: 'hero_slide' as const,
+        title: formData.title,
+        slug: formData.slug,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        featured_image: formData.featured_image,
+        tags: [],
+      };
+
+      if (isEditMode && id) {
+        await contentService.update(id, payload);
+      } else {
+        await contentService.create(payload);
+      }
+
+      navigate('/admin/hero-slides');
+    } catch (error: any) {
+      setError(error.response?.data?.error || 'Failed to save hero slide');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (confirm('Are you sure you want to discard your changes?')) {
+      navigate('/admin/hero-slides');
+    }
+  };
+
+  // Parse button data from content field
+  let buttonData = { buttonText: '', buttonLink: '' };
+  try {
+    buttonData = JSON.parse(formData.content || '{}');
+  } catch {
+    buttonData = { buttonText: '', buttonLink: '' };
+  }
+
+  const updateButtonData = (field: string, value: string) => {
+    const current = { ...buttonData, [field]: value };
+    setFormData(prev => ({ ...prev, content: JSON.stringify(current) }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading hero slide...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && isEditMode) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-red-900 mb-2">Error</h3>
+        <p className="text-red-700">{error}</p>
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/admin/hero-slides')}
+          className="mt-4"
+        >
+          Back to Hero Slides
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {isEditMode ? 'Edit Hero Slide' : 'Create New Hero Slide'}
+        </h1>
+        <p className="text-gray-600 mt-1">
+          {isEditMode ? 'Update the hero slide details below' : 'Fill in the details to create a new hero slide'}
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Basic Info Card */}
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Slide Information</h2>
+
+          <Input
+            type="text"
+            label="Title"
+            placeholder="Enter slide title (main heading)"
+            value={formData.title}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            required
+            autoFocus
+            helperText="The main headline displayed on the slide"
+          />
+
+          <Input
+            type="text"
+            label="Slug (URL)"
+            placeholder="slide-url-slug"
+            value={formData.slug}
+            onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+            required
+            helperText="This will be used in the slide identifier"
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Subtitle / Description
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <textarea
+              placeholder="Brief description or tagline for the slide"
+              value={formData.excerpt}
+              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+              required
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <Input
+            type="url"
+            label="Featured Image URL"
+            placeholder="https://example.com/hero-image.jpg"
+            value={formData.featured_image}
+            onChange={(e) => setFormData(prev => ({ ...prev, featured_image: e.target.value }))}
+            required
+            helperText="Full-width background image for the slide (recommended: 1920x1080)"
+          />
+        </div>
+
+        {/* Call-to-Action Card */}
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Call-to-Action Button</h2>
+
+          <Input
+            type="text"
+            label="Button Text"
+            placeholder="Learn More"
+            value={buttonData.buttonText}
+            onChange={(e) => updateButtonData('buttonText', e.target.value)}
+            helperText="Text displayed on the button (leave empty to hide button)"
+          />
+
+          <Input
+            type="url"
+            label="Button Link"
+            placeholder="https://example.com/page"
+            value={buttonData.buttonLink}
+            onChange={(e) => updateButtonData('buttonLink', e.target.value)}
+            helperText="URL the button links to"
+          />
+        </div>
+
+        {/* Preview Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Preview</h2>
+          <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
+            {formData.featured_image ? (
+              <img
+                src={formData.featured_image}
+                alt={formData.title}
+                className="w-full h-full object-cover opacity-70"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                No image
+              </div>
+            )}
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
+                {formData.title || 'Hero Slide Title'}
+              </h1>
+              {formData.excerpt && (
+                <p className="text-xl md:text-2xl mb-6 drop-shadow-lg max-w-2xl">
+                  {formData.excerpt}
+                </p>
+              )}
+              {buttonData.buttonText && (
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg">
+                  {buttonData.buttonText}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center bg-white rounded-lg shadow p-6">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+            disabled={isSaving}
+          >
+            Cancel
+          </Button>
+
+          <div className="flex gap-3">
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isSaving}
+              disabled={isSaving || !formData.title || !formData.slug || !formData.excerpt || !formData.featured_image}
+            >
+              {isEditMode ? 'Update Hero Slide' : 'Create Hero Slide'}
+            </Button>
+          </div>
+        </div>
+      </form>
+
+      {/* Help Text */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-blue-900 mb-2">
+          📝 Hero Slide Tips
+        </h3>
+        <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+          <li>Use high-quality, wide images (1920x1080 recommended)</li>
+          <li>Keep titles short and impactful (5-8 words)</li>
+          <li>Make subtitles concise and clear</li>
+          <li>Use action-oriented button text (e.g., "Get Started", "Learn More")</li>
+          <li>Test how the slide looks on different screen sizes</li>
+        </ul>
+      </div>
+    </div>
+  );
+};

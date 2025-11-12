@@ -1,0 +1,305 @@
+import React, { useEffect, useState } from 'react';
+import { contentService } from '../services/contentService';
+import { Content } from '../types/content.types';
+import { Button } from '../components/Common/Button';
+
+export const ApprovalQueuePage: React.FC = () => {
+  const [content, setContent] = useState<Content[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<Content | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadApprovalQueue();
+  }, []);
+
+  const loadApprovalQueue = async () => {
+    try {
+      setIsLoading(true);
+      // Get all content in approved status
+      const allContent = await contentService.getAll({});
+      const approvedItems = allContent.filter(item => item.status === 'approved');
+      setContent(approvedItems);
+    } catch (error) {
+      console.error('Failed to load approval queue:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePublish = async (id: string) => {
+    if (!confirm('Are you sure you want to publish this content? It will be visible on the public website.')) return;
+
+    try {
+      setIsSubmitting(true);
+      await contentService.publish(id);
+      await loadApprovalQueue();
+      setSelectedItem(null);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to publish content');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getContentTypeBadge = (type: string) => {
+    const styles = {
+      news: 'bg-blue-100 text-blue-800',
+      hero_slide: 'bg-purple-100 text-purple-800',
+    };
+
+    const labels = {
+      news: 'News Article',
+      hero_slide: 'Hero Slide',
+    };
+
+    return (
+      <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[type as keyof typeof styles]}`}>
+        {labels[type as keyof typeof labels]}
+      </span>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading approval queue...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedItem) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Publish Content</h1>
+            <p className="text-gray-600 mt-1">Final review before publishing</p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => setSelectedItem(null)}
+          >
+            Back to Queue
+          </Button>
+        </div>
+
+        {/* Content Info */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-3 mb-4">
+            {getContentTypeBadge(selectedItem.type)}
+            <span className="px-3 py-1 text-sm font-semibold rounded bg-green-100 text-green-800">
+              Approved by Reviewer
+            </span>
+            <span className="text-sm text-gray-500">
+              Created by {selectedItem.creator_name}
+            </span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {selectedItem.title}
+          </h2>
+          {selectedItem.excerpt && (
+            <p className="text-gray-600">{selectedItem.excerpt}</p>
+          )}
+        </div>
+
+        {/* Content Preview */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Content Preview</h3>
+
+          {selectedItem.featured_image_url && (
+            <img
+              src={selectedItem.featured_image_url}
+              alt={selectedItem.title}
+              className="w-full h-64 object-cover rounded-lg mb-4"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          )}
+
+          {selectedItem.type === 'news' ? (
+            <div
+              className="prose prose-sm sm:prose lg:prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ __html: selectedItem.body || '' }}
+            />
+          ) : (
+            <div className="space-y-2">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Subtitle</p>
+                <p className="text-base text-gray-900">{selectedItem.excerpt}</p>
+              </div>
+              {selectedItem.body && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Button Configuration</p>
+                  <pre className="text-sm bg-gray-50 p-3 rounded">
+                    {JSON.stringify(JSON.parse(selectedItem.body), null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Review Notes */}
+        {selectedItem.review_notes && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-green-900 mb-2">
+              Reviewer Notes
+            </h3>
+            <p className="text-green-800">{selectedItem.review_notes}</p>
+          </div>
+        )}
+
+        {/* Publish Action */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Publish to Website</h3>
+          <p className="text-gray-600 mb-6">
+            This content has been reviewed and approved. Publishing will make it visible on the public website immediately.
+          </p>
+
+          <div className="flex gap-3">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => handlePublish(selectedItem.id)}
+              disabled={isSubmitting}
+              isLoading={isSubmitting}
+            >
+              🚀 Publish Now
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => setSelectedItem(null)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Approval Queue</h1>
+        <p className="text-gray-600 mt-1">
+          Approved content ready for publishing ({content.length} items)
+        </p>
+      </div>
+
+      {/* Queue List */}
+      {content.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Approval queue is empty</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            No approved content is currently waiting to be published
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Content
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Author
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Approved
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {content.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      {item.featured_image_url && (
+                        <img
+                          src={item.featured_image_url}
+                          alt={item.title}
+                          className="h-10 w-16 object-cover rounded mr-3"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {item.title}
+                        </div>
+                        {item.excerpt && (
+                          <div className="text-sm text-gray-500 truncate max-w-md">
+                            {item.excerpt}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getContentTypeBadge(item.type)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{item.creator_name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(item.updated_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setSelectedItem(item)}
+                      >
+                        Preview
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handlePublish(item.id)}
+                        disabled={isSubmitting}
+                      >
+                        Publish
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
