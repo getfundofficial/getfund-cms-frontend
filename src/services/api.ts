@@ -1,6 +1,9 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use relative URL in development to leverage Vite proxy, absolute URL in production
+const API_URL = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_URL || 'http://localhost:5000/api')
+  : '/api';
 
 class ApiService {
   private api: AxiosInstance;
