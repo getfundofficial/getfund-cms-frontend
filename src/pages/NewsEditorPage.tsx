@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
+import mediaService, { Media } from '../services/mediaService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
+import MediaPickerModal from '../components/Media/MediaPickerModal';
 
 export const NewsEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +17,7 @@ export const NewsEditorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -114,6 +117,17 @@ export const NewsEditorPage: React.FC = () => {
     }
   };
 
+  const handleMediaSelect = (media: Media) => {
+    const fullUrl = mediaService.getFullUrl(media.url);
+    setFormData(prev => ({ ...prev, featured_image: fullUrl }));
+  };
+
+  const handleRemoveImage = () => {
+    if (confirm('Remove featured image?')) {
+      setFormData(prev => ({ ...prev, featured_image: '' }));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -201,14 +215,76 @@ export const NewsEditorPage: React.FC = () => {
             />
           </div>
 
-          <Input
-            type="url"
-            label="Featured Image URL"
-            placeholder="https://example.com/image.jpg"
-            value={formData.featured_image}
-            onChange={(e) => setFormData(prev => ({ ...prev, featured_image: e.target.value }))}
-            helperText="Optional: URL of the main image for this article"
-          />
+          {/* Featured Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Featured Image
+            </label>
+
+            {formData.featured_image ? (
+              /* Image Preview */
+              <div className="space-y-3">
+                <div className="relative inline-block">
+                  <img
+                    src={formData.featured_image}
+                    alt="Featured"
+                    className="h-48 w-auto rounded-lg border border-gray-300"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                    title="Remove image"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaPickerOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Change Image
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* No Image - Show Upload Button */
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p className="mt-2 text-sm text-gray-600">No featured image</p>
+                <button
+                  type="button"
+                  onClick={() => setIsMediaPickerOpen(true)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Upload or Select Image
+                </button>
+              </div>
+            )}
+            <p className="mt-2 text-xs text-gray-500">
+              Optional: Main image for this article
+            </p>
+          </div>
 
           <Input
             type="text"
@@ -296,6 +372,14 @@ export const NewsEditorPage: React.FC = () => {
           <li>After saving, you can submit the article for review</li>
         </ul>
       </div>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={handleMediaSelect}
+        allowUpload={true}
+      />
     </div>
   );
 };

@@ -10,6 +10,8 @@ import { HeroSlideEditorPage } from './pages/HeroSlideEditorPage';
 import { HeroSlideViewPage } from './pages/HeroSlideViewPage';
 import { ReviewQueuePage } from './pages/ReviewQueuePage';
 import { ApprovalQueuePage } from './pages/ApprovalQueuePage';
+import MediaLibraryPage from './pages/MediaLibraryPage';
+import UsersListPage from './pages/UsersListPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -142,6 +144,30 @@ function App() {
               <ProtectedRoute requiredRoles={['approver', 'admin']}>
                 <AdminLayout>
                   <ApprovalQueuePage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Media Library Route */}
+          <Route
+            path="/admin/media"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <MediaLibraryPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Users Management Route (Admin Only) */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <UsersListPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
