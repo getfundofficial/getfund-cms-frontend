@@ -40,8 +40,13 @@ export const LoginPage: React.FC = () => {
       <div className="max-w-md w-full">
         {/* Logo/Title */}
         <div className="text-center mb-8">
+          <img
+            src="/images/logos/getfund-logo.png"
+            alt="GETFund Logo"
+            className="h-24 mx-auto mb-4"
+          />
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            🏛️ GETFund CMS
+            GETFund CMS
           </h1>
           <p className="text-gray-600">Content Management System</p>
         </div>

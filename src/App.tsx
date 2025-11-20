@@ -10,8 +10,14 @@ import { HeroSlideEditorPage } from './pages/HeroSlideEditorPage';
 import { HeroSlideViewPage } from './pages/HeroSlideViewPage';
 import { ReviewQueuePage } from './pages/ReviewQueuePage';
 import { ApprovalQueuePage } from './pages/ApprovalQueuePage';
+import { AuditLogsPage } from './pages/AuditLogsPage';
 import MediaLibraryPage from './pages/MediaLibraryPage';
 import UsersListPage from './pages/UsersListPage';
+import { PagesListPage } from './pages/PagesListPage';
+import { PageEditorPage } from './pages/PageEditorPage';
+import { PagePermissionsPage } from './pages/PagePermissionsPage';
+import { SectionEditorPage } from './pages/SectionEditorPage';
+import { MenuManagementPage } from './pages/MenuManagementPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -149,6 +155,18 @@ function App() {
             }
           />
 
+          {/* Audit Logs Route (Admin Only) */}
+          <Route
+            path="/admin/audit-logs"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <AuditLogsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Media Library Route */}
           <Route
             path="/admin/media"
@@ -168,6 +186,85 @@ function App() {
               <ProtectedRoute requiredRoles={['admin']}>
                 <AdminLayout>
                   <UsersListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Menu Management Route (Admin Only) */}
+          <Route
+            path="/admin/menu"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <MenuManagementPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Pages CMS Routes */}
+          <Route
+            path="/admin/pages"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <PagesListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/pages/new"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <PageEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/pages/:slug/permissions"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <PagePermissionsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/pages/:slug"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <PageEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/pages/:slug/sections/new"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <SectionEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/pages/:slug/sections/:sectionKey"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <SectionEditorPage />
                 </AdminLayout>
               </ProtectedRoute>
             }

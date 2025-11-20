@@ -15,6 +15,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       withCredentials: true, // For cookies
+      timeout: 180000, // 180 seconds (3 minutes) - allows for database wake-up time
     });
 
     // Request interceptor to add token

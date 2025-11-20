@@ -7,6 +7,8 @@ import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
 import MediaPickerModal from '../components/Media/MediaPickerModal';
+import { useAutoSave, useLocalStorageRecovery } from '../hooks/useAutoSave';
+import { AutoSaveIndicator } from '../components/Common/AutoSaveIndicator';
 
 export const NewsEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,54 @@ export const NewsEditorPage: React.FC = () => {
     featured_image: '',
     tags: '',
   });
+
+  // Auto-save configuration
+  const localStorageKey = isEditMode ? `news-draft-${id}` : 'news-draft-new';
+
+  // Recover from localStorage on mount
+  const { data: recoveredData, timestamp: recoveryTimestamp, clear: clearRecovery } =
+    useLocalStorageRecovery<typeof formData>(localStorageKey);
+
+  // Auto-save hook
+  const { status: autoSaveStatus, lastSaved, error: autoSaveError } = useAutoSave({
+    data: formData,
+    onSave: async (data) => {
+      if (isEditMode && id) {
+        await contentService.update(id, {
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt,
+          body: data.content,
+          featured_image_url: data.featured_image || undefined,
+        });
+      }
+      // Don't auto-save new articles, only updates
+    },
+    delay: 3000, // 3 seconds debounce
+    enabled: isEditMode && !isSaving, // Only auto-save in edit mode and when not manually saving
+    localStorageKey,
+  });
+
+  // Show recovery prompt if data exists
+  useEffect(() => {
+    if (recoveredData && recoveryTimestamp) {
+      const timeDiff = new Date().getTime() - new Date(recoveryTimestamp).getTime();
+      const minutesAgo = Math.floor(timeDiff / 60000);
+
+      if (minutesAgo < 60) { // Only show if less than 1 hour old
+        const shouldRecover = confirm(
+          `Found unsaved changes from ${minutesAgo} minute${minutesAgo !== 1 ? 's' : ''} ago. Do you want to restore them?`
+        );
+
+        if (shouldRecover) {
+          setFormData(recoveredData);
+        }
+        clearRecovery();
+      } else {
+        clearRecovery();
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (isEditMode && id) {
@@ -158,13 +208,23 @@ export const NewsEditorPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {isEditMode ? 'Edit Article' : 'Create New Article'}
-        </h1>
-        <p className="text-gray-600 mt-1">
-          {isEditMode ? 'Update the article details below' : 'Fill in the details to create a new article'}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isEditMode ? 'Edit Article' : 'Create New Article'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {isEditMode ? 'Update the article details below' : 'Fill in the details to create a new article'}
+          </p>
+        </div>
+        {isEditMode && (
+          <AutoSaveIndicator
+            status={autoSaveStatus}
+            lastSaved={lastSaved}
+            error={autoSaveError}
+            className="mt-1"
+          />
+        )}
       </div>
 
       {/* Form */}

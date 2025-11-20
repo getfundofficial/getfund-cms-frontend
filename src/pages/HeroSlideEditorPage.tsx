@@ -6,6 +6,8 @@ import mediaService, { Media } from '../services/mediaService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 import MediaPickerModal from '../components/Media/MediaPickerModal';
+import { useAutoSave, useLocalStorageRecovery } from '../hooks/useAutoSave';
+import { AutoSaveIndicator } from '../components/Common/AutoSaveIndicator';
 
 export const HeroSlideEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +28,53 @@ export const HeroSlideEditorPage: React.FC = () => {
     featured_image: '',
   });
 
+  // Auto-save configuration
+  const localStorageKey = isEditMode ? `hero-draft-${id}` : 'hero-draft-new';
+
+  // Recover from localStorage on mount
+  const { data: recoveredData, timestamp: recoveryTimestamp, clear: clearRecovery } =
+    useLocalStorageRecovery<typeof formData>(localStorageKey);
+
+  // Auto-save hook
+  const { status: autoSaveStatus, lastSaved, error: autoSaveError } = useAutoSave({
+    data: formData,
+    onSave: async (data) => {
+      if (isEditMode && id) {
+        await contentService.update(id, {
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt,
+          body: data.content,
+          featured_image_url: data.featured_image || undefined,
+        });
+      }
+    },
+    delay: 3000,
+    enabled: isEditMode && !isSaving,
+    localStorageKey,
+  });
+
+  // Show recovery prompt if data exists
+  useEffect(() => {
+    if (recoveredData && recoveryTimestamp) {
+      const timeDiff = new Date().getTime() - new Date(recoveryTimestamp).getTime();
+      const minutesAgo = Math.floor(timeDiff / 60000);
+
+      if (minutesAgo < 60) {
+        const shouldRecover = confirm(
+          `Found unsaved changes from ${minutesAgo} minute${minutesAgo !== 1 ? 's' : ''} ago. Do you want to restore them?`
+        );
+
+        if (shouldRecover) {
+          setFormData(recoveredData);
+        }
+        clearRecovery();
+      } else {
+        clearRecovery();
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (isEditMode && id) {
       loadContent(id);
@@ -43,10 +92,8 @@ export const HeroSlideEditorPage: React.FC = () => {
         return;
       }
 
-      if (!['draft', 'changes_requested'].includes(data.status)) {
-        setError('You can only edit content in draft or changes_requested status');
-        return;
-      }
+      // Allow editing in any status for simplified workflow
+      console.log('[Hero Editor] Loaded slide:', data.title, 'Status:', data.status);
 
       setFormData({
         title: data.title,
@@ -56,6 +103,7 @@ export const HeroSlideEditorPage: React.FC = () => {
         featured_image: data.featured_image_url || '',
       });
     } catch (error: any) {
+      console.error('[Hero Editor] Load error:', error);
       setError(error.response?.data?.error || 'Failed to load content');
     } finally {
       setIsLoading(false);
@@ -93,14 +141,26 @@ export const HeroSlideEditorPage: React.FC = () => {
         tags: [],
       };
 
+      let slideId = id;
+      
       if (isEditMode && id) {
+        console.log('[Hero Editor] Updating slide:', id);
         await contentService.update(id, payload);
       } else {
-        await contentService.create(payload);
+        console.log('[Hero Editor] Creating new slide');
+        const created = await contentService.create(payload);
+        slideId = created.id;
       }
 
+      // Auto-publish the slide so it appears immediately on the website
+      console.log('[Hero Editor] Publishing slide:', slideId);
+      await contentService.publish(slideId);
+      console.log('[Hero Editor] Slide published successfully');
+
+      alert('Hero slide saved and published! It should appear on the website immediately.');
       navigate('/admin/hero-slides');
     } catch (error: any) {
+      console.error('[Hero Editor] Save error:', error);
       setError(error.response?.data?.error || 'Failed to save hero slide');
     } finally {
       setIsSaving(false);
@@ -167,13 +227,23 @@ export const HeroSlideEditorPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {isEditMode ? 'Edit Hero Slide' : 'Create New Hero Slide'}
-        </h1>
-        <p className="text-gray-600 mt-1">
-          {isEditMode ? 'Update the hero slide details below' : 'Fill in the details to create a new hero slide'}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isEditMode ? 'Edit Hero Slide' : 'Create New Hero Slide'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {isEditMode ? 'Update the hero slide details below' : 'Fill in the details to create a new hero slide'}
+          </p>
+        </div>
+        {isEditMode && (
+          <AutoSaveIndicator
+            status={autoSaveStatus}
+            lastSaved={lastSaved}
+            error={autoSaveError}
+            className="mt-1"
+          />
+        )}
       </div>
 
       {/* Form */}
@@ -376,7 +446,7 @@ export const HeroSlideEditorPage: React.FC = () => {
               isLoading={isSaving}
               disabled={isSaving || !formData.title || !formData.slug || !formData.excerpt || !formData.featured_image}
             >
-              {isEditMode ? 'Update Hero Slide' : 'Create Hero Slide'}
+              {isSaving ? 'Publishing...' : (isEditMode ? 'Update & Publish' : 'Create & Publish')}
             </Button>
           </div>
         </div>

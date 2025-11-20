@@ -54,35 +54,6 @@ export const HeroSlidesListPage: React.FC = () => {
     }
   };
 
-  const handleSubmitForReview = async (id: string) => {
-    try {
-      await contentService.submit(id);
-      await loadContent();
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to submit for review');
-    }
-  };
-
-  const handlePublish = async (id: string) => {
-    try {
-      await contentService.publish(id);
-      await loadContent();
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to publish');
-    }
-  };
-
-  const handleUnpublish = async (id: string) => {
-    if (!confirm('Are you sure you want to unpublish this hero slide?')) return;
-
-    try {
-      await contentService.unpublish(id);
-      await loadContent();
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to unpublish');
-    }
-  };
-
   const getStatusBadge = (status: WorkflowStatus) => {
     const styles = {
       draft: 'bg-gray-100 text-gray-800',
@@ -109,33 +80,12 @@ export const HeroSlidesListPage: React.FC = () => {
 
   const canEdit = (item: Content) => {
     if (user?.role === 'admin') return true;
-    if (user?.role === 'creator' && item.created_by === user?.id) {
-      return ['draft', 'changes_requested'].includes(item.status);
-    }
-    return false;
+    return user?.role === 'creator' && item.created_by === user?.id;
   };
 
   const canDelete = (item: Content) => {
     if (user?.role === 'admin') return true;
-    if (user?.role === 'creator' && item.created_by === user?.id) {
-      return item.status === 'draft';
-    }
-    return false;
-  };
-
-  const canSubmit = (item: Content) => {
-    if (user?.role !== 'creator' && user?.role !== 'admin') return false;
-    return item.status === 'draft' || item.status === 'changes_requested';
-  };
-
-  const canPublish = (item: Content) => {
-    if (user?.role !== 'approver' && user?.role !== 'admin') return false;
-    return item.status === 'approved';
-  };
-
-  const canUnpublish = (item: Content) => {
-    if (user?.role !== 'admin') return false;
-    return item.status === 'published';
+    return user?.role === 'creator' && item.created_by === user?.id;
   };
 
   if (isLoading) {
@@ -256,56 +206,31 @@ export const HeroSlidesListPage: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => navigate(`/admin/hero-slides/${item.id}`)}
-                    className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    View
-                  </button>
-
                   {canEdit(item) && (
                     <button
                       onClick={() => navigate(`/admin/hero-slides/${item.id}/edit`)}
-                      className="flex-1 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
                     >
                       Edit
-                    </button>
-                  )}
-
-                  {canSubmit(item) && (
-                    <button
-                      onClick={() => handleSubmitForReview(item.id)}
-                      className="flex-1 text-yellow-600 hover:text-yellow-800 text-sm font-medium"
-                    >
-                      Submit
-                    </button>
-                  )}
-
-                  {canPublish(item) && (
-                    <button
-                      onClick={() => handlePublish(item.id)}
-                      className="flex-1 text-green-600 hover:text-green-800 text-sm font-medium"
-                    >
-                      Publish
-                    </button>
-                  )}
-
-                  {canUnpublish(item) && (
-                    <button
-                      onClick={() => handleUnpublish(item.id)}
-                      className="flex-1 text-orange-600 hover:text-orange-800 text-sm font-medium"
-                    >
-                      Unpublish
                     </button>
                   )}
 
                   {canDelete(item) && (
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="flex-1 text-red-600 hover:text-red-800 text-sm font-medium"
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
                     >
                       Delete
                     </button>
+                  )}
+                </div>
+                
+                {/* Status Info */}
+                <div className="mt-2 text-xs text-gray-500">
+                  {item.status === 'published' ? (
+                    <span className="text-green-600 font-medium">✓ Live on website</span>
+                  ) : (
+                    <span className="text-orange-600">Not published yet</span>
                   )}
                 </div>
               </div>

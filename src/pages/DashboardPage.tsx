@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { DashboardStats } from '../types/content.types';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -130,7 +132,10 @@ export const DashboardPage: React.FC = () => {
           <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {(user?.role === 'admin' || user?.role === 'creator') && (
-              <button className="flex items-center p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left">
+              <button
+                onClick={() => navigate('/admin/news/new')}
+                className="flex items-center p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left"
+              >
                 <div className="bg-blue-100 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -144,7 +149,10 @@ export const DashboardPage: React.FC = () => {
             )}
 
             {(user?.role === 'admin' || user?.role === 'creator') && (
-              <button className="flex items-center p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left">
+              <button
+                onClick={() => navigate('/admin/hero-slides/new')}
+                className="flex items-center p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left"
+              >
                 <div className="bg-purple-100 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -157,7 +165,10 @@ export const DashboardPage: React.FC = () => {
               </button>
             )}
 
-            <button className="flex items-center p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition text-left">
+            <button
+              onClick={() => navigate('/admin/news')}
+              className="flex items-center p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition text-left"
+            >
               <div className="bg-green-100 rounded-full p-3 mr-4">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -169,8 +180,11 @@ export const DashboardPage: React.FC = () => {
               </div>
             </button>
 
-            {(user?.role === 'reviewer') && (
-              <button className="flex items-center p-4 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition text-left">
+            {(user?.role === 'reviewer' || user?.role === 'admin') && (
+              <button
+                onClick={() => navigate('/admin/review')}
+                className="flex items-center p-4 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition text-left"
+              >
                 <div className="bg-yellow-100 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -184,7 +198,10 @@ export const DashboardPage: React.FC = () => {
             )}
 
             {(user?.role === 'approver' || user?.role === 'admin') && (
-              <button className="flex items-center p-4 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left">
+              <button
+                onClick={() => navigate('/admin/approval')}
+                className="flex items-center p-4 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left"
+              >
                 <div className="bg-indigo-100 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -198,7 +215,10 @@ export const DashboardPage: React.FC = () => {
             )}
 
             {user?.role === 'admin' && (
-              <button className="flex items-center p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left">
+              <button
+                onClick={() => navigate('/admin/users')}
+                className="flex items-center p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left"
+              >
                 <div className="bg-red-100 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
