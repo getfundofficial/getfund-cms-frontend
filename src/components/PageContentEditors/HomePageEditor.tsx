@@ -57,6 +57,11 @@ interface HomePageEditorProps {
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<'hero' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
 
+  // Debug logging
+  console.log('[HomePageEditor] Received content:', content);
+  console.log('[HomePageEditor] Hero slides count:', content?.heroSlides?.length || 0);
+  console.log('[HomePageEditor] Hero slides:', content?.heroSlides);
+
   const updateContent = (updates: Partial<HomePageContent>) => {
     onChange({ ...content, ...updates });
   };

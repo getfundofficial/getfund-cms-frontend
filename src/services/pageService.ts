@@ -13,6 +13,11 @@ export interface Page {
   layout_display_name?: string;
   layout_structure?: any;
   template_variables?: Record<string, any>;
+  show_in_menu?: boolean;
+  menu_order?: number;
+  menu_label?: string;
+  is_cta_button?: boolean;
+  parent_page_id?: string | null;
   created_by: string;
   updated_by: string;
   created_at: string;
@@ -210,6 +215,21 @@ export const pageService = {
 
   async deleteSection(slug: string, sectionKey: string): Promise<void> {
     await api.delete(`/pages/${slug}/sections/${sectionKey}`);
+  },
+
+  // Menu Configuration
+  async updateMenuConfig(
+    slug: string,
+    data: {
+      show_in_menu?: boolean;
+      menu_order?: number;
+      menu_label?: string;
+      is_cta_button?: boolean;
+      parent_page_id?: string | null;
+    }
+  ): Promise<Page> {
+    const response = await api.put(`/pages/${slug}/menu-config`, data);
+    return response.data.page;
   },
 
   // Permissions

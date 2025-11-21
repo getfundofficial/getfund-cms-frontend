@@ -146,6 +146,7 @@ export const HeroSlideEditorPage: React.FC = () => {
       if (isEditMode && id) {
         console.log('[Hero Editor] Updating slide:', id);
         await contentService.update(id, payload);
+        slideId = id;
       } else {
         console.log('[Hero Editor] Creating new slide');
         const created = await contentService.create(payload);
@@ -153,9 +154,11 @@ export const HeroSlideEditorPage: React.FC = () => {
       }
 
       // Auto-publish the slide so it appears immediately on the website
-      console.log('[Hero Editor] Publishing slide:', slideId);
-      await contentService.publish(slideId);
-      console.log('[Hero Editor] Slide published successfully');
+      if (slideId) {
+        console.log('[Hero Editor] Publishing slide:', slideId);
+        await contentService.publish(slideId);
+        console.log('[Hero Editor] Slide published successfully');
+      }
 
       alert('Hero slide saved and published! It should appear on the website immediately.');
       navigate('/admin/hero-slides');

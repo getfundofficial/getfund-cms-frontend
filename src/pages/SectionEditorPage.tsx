@@ -8,6 +8,12 @@ import { StatsEditor } from '../components/SectionEditors/StatsEditor';
 import { HeroEditor } from '../components/SectionEditors/HeroEditor';
 import { PageContentEditor } from '../components/SectionEditors/PageContentEditor';
 import { HomePageEditor } from '../components/PageContentEditors/HomePageEditor';
+import { SupportUsEditor } from '../components/PageContentEditors/SupportUsEditor';
+import { WhoWeAreEditor } from '../components/PageContentEditors/WhoWeAreEditor';
+import { ImpactEditor } from '../components/PageContentEditors/ImpactEditor';
+import { ResourcesEditor } from '../components/PageContentEditors/ResourcesEditor';
+import { WhatWeDoEditor } from '../components/PageContentEditors/WhatWeDoEditor';
+import { GenericPageContentEditor } from '../components/PageContentEditors/GenericPageContentEditor';
 
 export const SectionEditorPage: React.FC = () => {
   const { slug, sectionKey } = useParams<{ slug: string; sectionKey: string }>();
@@ -18,6 +24,7 @@ export const SectionEditorPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [section, setSection] = useState<PageSection | null>(null);
+  const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
   const [formData, setFormData] = useState({
     section_key: '',
@@ -40,6 +47,9 @@ export const SectionEditorPage: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await pageService.getSection(slug, sectionKey);
+      console.log('[SectionEditorPage] Loaded section data:', data);
+      console.log('[SectionEditorPage] Section content:', data.content);
+      console.log('[SectionEditorPage] Content heroSlides:', (data.content as any)?.heroSlides);
       setSection(data);
       setFormData({
         section_key: data.section_key,
@@ -227,7 +237,7 @@ export const SectionEditorPage: React.FC = () => {
         );
 
       case 'page_content':
-        // Use HomePageEditor for home page, generic PageContentEditor for others
+        // Use custom editors for specific pages
         if (slug === 'home') {
           return (
             <HomePageEditor
@@ -236,9 +246,50 @@ export const SectionEditorPage: React.FC = () => {
             />
           );
         }
+        if (slug === 'support-us') {
+          return (
+            <SupportUsEditor
+              initialData={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'who-we-are') {
+          return (
+            <WhoWeAreEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'impact') {
+          return (
+            <ImpactEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'resources') {
+          return (
+            <ResourcesEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'what-we-do') {
+          return (
+            <WhatWeDoEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // Use generic JSON editor for other pages without custom editors
         return (
-          <PageContentEditor
-            initialData={formData.content}
+          <GenericPageContentEditor
+            content={formData.content}
             onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
           />
         );
@@ -312,10 +363,26 @@ export const SectionEditorPage: React.FC = () => {
         </div>
 
         {/* Section Settings Card - Now at the bottom */}
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Section Settings</h2>
+        <div className="bg-white rounded-lg shadow">
+          <button
+            type="button"
+            onClick={() => setIsSettingsCollapsed(!isSettingsCollapsed)}
+            className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
+          >
+            <h2 className="text-xl font-semibold text-gray-900">Section Settings</h2>
+            <svg
+              className={`w-5 h-5 text-gray-500 transition-transform ${isSettingsCollapsed ? '' : 'rotate-180'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-          <Input
+          {!isSettingsCollapsed && (
+            <div className="px-6 pb-6 space-y-4 border-t border-gray-100">
+              <Input
             type="text"
             label="Section Title"
             placeholder="Mission Statement"
@@ -380,6 +447,8 @@ export const SectionEditorPage: React.FC = () => {
               Show section on website
             </label>
           </div>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}

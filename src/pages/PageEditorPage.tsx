@@ -14,6 +14,7 @@ const AVAILABLE_PAGE_TEMPLATES = [
   { name: 'scholarship-programme', displayName: 'Scholarship Programme', description: 'Template for scholarship programs with eligibility, process, and success stories' },
   { name: 'infrastructure-projects', displayName: 'Infrastructure Projects', description: 'Template for showcasing infrastructure development projects' },
   { name: 'impact', displayName: 'Impact', description: 'Template for displaying impact statistics, stories, and regional data' },
+  { name: 'support-us', displayName: 'Support Us', description: 'Template for donations and support page with impact stats, support options, and scholarship info' },
   { name: 'faq', displayName: 'FAQ', description: 'Template for frequently asked questions with collapsible sections' },
   { name: 'contact', displayName: 'Contact Page', description: 'Template for Contact pages with contact form, office locations, and social media links' },
   { name: 'generic', displayName: 'Generic Page', description: 'Use custom sections (hero, text, stats, etc.) to build the page' },
@@ -30,6 +31,7 @@ export const PageEditorPage: React.FC = () => {
   const [error, setError] = useState('');
   const [page, setPage] = useState<Page | null>(null);
   const [sections, setSections] = useState<PageSection[]>([]);
+  const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
   const [formData, setFormData] = useState({
     slug: '',
@@ -242,10 +244,26 @@ export const PageEditorPage: React.FC = () => {
         )}
 
         {/* Page Settings Card - Now at the bottom */}
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Page Settings</h2>
+        <div className="bg-white rounded-lg shadow">
+          <button
+            type="button"
+            onClick={() => setIsSettingsCollapsed(!isSettingsCollapsed)}
+            className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
+          >
+            <h2 className="text-xl font-semibold text-gray-900">Page Settings</h2>
+            <svg
+              className={`w-5 h-5 text-gray-500 transition-transform ${isSettingsCollapsed ? '' : 'rotate-180'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-          <Input
+          {!isSettingsCollapsed && (
+            <div className="px-6 pb-6 space-y-4 border-t border-gray-100">
+              <Input
             type="text"
             label="Title"
             placeholder="About Us"
@@ -310,6 +328,8 @@ export const PageEditorPage: React.FC = () => {
               💡 Templates are managed in code at: getfund-website/src/templates/pages/
             </p>
           </div>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
