@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { Input } from '../Common/Input';
+import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react';
 
 interface HeroSlide {
@@ -204,10 +205,10 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                 </div>
               </div>
 
-              <Input
+              <ImageInput
                 label="Image URL"
                 value={slide.image}
-                onChange={(e) => updateHeroSlide(index, { ...slide, image: e.target.value })}
+                onChange={(value) => updateHeroSlide(index, { ...slide, image: value })}
                 placeholder="/images/hero/slide.jpg"
               />
 

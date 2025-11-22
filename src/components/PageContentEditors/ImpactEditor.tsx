@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from '../Common/Input';
+import { ImageInput } from '../Common/ImageInput';
 
 interface StatItem {
   number: string;
@@ -406,10 +407,10 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
                         placeholder="Share their impact story..."
                       />
                     </div>
-                    <Input
+                    <ImageInput
                       label="Image URL"
                       value={story.image}
-                      onChange={(e) => updateStory(index, { image: e.target.value })}
+                      onChange={(value) => updateStory(index, { image: value })}
                       placeholder="/images/impact/student-1.jpg"
                     />
                   </div>

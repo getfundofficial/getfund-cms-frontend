@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { Input } from '../Common/Input';
+import { ImageInput } from '../Common/ImageInput';
 
 interface WhoWeAreContent {
   // Hero Section
@@ -154,10 +155,10 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
         {activeTab === 'about' && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-4">About GETFund Section</h3>
-            <Input
+            <ImageInput
               label="Main Image URL"
               value={content.mainImage || ''}
-              onChange={(e) => updateContent({ mainImage: e.target.value })}
+              onChange={(value) => updateContent({ mainImage: value })}
               placeholder="/images/about/getfund-board.jpg"
             />
             <Input
@@ -373,10 +374,10 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
               onChange={(e) => updateContent({ leadershipSubtitle: e.target.value })}
               placeholder="Strong leadership and transparent governance..."
             />
-            <Input
+            <ImageInput
               label="Board Image URL"
               value={content.boardImage || ''}
-              onChange={(e) => updateContent({ boardImage: e.target.value })}
+              onChange={(value) => updateContent({ boardImage: value })}
               placeholder="/images/about/getfund-board.jpg"
             />
             <Input
