@@ -263,7 +263,7 @@ const UsersListPage: React.FC = () => {
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {user.full_name}
-                          {currentUser?.userId === user.id && (
+                          {currentUser?.id === user.id && (
                             <span className="ml-2 text-xs text-blue-600">(You)</span>
                           )}
                         </div>
@@ -301,7 +301,7 @@ const UsersListPage: React.FC = () => {
                         >
                           Edit
                         </button>
-                        {currentUser?.userId !== user.id && (
+                        {currentUser?.id !== user.id && (
                           user.is_active ? (
                             <button
                               onClick={() => handleDeactivate(user)}

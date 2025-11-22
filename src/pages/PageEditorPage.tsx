@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { pageService, Page, PageSection } from '../services/pageService';
+import { pageService, PageSection } from '../services/pageService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 
@@ -29,7 +29,6 @@ export const PageEditorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
-  const [page, setPage] = useState<Page | null>(null);
   const [sections, setSections] = useState<PageSection[]>([]);
   const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
@@ -53,7 +52,6 @@ export const PageEditorPage: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await pageService.getBySlug(slug);
-      setPage(data);
       setFormData({
         slug: data.slug,
         title: data.title,

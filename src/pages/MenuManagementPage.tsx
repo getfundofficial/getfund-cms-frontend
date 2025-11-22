@@ -241,7 +241,7 @@ export const MenuManagementPage: React.FC = () => {
     </form>
   );
 
-  const renderItemList = (items: MenuItem[], itemType: 'menu' | 'cta', maxItems: number) => (
+  const renderItemList = (items: MenuItem[], itemType: 'menu' | 'cta') => (
     <div className="space-y-2">
       {items.length === 0 && (
         <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -361,7 +361,7 @@ export const MenuManagementPage: React.FC = () => {
         </div>
 
         {showAddMenu && renderForm('menu')}
-        {renderItemList(menuItems, 'menu', 5)}
+        {renderItemList(menuItems, 'menu')}
       </div>
 
       {/* CTA Buttons Section */}
@@ -381,7 +381,7 @@ export const MenuManagementPage: React.FC = () => {
         </div>
 
         {showAddCta && renderForm('cta')}
-        {renderItemList(ctaButtons, 'cta', 2)}
+        {renderItemList(ctaButtons, 'cta')}
       </div>
     </div>
   );

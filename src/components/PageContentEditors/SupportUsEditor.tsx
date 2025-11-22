@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
-import { Plus, Trash2, Heart, Building2, Users } from 'lucide-react';
+import { Plus, Trash2, Heart } from 'lucide-react';
 
 interface Stat {
   number: string;

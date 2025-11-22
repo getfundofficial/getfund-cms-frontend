@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import mediaService, { Media } from '../services/mediaService';
 import ImageUploader from '../components/Media/ImageUploader';
 
 const MediaLibraryPage: React.FC = () => {
-  const { user } = useAuth();
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

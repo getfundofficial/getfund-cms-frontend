@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { pageService, PageSection, SectionType } from '../services/pageService';
+import { pageService, SectionType } from '../services/pageService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
 import { StatsEditor } from '../components/SectionEditors/StatsEditor';
 import { HeroEditor } from '../components/SectionEditors/HeroEditor';
-import { PageContentEditor } from '../components/SectionEditors/PageContentEditor';
 import { HomePageEditor } from '../components/PageContentEditors/HomePageEditor';
 import { SupportUsEditor } from '../components/PageContentEditors/SupportUsEditor';
 import { WhoWeAreEditor } from '../components/PageContentEditors/WhoWeAreEditor';
@@ -23,7 +22,6 @@ export const SectionEditorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
-  const [section, setSection] = useState<PageSection | null>(null);
   const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -50,7 +48,6 @@ export const SectionEditorPage: React.FC = () => {
       console.log('[SectionEditorPage] Loaded section data:', data);
       console.log('[SectionEditorPage] Section content:', data.content);
       console.log('[SectionEditorPage] Content heroSlides:', (data.content as any)?.heroSlides);
-      setSection(data);
       setFormData({
         section_key: data.section_key,
         section_type: data.section_type,
