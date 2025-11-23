@@ -11,7 +11,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -142,7 +142,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       >
         {/* Logo/Brand */}
         <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center lg:flex-col lg:gap-3'}`}>
             {/* Full logo on mobile, conditional on desktop */}
             <div className="lg:hidden flex items-center gap-3">
               <img
@@ -164,16 +164,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <img
                 src="/images/logos/getfund-cropped-icon.png"
                 alt="GETFund"
-                className="hidden lg:block h-10 sm:h-12 w-10 sm:w-12"
+                className="hidden lg:block h-10 sm:h-12 w-10 sm:w-12 mx-auto"
               />
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1 rounded hover:bg-gray-100 hidden lg:block"
+              className="p-2 rounded-lg hover:bg-gray-100 hidden lg:block transition-colors"
               aria-label="Toggle sidebar"
             >
               <svg
-                className="w-5 h-5 text-gray-600"
+                className="w-4 h-4 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
