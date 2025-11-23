@@ -352,7 +352,7 @@ export const PagesListPage: React.FC = () => {
 
         {/* Mobile Card View */}
         <div className="md:hidden divide-y divide-gray-200">
-          {menuItems.map((page, index) => (
+          {menuItems.map((page) => (
             <div key={page.id} className="p-4 hover:bg-gray-50">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
