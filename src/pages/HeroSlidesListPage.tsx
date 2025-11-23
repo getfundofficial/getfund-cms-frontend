@@ -100,12 +100,12 @@ export const HeroSlidesListPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Hero Slides</h1>
-          <p className="text-gray-600 mt-1">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Hero Slides</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Manage homepage carousel slides
           </p>
         </div>
@@ -113,6 +113,7 @@ export const HeroSlidesListPage: React.FC = () => {
           <Button
             variant="primary"
             onClick={() => navigate('/admin/hero-slides/new')}
+            className="w-full sm:w-auto"
           >
             + Create Hero Slide
           </Button>
@@ -120,16 +121,16 @@ export const HeroSlidesListPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center justify-between">
-          <div className="w-64">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="w-full sm:w-64">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Status
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as WorkflowStatus | 'all')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm min-h-touch"
             >
               <option value="all">All Statuses</option>
               <option value="draft">Draft</option>
@@ -140,7 +141,7 @@ export const HeroSlidesListPage: React.FC = () => {
             </select>
           </div>
 
-          <div className="text-sm text-gray-600">
+          <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-right">
             Showing {filteredContent.length} of {content.length} slides
           </div>
         </div>
@@ -148,9 +149,9 @@ export const HeroSlidesListPage: React.FC = () => {
 
       {/* Content Grid */}
       {filteredContent.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
+        <div className="bg-white rounded-lg shadow p-8 sm:p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -163,14 +164,14 @@ export const HeroSlidesListPage: React.FC = () => {
             />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">No hero slides found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-xs sm:text-sm text-gray-500">
             {statusFilter !== 'all'
               ? 'Try adjusting your filter'
               : 'Get started by creating a new hero slide'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredContent.map((item) => (
             <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
               {/* Image */}
@@ -191,12 +192,12 @@ export const HeroSlidesListPage: React.FC = () => {
               )}
 
               {/* Content */}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+              <div className="p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 truncate">
                   {item.title}
                 </h3>
                 {item.excerpt && (
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
                     {item.excerpt}
                   </p>
                 )}
@@ -209,7 +210,7 @@ export const HeroSlidesListPage: React.FC = () => {
                   {canEdit(item) && (
                     <button
                       onClick={() => navigate(`/admin/hero-slides/${item.id}/edit`)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs sm:text-sm font-medium transition-colors min-h-touch"
                     >
                       Edit
                     </button>
@@ -218,13 +219,13 @@ export const HeroSlidesListPage: React.FC = () => {
                   {canDelete(item) && (
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-xs sm:text-sm font-medium transition-colors min-h-touch"
                     >
                       Delete
                     </button>
                   )}
                 </div>
-                
+
                 {/* Status Info */}
                 <div className="mt-2 text-xs text-gray-500">
                   {item.status === 'published' ? (

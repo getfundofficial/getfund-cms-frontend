@@ -178,25 +178,25 @@ export const AuditLogsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
-        <p className="mt-2 text-gray-600">View all system activity and changes</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Audit Logs</h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">View all system activity and changes</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Action</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Action</label>
             <select
               value={filter.action}
               onChange={(e) => {
                 setFilter({ ...filter, action: e.target.value });
                 setCurrentPage(1);
               }}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-touch"
             >
               <option value="">All Actions</option>
               <option value="create">Create</option>
@@ -209,14 +209,14 @@ export const AuditLogsPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Entity Type</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Entity Type</label>
             <select
               value={filter.entity_type}
               onChange={(e) => {
                 setFilter({ ...filter, entity_type: e.target.value });
                 setCurrentPage(1);
               }}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-touch"
             >
               <option value="">All Types</option>
               <option value="content">Content</option>
@@ -225,13 +225,13 @@ export const AuditLogsPage: React.FC = () => {
             </select>
           </div>
 
-          <div className="flex items-end">
+          <div className="flex items-end sm:col-span-2 md:col-span-1">
             <button
               onClick={() => {
                 setFilter({ action: '', entity_type: '', user_id: '' });
                 setCurrentPage(1);
               }}
-              className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
+              className="w-full bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-md hover:bg-gray-200 transition-colors text-sm min-h-touch"
             >
               Clear Filters
             </button>
@@ -242,12 +242,13 @@ export const AuditLogsPage: React.FC = () => {
       {/* Audit Logs Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {logs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No audit logs found</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-sm sm:text-base text-gray-500">No audit logs found</p>
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -339,21 +340,90 @@ export const AuditLogsPage: React.FC = () => {
               </table>
             </div>
 
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {logs.map((log) => {
+                const content = contentDetails[log.entity_id];
+                return (
+                  <div key={log.id} className="p-4 hover:bg-gray-50">
+                    {/* Date & Action */}
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900">
+                          {formatDate(log.created_at)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {log.user_name || 'Unknown User'}
+                        </p>
+                      </div>
+                      {getActionBadge(log.action)}
+                    </div>
+
+                    {/* Entity Info */}
+                    <div className="mb-2">
+                      <p className="text-xs text-gray-600">
+                        <span className="font-medium">Entity:</span> {log.entity_type}
+                      </p>
+                      {content && (
+                        <p className="text-xs text-gray-500 truncate mt-1">
+                          {content.title}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Changes */}
+                    {log.changes && (
+                      <div className="mb-2 text-xs text-gray-500">
+                        {log.changes.title && (
+                          <div className="truncate">
+                            <span className="font-medium">Title:</span> {log.changes.title}
+                          </div>
+                        )}
+                        {log.changes.status && (
+                          <div>
+                            <span className="font-medium">Status:</span> {log.changes.status}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Approval Status */}
+                    {log.entity_type === 'content' && content && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {getStatusBadge(content.status)}
+                        {content.status === 'in_review' && (
+                          <span className="text-xs text-blue-600 font-medium">In Review Queue</span>
+                        )}
+                        {content.status === 'approved' && (
+                          <span className="text-xs text-green-600 font-medium">In Approval Queue</span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* IP Address */}
+                    {log.ip_address && (
+                      <p className="text-xs text-gray-400 mt-2">IP: {log.ip_address}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="bg-white px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200">
                 <div className="flex-1 flex justify-between sm:hidden">
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-touch"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-touch"
                   >
                     Next
                   </button>

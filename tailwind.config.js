@@ -20,6 +20,16 @@ export default {
           900: '#0c4a6e',
         },
       },
+      screens: {
+        'xs': '475px',
+        '3xl': '1920px',
+      },
+      minHeight: {
+        'touch': '44px', // Minimum touch target size for accessibility
+      },
+      minWidth: {
+        'touch': '44px',
+      },
     },
   },
   plugins: [],

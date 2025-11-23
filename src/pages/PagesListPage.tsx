@@ -181,17 +181,17 @@ export const PagesListPage: React.FC = () => {
   const otherPages = filteredPages.filter(p => !p.show_in_menu && !p.is_cta_button);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Pages & Menu</h1>
-          <p className="text-gray-600 mt-1">Configure navigation menu and edit website pages</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Pages & Menu</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Configure navigation menu and edit website pages</p>
         </div>
         <Button
           onClick={saveMenuOrder}
           disabled={isSaving}
-          className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Save className="w-4 h-4" />
           {isSaving ? 'Saving...' : 'Save Menu Order'}
@@ -206,15 +206,15 @@ export const PagesListPage: React.FC = () => {
       )}
 
       {/* Menu Limits Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <Menu className="w-5 h-5 text-blue-600 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-blue-900 mb-1">Menu Configuration</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xs sm:text-sm font-semibold text-blue-900 mb-1">Menu Configuration</h3>
+            <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
               <li>• Maximum <strong>6 menu items</strong> in the main navigation</li>
               <li>• <strong>1 CTA button</strong> (Call-to-Action button)</li>
-              <li>• Drag and drop to reorder menu items</li>
+              <li className="hidden sm:block">• Drag and drop to reorder menu items</li>
               <li>• Currently: <strong>{menuItems.length}/6 menu items</strong>, <strong>{ctaButton ? '1/1' : '0/1'} CTA button</strong></li>
             </ul>
           </div>
@@ -234,11 +234,16 @@ export const PagesListPage: React.FC = () => {
 
       {/* Main Menu Items */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-900">Main Menu Items ({menuItems.length}/6)</h2>
-          <p className="text-sm text-gray-600 mt-1">Drag to reorder • Click eye icon to hide from menu</p>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Main Menu Items ({menuItems.length}/6)</h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+            <span className="hidden sm:inline">Drag to reorder • Click eye icon to hide from menu</span>
+            <span className="sm:hidden">Tap to edit • Click eye to remove</span>
+          </p>
         </div>
-        <div className="divide-y divide-gray-200">
+
+        {/* Desktop View */}
+        <div className="hidden md:block divide-y divide-gray-200">
           {menuItems.map((page, index) => (
             <div
               key={page.id}
@@ -344,20 +349,108 @@ export const PagesListPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-200">
+          {menuItems.map((page, index) => (
+            <div key={page.id} className="p-4 hover:bg-gray-50">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-gray-500">#{page.menu_order}</span>
+                    <span
+                      className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                        page.is_active
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {page.is_active ? 'Published' : 'Draft'}
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={page.menu_label || page.title}
+                    onChange={(e) => {
+                      const newPages = [...pages];
+                      const pageIndex = newPages.findIndex(p => p.id === page.id);
+                      newPages[pageIndex].menu_label = e.target.value;
+                      setPages(newPages);
+                    }}
+                    onBlur={(e) => updateMenuLabel(page.slug, e.target.value)}
+                    className="text-sm font-medium text-gray-900 border-0 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-0 px-0 py-1 w-full mb-1"
+                    placeholder="Menu label"
+                  />
+                  <div className="text-xs text-gray-500">
+                    /{page.slug} • {page.section_count || 0} {page.section_count === 1 ? 'section' : 'sections'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button
+                  onClick={() => toggleShowInMenu(page.slug, true)}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100"
+                >
+                  <EyeOff className="w-3 h-3 mr-1" />
+                  Remove
+                </button>
+                <button
+                  onClick={() => navigate(`/admin/pages/${page.slug}`)}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100"
+                >
+                  Edit
+                </button>
+                {(user?.role === 'admin' || user?.role === 'approver') && (
+                  <>
+                    {page.is_active ? (
+                      <button
+                        onClick={() => handleUnpublish(page.slug)}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-50 rounded-md hover:bg-orange-100"
+                      >
+                        Unpublish
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handlePublish(page.slug)}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100"
+                      >
+                        Publish
+                      </button>
+                    )}
+                  </>
+                )}
+                {user?.role === 'admin' && (
+                  <button
+                    onClick={() => handleDelete(page.slug)}
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          {menuItems.length === 0 && !searchQuery && (
+            <div className="px-4 py-8 text-center text-gray-500 text-sm">
+              No menu items configured. Add pages to the menu from "Other Pages" below.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* CTA Button */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-900">CTA Button ({ctaButton ? '1/1' : '0/1'})</h2>
-          <p className="text-sm text-gray-600 mt-1">Primary call-to-action button</p>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">CTA Button ({ctaButton ? '1/1' : '0/1'})</h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Primary call-to-action button</p>
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {ctaButton ? (
-            <div className="flex items-center space-x-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <Star className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-              <div className="flex-1 grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-5">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 md:space-x-4 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <Star className="w-5 h-5 text-yellow-600 flex-shrink-0 hidden md:block" />
+              <div className="flex-1 flex flex-col md:grid md:grid-cols-12 gap-2 md:gap-4 md:items-center">
+                <div className="md:col-span-5">
                   <input
                     type="text"
                     value={ctaButton.menu_label || ctaButton.title}
@@ -372,14 +465,12 @@ export const PagesListPage: React.FC = () => {
                   />
                   <div className="text-xs text-gray-500">/{ctaButton.slug}</div>
                 </div>
-                <div className="col-span-2 text-center">
-                  <div className="text-sm text-gray-900">
+                <div className="md:col-span-2 flex md:justify-center items-center gap-2">
+                  <span className="text-xs text-gray-900">
                     {ctaButton.section_count || 0} sections
-                  </div>
-                </div>
-                <div className="col-span-2 text-center">
+                  </span>
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
                       ctaButton.is_active
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
@@ -388,17 +479,17 @@ export const PagesListPage: React.FC = () => {
                     {ctaButton.is_active ? 'Published' : 'Draft'}
                   </span>
                 </div>
-                <div className="col-span-3 flex items-center justify-end space-x-2">
+                <div className="md:col-span-2"></div>
+                <div className="md:col-span-3 flex flex-wrap items-center gap-2 md:justify-end">
                   <button
                     onClick={() => toggleCTAButton(ctaButton.slug, true)}
-                    className="text-sm text-red-600 hover:text-red-800 font-medium"
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100"
                   >
                     Remove CTA
                   </button>
-                  <span className="text-gray-300">|</span>
                   <button
                     onClick={() => navigate(`/admin/pages/${ctaButton.slug}`)}
-                    className="text-sm text-blue-600 hover:text-blue-900 font-medium"
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100"
                   >
                     Edit
                   </button>
@@ -415,11 +506,13 @@ export const PagesListPage: React.FC = () => {
 
       {/* Other Pages */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-900">Other Pages</h2>
-          <p className="text-sm text-gray-600 mt-1">Pages not shown in the menu</p>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Other Pages</h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Pages not shown in the menu</p>
         </div>
-        <div className="divide-y divide-gray-200">
+
+        {/* Desktop View */}
+        <div className="hidden md:block divide-y divide-gray-200">
           {otherPages.map((page) => (
             <div key={page.id} className="px-6 py-4 flex items-center space-x-4 hover:bg-gray-50">
               <div className="flex-1 grid grid-cols-12 gap-4 items-center">
@@ -496,18 +589,93 @@ export const PagesListPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-200">
+          {otherPages.map((page) => (
+            <div key={page.id} className="p-4 hover:bg-gray-50">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 mb-1">{page.title}</div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>/{page.slug}</span>
+                    <span>•</span>
+                    <span>{page.section_count || 0} {page.section_count === 1 ? 'section' : 'sections'}</span>
+                  </div>
+                </div>
+                <span
+                  className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    page.is_active
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  {page.is_active ? 'Published' : 'Draft'}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => toggleShowInMenu(page.slug, false)}
+                  disabled={menuItems.length >= 6}
+                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md ${
+                    menuItems.length >= 6
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'text-green-700 bg-green-50 hover:bg-green-100'
+                  }`}
+                  title={menuItems.length >= 6 ? 'Menu is full (6/6)' : 'Add to menu'}
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  Add to Menu
+                </button>
+                <button
+                  onClick={() => toggleCTAButton(page.slug, false)}
+                  disabled={!!ctaButton}
+                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md ${
+                    ctaButton
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
+                  }`}
+                  title={ctaButton ? 'CTA slot is filled' : 'Set as CTA button'}
+                >
+                  <Star className="w-3 h-3 mr-1" />
+                  Set as CTA
+                </button>
+                <button
+                  onClick={() => navigate(`/admin/pages/${page.slug}`)}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100"
+                >
+                  Edit
+                </button>
+                {user?.role === 'admin' && (
+                  <button
+                    onClick={() => handleDelete(page.slug)}
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          {otherPages.length === 0 && !searchQuery && (
+            <div className="px-4 py-8 text-center text-gray-500 text-sm">
+              All pages are configured in the menu.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Help Text */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <Menu className="w-5 h-5 text-blue-600 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xs sm:text-sm font-semibold text-blue-900 mb-2">
               How to Manage Menu
             </h3>
-            <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-              <li>Drag menu items to reorder them</li>
+            <ul className="text-xs sm:text-sm text-blue-700 space-y-1 list-disc list-inside">
+              <li className="hidden md:list-item">Drag menu items to reorder them</li>
               <li>Click the eye icon to show/hide pages in the menu</li>
               <li>Click the star icon to set/unset a page as CTA button</li>
               <li>Edit menu labels by clicking and typing in the text field</li>

@@ -76,18 +76,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden">
       {/* Toolbar */}
-      <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1">
+      <div className="bg-gray-50 border-b border-gray-300 p-1.5 sm:p-2 flex flex-wrap gap-0.5 sm:gap-1 overflow-x-auto">
         {/* Text Formatting */}
-        <div className="flex gap-1 border-r border-gray-300 pr-2">
+        <div className="flex gap-0.5 sm:gap-1 border-r border-gray-300 pr-1 sm:pr-2">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 rounded hover:bg-gray-200 ${
+            className={`p-1.5 sm:p-2 rounded hover:bg-gray-200 ${
               editor.isActive('bold') ? 'bg-gray-300' : ''
             }`}
             title="Bold"
+            aria-label="Bold"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M5 3v14h5.5a3.5 3.5 0 001.102-6.817A3.5 3.5 0 0010 3H5zm2 2h3a1.5 1.5 0 010 3H7V5zm0 5h3.5a1.5 1.5 0 010 3H7v-3z" />
             </svg>
           </button>

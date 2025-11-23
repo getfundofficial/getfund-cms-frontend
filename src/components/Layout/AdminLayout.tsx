@@ -11,7 +11,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -123,9 +124,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Desktop */}
       <aside
         className={`${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 ${
           isSidebarOpen ? 'w-64' : 'w-20'
         } bg-white shadow-lg transition-all duration-300 flex flex-col`}
       >
@@ -134,22 +145,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="flex items-center justify-between">
             {isSidebarOpen ? (
               <div className="flex items-center gap-3">
-                <img 
-                  src="/images/logos/getfund-logo.png" 
-                  alt="GETFund Logo" 
-                  className="h-20 w-auto"
+                <img
+                  src="/images/logos/getfund-logo.png"
+                  alt="GETFund Logo"
+                  className="h-16 sm:h-20 w-auto"
                 />
               </div>
             ) : (
-              <img 
-                src="/images/logos/getfund-cropped-icon.png" 
-                alt="GETFund" 
-                className="h-12 w-12"
+              <img
+                src="/images/logos/getfund-cropped-icon.png"
+                alt="GETFund"
+                className="h-10 sm:h-12 w-10 sm:w-12"
               />
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1 rounded hover:bg-gray-100"
+              className="p-1 rounded hover:bg-gray-100 hidden lg:block"
+              aria-label="Toggle sidebar"
             >
               <svg
                 className="w-5 h-5 text-gray-600"
@@ -164,6 +176,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 )}
               </svg>
             </button>
+            {/* Mobile close button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1 rounded hover:bg-gray-100 lg:hidden"
+              aria-label="Close menu"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -175,14 +197,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
                     ? 'bg-blue-50 text-blue-600 font-medium'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 {item.icon}
-                {isSidebarOpen && <span>{item.label}</span>}
+                {isSidebarOpen && <span className="text-sm sm:text-base">{item.label}</span>}
               </Link>
             ))}
         </nav>
@@ -192,13 +215,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {isSidebarOpen ? (
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-gray-600 font-semibold">
                     {user?.full_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                     {user?.full_name}
                   </p>
                   <span
@@ -212,7 +235,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 variant="secondary"
                 size="sm"
                 onClick={handleLogout}
-                className="w-full"
+                className="w-full text-sm"
               >
                 Logout
               </Button>
@@ -222,6 +245,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               onClick={handleLogout}
               className="w-full p-2 rounded hover:bg-gray-100"
               title="Logout"
+              aria-label="Logout"
             >
               <svg className="w-5 h-5 text-gray-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -232,22 +256,35 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto w-full">
         {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="px-6 py-4">
+        <header className="bg-white shadow-sm sticky top-0 z-30">
+          <div className="px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
-              </h2>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                {/* Mobile menu button */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+                  aria-label="Open menu"
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
+                  {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-4">
                 <a
                   href="http://localhost:3000"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 whitespace-nowrap"
                 >
-                  View Website →
+                  <span className="hidden sm:inline">View Website →</span>
+                  <span className="sm:hidden">Website →</span>
                 </a>
               </div>
             </div>
@@ -255,7 +292,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {children}
         </div>
       </main>
