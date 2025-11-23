@@ -136,15 +136,24 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <aside
         className={`${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 ${
-          isSidebarOpen ? 'w-64' : 'w-20'
+        } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 ${
+          isSidebarOpen ? 'lg:w-64' : 'lg:w-20'
         } bg-white shadow-lg transition-all duration-300 flex flex-col`}
       >
         {/* Logo/Brand */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
+            {/* Full logo on mobile, conditional on desktop */}
+            <div className="lg:hidden flex items-center gap-3">
+              <img
+                src="/images/logos/getfund-logo.png"
+                alt="GETFund Logo"
+                className="h-16 sm:h-20 w-auto"
+              />
+            </div>
+            {/* Desktop: Show based on sidebar state */}
             {isSidebarOpen ? (
-              <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-3">
                 <img
                   src="/images/logos/getfund-logo.png"
                   alt="GETFund Logo"
@@ -155,7 +164,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <img
                 src="/images/logos/getfund-cropped-icon.png"
                 alt="GETFund"
-                className="h-10 sm:h-12 w-10 sm:w-12"
+                className="hidden lg:block h-10 sm:h-12 w-10 sm:w-12"
               />
             )}
             <button
@@ -205,15 +214,47 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 }`}
               >
                 {item.icon}
-                {isSidebarOpen && <span className="text-sm sm:text-base">{item.label}</span>}
+                {/* Always show label on mobile, conditional on desktop */}
+                <span className={`text-sm sm:text-base lg:hidden`}>{item.label}</span>
+                {isSidebarOpen && <span className="hidden lg:inline text-sm sm:text-base">{item.label}</span>}
               </Link>
             ))}
         </nav>
 
         {/* User Info */}
         <div className="p-4 border-t border-gray-200">
+          {/* Full user info on mobile */}
+          <div className="lg:hidden">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-gray-600 font-semibold">
+                  {user?.full_name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                  {user?.full_name}
+                </p>
+                <span
+                  className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold text-white rounded ${getRoleColor()}`}
+                >
+                  {user?.role.toUpperCase()}
+                </span>
+              </div>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full text-sm"
+            >
+              Logout
+            </Button>
+          </div>
+
+          {/* Desktop: Show based on sidebar state */}
           {isSidebarOpen ? (
-            <div>
+            <div className="hidden lg:block">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-gray-600 font-semibold">
@@ -243,7 +284,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           ) : (
             <button
               onClick={handleLogout}
-              className="w-full p-2 rounded hover:bg-gray-100"
+              className="hidden lg:block w-full p-2 rounded hover:bg-gray-100"
               title="Logout"
               aria-label="Logout"
             >
