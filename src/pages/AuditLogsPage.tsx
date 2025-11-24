@@ -63,9 +63,9 @@ export const AuditLogsPage: React.FC = () => {
 
       console.log('Fetching audit logs with params:', params);
       console.log('Token:', token ? 'Present' : 'Missing');
-      console.log('API URL:', `${API_URL}/api/audit-logs`);
+      console.log('API URL:', `${API_URL}/audit-logs`);
 
-      const response = await axios.get<AuditLogsResponse>(`${API_URL}/api/audit-logs`, {
+      const response = await axios.get<AuditLogsResponse>(`${API_URL}/audit-logs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -86,7 +86,7 @@ export const AuditLogsPage: React.FC = () => {
       await Promise.all(
         contentIds.map(async (id) => {
           try {
-            const contentRes = await axios.get(`${API_URL}/api/content/${id}`, {
+            const contentRes = await axios.get(`${API_URL}/content/${id}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
