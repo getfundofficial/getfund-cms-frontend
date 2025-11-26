@@ -12,6 +12,11 @@ import { WhoWeAreEditor } from '../components/PageContentEditors/WhoWeAreEditor'
 import { ImpactEditor } from '../components/PageContentEditors/ImpactEditor';
 import { ResourcesEditor } from '../components/PageContentEditors/ResourcesEditor';
 import { WhatWeDoEditor } from '../components/PageContentEditors/WhatWeDoEditor';
+import { WhyFundraisingEditor } from '../components/PageContentEditors/WhyFundraisingEditor';
+import { WaysToDonateEditor } from '../components/PageContentEditors/WaysToDonateEditor';
+import { PartnershipsEditor } from '../components/PageContentEditors/PartnershipsEditor';
+import { BeneficiariesGiveBackEditor } from '../components/PageContentEditors/BeneficiariesGiveBackEditor';
+import { EventsEditor } from '../components/PageContentEditors/EventsEditor';
 import { GenericPageContentEditor } from '../components/PageContentEditors/GenericPageContentEditor';
 
 export const SectionEditorPage: React.FC = () => {
@@ -278,6 +283,47 @@ export const SectionEditorPage: React.FC = () => {
         if (slug === 'what-we-do') {
           return (
             <WhatWeDoEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // Fundraising pages
+        if (slug === 'why-fundraising') {
+          return (
+            <WhyFundraisingEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'ways-to-donate') {
+          return (
+            <WaysToDonateEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'partnerships') {
+          return (
+            <PartnershipsEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'beneficiaries-give-back') {
+          return (
+            <BeneficiariesGiveBackEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'events') {
+          return (
+            <EventsEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />
