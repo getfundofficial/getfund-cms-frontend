@@ -62,6 +62,12 @@ const mediaService = {
 
   // Get full URL for media
   getFullUrl: (url: string): string => {
+    // If URL is already absolute (Blob storage URLs), return as-is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    // For relative URLs (local development), prepend base URL
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     // Remove /api from base URL if present
     const apiBase = baseUrl.replace('/api', '');
