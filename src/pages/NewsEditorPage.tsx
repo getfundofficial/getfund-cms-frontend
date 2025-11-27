@@ -95,7 +95,8 @@ export const NewsEditorPage: React.FC = () => {
         return;
       }
 
-      if (!['draft', 'changes_requested'].includes(data.status)) {
+      // Allow admins to edit any content, others can only edit draft or changes_requested
+      if (user?.role !== 'admin' && !['draft', 'changes_requested'].includes(data.status)) {
         setError('You can only edit content in draft or changes_requested status');
         return;
       }
@@ -142,9 +143,8 @@ export const NewsEditorPage: React.FC = () => {
         title: formData.title,
         slug: formData.slug,
         excerpt: formData.excerpt,
-        content: formData.content,
-        featured_image: formData.featured_image || null,
-        tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        body: formData.content, // Changed from 'content' to 'body' to match database schema
+        featured_image_url: formData.featured_image || undefined,
       };
 
       if (isEditMode && id) {

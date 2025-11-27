@@ -17,6 +17,7 @@ import { WaysToDonateEditor } from '../components/PageContentEditors/WaysToDonat
 import { PartnershipsEditor } from '../components/PageContentEditors/PartnershipsEditor';
 import { BeneficiariesGiveBackEditor } from '../components/PageContentEditors/BeneficiariesGiveBackEditor';
 import { EventsEditor } from '../components/PageContentEditors/EventsEditor';
+import { NewsUpdatesEditor } from '../components/PageContentEditors/NewsUpdatesEditor';
 import { GenericPageContentEditor } from '../components/PageContentEditors/GenericPageContentEditor';
 
 export const SectionEditorPage: React.FC = () => {
@@ -324,6 +325,14 @@ export const SectionEditorPage: React.FC = () => {
         if (slug === 'events') {
           return (
             <EventsEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'news') {
+          return (
+            <NewsUpdatesEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />
