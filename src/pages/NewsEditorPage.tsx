@@ -28,6 +28,7 @@ export const NewsEditorPage: React.FC = () => {
     content: '',
     featured_image: '',
     tags: '',
+    published_at: '',
   });
 
   // Auto-save configuration
@@ -101,6 +102,18 @@ export const NewsEditorPage: React.FC = () => {
         return;
       }
 
+      // Format published_at for datetime-local input (YYYY-MM-DDTHH:MM)
+      let publishedAtValue = '';
+      if (data.published_at) {
+        const date = new Date(data.published_at);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        publishedAtValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+
       setFormData({
         title: data.title,
         slug: data.slug,
@@ -108,6 +121,7 @@ export const NewsEditorPage: React.FC = () => {
         content: data.body || '',
         featured_image: data.featured_image_url || '',
         tags: '',
+        published_at: publishedAtValue,
       });
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to load content');
@@ -138,6 +152,12 @@ export const NewsEditorPage: React.FC = () => {
     setIsSaving(true);
 
     try {
+      // Convert datetime-local format to ISO 8601 for API
+      let publishedAtISO = undefined;
+      if (formData.published_at) {
+        publishedAtISO = new Date(formData.published_at).toISOString();
+      }
+
       const payload = {
         type: 'news' as const,
         title: formData.title,
@@ -145,6 +165,7 @@ export const NewsEditorPage: React.FC = () => {
         excerpt: formData.excerpt,
         body: formData.content, // Changed from 'content' to 'body' to match database schema
         featured_image_url: formData.featured_image || undefined,
+        published_at: publishedAtISO,
       };
 
       if (isEditMode && id) {
@@ -273,6 +294,22 @@ export const NewsEditorPage: React.FC = () => {
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Publish Date/Time */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Publish Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              value={formData.published_at}
+              onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Optional: Set a custom publish date and time. Leave empty to use the current time when published.
+            </p>
           </div>
 
           {/* Featured Image */}
