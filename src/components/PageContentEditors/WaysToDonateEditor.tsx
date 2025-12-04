@@ -82,9 +82,20 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
   const handlePresetAmountChange = (optionIndex: number, presetIndex: number, field: 'value' | 'label', value: string | number) => {
     const newOptions = [...(content.donationOptions || [])];
     const presetAmounts = [...(newOptions[optionIndex].presetAmounts || [])];
+
+    // If it's a value field and a string, remove commas before parsing
+    if (field === 'value' && typeof value === 'string') {
+      const cleanValue = value.replace(/,/g, '');
+      value = parseFloat(cleanValue) || 0;
+    }
+
     presetAmounts[presetIndex] = { ...presetAmounts[presetIndex], [field]: value };
     newOptions[optionIndex] = { ...newOptions[optionIndex], presetAmounts };
     onChange({ ...content, donationOptions: newOptions });
+  };
+
+  const formatNumberWithCommas = (num: number): string => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   const initializePresetAmounts = (optionIndex: number) => {
@@ -302,13 +313,11 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
                               Amount (GH₵)
                             </label>
                             <input
-                              type="number"
+                              type="text"
                               placeholder="100"
-                              value={preset.value}
-                              onChange={(e) => handlePresetAmountChange(index, presetIndex, 'value', parseFloat(e.target.value) || 0)}
+                              value={formatNumberWithCommas(preset.value)}
+                              onChange={(e) => handlePresetAmountChange(index, presetIndex, 'value', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              min="0"
-                              step="1"
                             />
                           </div>
                           <div>
