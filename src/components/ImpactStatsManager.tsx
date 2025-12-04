@@ -2,18 +2,36 @@ import React, { useState, useEffect } from 'react';
 
 const API_BASE_URL = 'https://getfund-cms-backend.vercel.app/api';
 
+interface ImpactStat {
+  id: number;
+  title: string;
+  value: string;
+  color: string;
+  page: string;
+  order_number: number;
+  is_active: boolean;
+}
+
+interface StatFormData {
+  title: string;
+  value: string;
+  color: string;
+  page: string;
+  order_number: number;
+}
+
 export default function ImpactStatsManager() {
-  const [stats, setStats] = useState([]);
-  const [subtitle, setSubtitle] = useState('');
-  const [selectedPage, setSelectedPage] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingStat, setEditingStat] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [stats, setStats] = useState<ImpactStat[]>([]);
+  const [subtitle, setSubtitle] = useState<string>('');
+  const [selectedPage, setSelectedPage] = useState<string>('all');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [editingStat, setEditingStat] = useState<ImpactStat | null>(null);
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<StatFormData>({
     title: '',
     value: '',
     color: 'primary',
@@ -43,7 +61,7 @@ export default function ImpactStatsManager() {
     }
   };
 
-  const handleOpenDialog = (stat = null) => {
+  const handleOpenDialog = (stat: ImpactStat | null = null) => {
     if (stat) {
       setEditingStat(stat);
       setFormData({
@@ -110,7 +128,7 @@ export default function ImpactStatsManager() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this stat?')) return;
     
     try {
