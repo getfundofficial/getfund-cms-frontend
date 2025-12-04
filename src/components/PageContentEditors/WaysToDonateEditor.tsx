@@ -89,6 +89,16 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
     onChange({ ...content, donationOptions: newOptions });
   };
 
+  const moveDonationOption = (index: number, direction: 'up' | 'down') => {
+    const newOptions = [...(content.donationOptions || [])];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (newIndex < 0 || newIndex >= newOptions.length) return;
+
+    [newOptions[index], newOptions[newIndex]] = [newOptions[newIndex], newOptions[index]];
+    onChange({ ...content, donationOptions: newOptions });
+  };
+
   return (
     <div className="space-y-8">
       {/* Meta Information */}
@@ -166,7 +176,29 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
           {(content.donationOptions || []).map((option, index) => (
             <div key={index} className="bg-gray-50 border border-gray-300 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-gray-900">Option {index + 1}</h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold text-gray-900">Option {index + 1}</h4>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveDonationOption(index, 'up')}
+                      disabled={index === 0}
+                      className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move up"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveDonationOption(index, 'down')}
+                      disabled={index === (content.donationOptions || []).length - 1}
+                      className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move down"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeDonationOption(index)}
