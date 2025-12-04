@@ -2,10 +2,16 @@ import React from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
 
+interface PresetAmount {
+  value: number;
+  label: string;
+}
+
 interface DonationOption {
   title: string;
   description: string;
   buttonText: string;
+  presetAmounts?: PresetAmount[];
 }
 
 interface WaysToDonateContent {
@@ -73,12 +79,38 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
     onChange({ ...content, donationOptions: newOptions });
   };
 
+  const handlePresetAmountChange = (optionIndex: number, presetIndex: number, field: 'value' | 'label', value: string | number) => {
+    const newOptions = [...(content.donationOptions || [])];
+    const presetAmounts = [...(newOptions[optionIndex].presetAmounts || [])];
+    presetAmounts[presetIndex] = { ...presetAmounts[presetIndex], [field]: value };
+    newOptions[optionIndex] = { ...newOptions[optionIndex], presetAmounts };
+    onChange({ ...content, donationOptions: newOptions });
+  };
+
+  const initializePresetAmounts = (optionIndex: number) => {
+    const newOptions = [...(content.donationOptions || [])];
+    newOptions[optionIndex] = {
+      ...newOptions[optionIndex],
+      presetAmounts: [
+        { value: 50, label: 'Small contribution' },
+        { value: 100, label: 'Medium contribution' },
+        { value: 250, label: 'Large contribution' },
+      ],
+    };
+    onChange({ ...content, donationOptions: newOptions });
+  };
+
   const addDonationOption = () => {
     const options = content.donationOptions || [];
     const newOption: DonationOption = {
       title: '',
       description: '',
       buttonText: '',
+      presetAmounts: [
+        { value: 50, label: 'Small contribution' },
+        { value: 100, label: 'Medium contribution' },
+        { value: 250, label: 'Large contribution' },
+      ],
     };
     onChange({ ...content, donationOptions: [...options, newOption] });
   };
@@ -241,6 +273,69 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
                 onChange={(e) => handleDonationOptionChange(index, 'buttonText', e.target.value)}
                 required
               />
+
+              {/* Preset Amounts Section */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-sm font-semibold text-gray-900">Quick Amount Presets (3)</h5>
+                  {!option.presetAmounts && (
+                    <button
+                      type="button"
+                      onClick={() => initializePresetAmounts(index)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      + Add Presets
+                    </button>
+                  )}
+                </div>
+
+                {option.presetAmounts && option.presetAmounts.length > 0 ? (
+                  <div className="space-y-3">
+                    {option.presetAmounts.map((preset, presetIndex) => (
+                      <div key={presetIndex} className="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs font-medium text-gray-500">Preset {presetIndex + 1}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Amount (GH₵)
+                            </label>
+                            <input
+                              type="number"
+                              placeholder="100"
+                              value={preset.value}
+                              onChange={(e) => handlePresetAmountChange(index, presetIndex, 'value', parseFloat(e.target.value) || 0)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                              min="0"
+                              step="1"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Label/Description
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g., Buy 1 year supply"
+                              value={preset.label}
+                              onChange={(e) => handlePresetAmountChange(index, presetIndex, 'label', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-xs text-gray-500 mt-2">
+                      💡 These quick amounts will appear as preset buttons in the donation modal
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center py-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <p className="text-xs text-gray-500">No preset amounts configured. Click "Add Presets" to create them.</p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 
