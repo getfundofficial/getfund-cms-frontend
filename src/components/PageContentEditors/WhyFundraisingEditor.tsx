@@ -229,7 +229,7 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
       {/* Help Text */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-sm text-gray-700">
-          <strong>Note:</strong> The Impact Stats, Donation Interface, and Contact Section components are hardcoded and managed by developers. This form only controls the text content above.
+          <strong>Note:</strong> The Donation Interface and Contact Section components are hardcoded and managed by developers. Impact Stats can be edited via the Impact Stats Manager. This form only controls the text content above.
         </p>
       </div>
     </div>
