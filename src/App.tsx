@@ -18,6 +18,7 @@ import { PageEditorPage } from './pages/PageEditorPage';
 import { PagePermissionsPage } from './pages/PagePermissionsPage';
 import { SectionEditorPage } from './pages/SectionEditorPage';
 import { MenuManagementPage } from './pages/MenuManagementPage';
+import { TeamMembersListPage } from './pages/TeamMembersListPage';
 import ImpactStatsManager from './components/ImpactStatsManager';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
@@ -199,6 +200,18 @@ function App() {
               <ProtectedRoute requiredRoles={['admin']}>
                 <AdminLayout>
                   <MenuManagementPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Team Members Route */}
+          <Route
+            path="/admin/team-members"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <TeamMembersListPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
