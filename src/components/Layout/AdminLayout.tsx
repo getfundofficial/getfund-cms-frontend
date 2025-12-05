@@ -329,7 +329,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
                 <a
-                  href="http://localhost:3000"
+                  href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund-website.vercel.app"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 whitespace-nowrap"
