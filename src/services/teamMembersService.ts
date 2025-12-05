@@ -43,7 +43,7 @@ export const teamMembersService = {
    * Get all team members
    */
   async getAll(role?: string): Promise<TeamMember[]> {
-    const url = role ? `${API_URL}/api/team-members?role=${role}` : `${API_URL}/api/team-members`;
+    const url = role ? `${API_URL}/team-members?role=${role}` : `${API_URL}/team-members`;
     const response = await axios.get(url);
 
     // If no role specified, the API returns grouped data
@@ -63,7 +63,7 @@ export const teamMembersService = {
    * Get a single team member by ID
    */
   async getById(id: string): Promise<TeamMember> {
-    const response = await axios.get(`${API_URL}/api/team-members/${id}`);
+    const response = await axios.get(`${API_URL}/team-members/${id}`);
     return response.data.data;
   },
 
@@ -71,7 +71,7 @@ export const teamMembersService = {
    * Create a new team member
    */
   async create(data: CreateTeamMemberInput): Promise<TeamMember> {
-    const response = await axios.post(`${API_URL}/api/team-members`, data);
+    const response = await axios.post(`${API_URL}/team-members`, data);
     return response.data.data;
   },
 
@@ -79,7 +79,7 @@ export const teamMembersService = {
    * Update a team member
    */
   async update(id: string, data: UpdateTeamMemberInput): Promise<TeamMember> {
-    const response = await axios.put(`${API_URL}/api/team-members/${id}`, data);
+    const response = await axios.put(`${API_URL}/team-members/${id}`, data);
     return response.data.data;
   },
 
@@ -87,7 +87,7 @@ export const teamMembersService = {
    * Delete a team member
    */
   async delete(id: string): Promise<void> {
-    await axios.delete(`${API_URL}/api/team-members/${id}`);
+    await axios.delete(`${API_URL}/team-members/${id}`);
   },
 
   /**
