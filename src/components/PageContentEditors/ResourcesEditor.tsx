@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Input } from '../Common/Input';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface ResourcesContent {
+  bannerBackground?: BannerBackground;
+
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
@@ -98,8 +102,14 @@ export const ResourcesEditor: React.FC<ResourcesEditorProps> = ({ content, onCha
       <div className="py-6">
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Hero Section</h3>
+
+            <BannerBackgroundEditor
+              value={content.bannerBackground || {}}
+              onChange={(bannerBackground) => updateContent({ bannerBackground })}
+            />
+
             <Input
               label="Hero Title"
               value={content.heroTitle || ''}

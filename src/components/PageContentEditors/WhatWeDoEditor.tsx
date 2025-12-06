@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from '../Common/Input';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface Service {
   title: string;
@@ -21,6 +23,8 @@ interface KeyInitiative {
 }
 
 interface WhatWeDoContent {
+  bannerBackground?: BannerBackground;
+
   // Hero/Services Section
   servicesTitle?: string;
   servicesSubtitle?: string;
@@ -177,8 +181,14 @@ export const WhatWeDoEditor: React.FC<WhatWeDoEditorProps> = ({ content, onChang
       <div className="py-6">
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Hero Section</h3>
+
+            <BannerBackgroundEditor
+              value={content.bannerBackground || {}}
+              onChange={(bannerBackground) => updateContent({ bannerBackground })}
+            />
+
             <Input
               label="Title"
               value={content.servicesTitle || ''}

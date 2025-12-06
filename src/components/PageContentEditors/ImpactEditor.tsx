@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface StatItem {
   number: string;
@@ -31,6 +33,8 @@ interface Region {
 }
 
 interface ImpactContent {
+  bannerBackground?: BannerBackground;
+
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
@@ -210,8 +214,14 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
       <div className="py-6">
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Hero Section</h3>
+
+            <BannerBackgroundEditor
+              value={content.bannerBackground || {}}
+              onChange={(bannerBackground) => updateContent({ bannerBackground })}
+            />
+
             <Input
               label="Hero Title"
               value={content.heroTitle || ''}

@@ -1,7 +1,10 @@
 import React from 'react';
 import { Input } from '../Common/Input';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface NewsUpdatesContent {
+  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -75,7 +78,12 @@ export const NewsUpdatesEditor: React.FC<NewsUpdatesEditorProps> = ({
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <BannerBackgroundEditor
+            value={content.bannerBackground || {}}
+            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+          />
+
           <Input
             type="text"
             label="Hero Title"

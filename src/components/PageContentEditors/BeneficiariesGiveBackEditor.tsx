@@ -1,7 +1,10 @@
 import React from 'react';
 import { Input } from '../Common/Input';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface BeneficiariesGiveBackContent {
+  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -69,14 +72,21 @@ export const BeneficiariesGiveBackEditor: React.FC<BeneficiariesGiveBackEditorPr
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <Input
-          type="text"
-          label="Hero Title"
-          placeholder="GETFund Beneficiaries"
-          value={content.hero?.title || ''}
-          onChange={(e) => handleChange('hero', 'title', e.target.value)}
-          required
-        />
+        <div className="space-y-6">
+          <BannerBackgroundEditor
+            value={content.bannerBackground || {}}
+            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+          />
+
+          <Input
+            type="text"
+            label="Hero Title"
+            placeholder="GETFund Beneficiaries"
+            value={content.hero?.title || ''}
+            onChange={(e) => handleChange('hero', 'title', e.target.value)}
+            required
+          />
+        </div>
       </div>
 
       {/* Main Content */}
