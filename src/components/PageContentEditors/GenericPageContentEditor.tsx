@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { AlertCircle, CheckCircle } from 'lucide-react';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
 
 interface GenericPageContentEditorProps {
   content: Record<string, any>;
@@ -47,11 +48,17 @@ export const GenericPageContentEditor: React.FC<GenericPageContentEditorProps> =
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Banner Background Editor */}
+      <BannerBackgroundEditor
+        value={content.bannerBackground || {}}
+        onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+      />
+
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">Page Content Editor</h3>
+        <h3 className="text-lg font-semibold text-blue-900 mb-2">Advanced: JSON Editor</h3>
         <p className="text-sm text-blue-700">
-          Edit the page content as JSON. Make sure to maintain valid JSON syntax.
+          Edit the page content as JSON for advanced customization. The banner background settings above are also stored in this JSON.
         </p>
       </div>
 
