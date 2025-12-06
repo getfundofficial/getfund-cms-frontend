@@ -1,7 +1,15 @@
 import React from 'react';
 import { Input } from '../Common/Input';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+
+interface BannerBackground {
+  imageUrl?: string | null;
+  tintColor?: string;
+  tintOpacity?: number;
+}
 
 interface WhyFundraisingContent {
+  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -79,7 +87,7 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Input
             type="text"
             label="Hero Title"
@@ -107,6 +115,12 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
             value={content.hero?.ctaButtonText || ''}
             onChange={(e) => handleChange('hero', 'ctaButtonText', e.target.value)}
             required
+          />
+
+          {/* Banner Background Editor */}
+          <BannerBackgroundEditor
+            value={content.bannerBackground || {}}
+            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
           />
         </div>
       </div>
