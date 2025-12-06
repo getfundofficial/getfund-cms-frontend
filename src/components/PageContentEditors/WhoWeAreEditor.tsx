@@ -2,11 +2,19 @@ import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+
+interface BannerBackground {
+  imageUrl?: string | null;
+  tintColor?: string;
+  tintOpacity?: number;
+}
 
 interface WhoWeAreContent {
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
+  bannerBackground?: BannerBackground;
 
   // About GETFund Section
   mainImage?: string;
@@ -130,7 +138,7 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
       <div className="bg-white rounded-lg p-6 border border-gray-200">
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h3 className="text-lg font-semibold mb-4">Hero Section</h3>
             <Input
               label="Hero Title"
@@ -148,6 +156,12 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {/* Banner Background Editor */}
+            <BannerBackgroundEditor
+              value={content.bannerBackground || {}}
+              onChange={(bannerBackground) => updateContent({ bannerBackground })}
+            />
           </div>
         )}
 
