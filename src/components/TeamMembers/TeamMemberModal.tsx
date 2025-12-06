@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { teamMembersService, TeamMember, CreateTeamMemberInput } from '../../services/teamMembersService';
 import { Button } from '../Common/Button';
-import mediaService from '../../services/mediaService';
+import mediaService, { Media } from '../../services/mediaService';
+import MediaPickerModal from '../Media/MediaPickerModal';
+import { RichTextEditor } from '../Editor/RichTextEditor';
 
 interface TeamMemberModalProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   useEffect(() => {
     if (isOpen && member) {
@@ -89,6 +92,11 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
     } finally {
       setIsUploadingImage(false);
     }
+  };
+
+  const handleMediaSelect = (media: Media) => {
+    handleChange('image_url', media.url);
+    setShowMediaPicker(false);
   };
 
   const validate = (): boolean => {
@@ -182,27 +190,37 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
                 </div>
               )}
 
-              <div className="flex-1">
-                <input
-                  type="file"
-                  id="image-upload"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={isUploadingImage}
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer disabled:opacity-50"
-                >
-                  <Upload className="w-4 h-4" />
-                  {isUploadingImage ? 'Uploading...' : 'Upload Photo'}
-                </label>
-                <p className="text-xs text-gray-500 mt-1">
+              <div className="flex-1 space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isUploadingImage}
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploadingImage ? 'Uploading...' : 'Upload Photo'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaPicker(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Choose from Gallery
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500">
                   JPG, PNG or GIF (max 5MB)
                 </p>
                 {errors.image_url && (
-                  <p className="text-xs text-red-600 mt-1">{errors.image_url}</p>
+                  <p className="text-xs text-red-600">{errors.image_url}</p>
                 )}
               </div>
             </div>
@@ -287,17 +305,14 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
           {/* Bio */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Biography (HTML)
+              Biography
             </label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-              placeholder="<p>Enter HTML biography...</p>"
+            <RichTextEditor
+              content={formData.bio || ''}
+              onChange={(content) => handleChange('bio', content)}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Use HTML tags for formatting (only for Board Chairman)
+              Use the editor toolbar to format text, add links, and style the biography
             </p>
           </div>
 
@@ -355,6 +370,14 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleMediaSelect}
+        allowUpload={true}
+      />
     </div>
   );
 };
