@@ -28,6 +28,7 @@ export const NewsEditorPage: React.FC = () => {
     excerpt: '',
     content: '',
     featured_image: '',
+    category: 'NEWS',
     tags: '',
     published_at: '',
   });
@@ -121,6 +122,7 @@ export const NewsEditorPage: React.FC = () => {
         excerpt: data.excerpt || '',
         content: data.body || '',
         featured_image: data.featured_image_url || '',
+        category: data.category || 'NEWS',
         tags: '',
         published_at: publishedAtValue,
       });
@@ -165,6 +167,7 @@ export const NewsEditorPage: React.FC = () => {
         slug: formData.slug,
         excerpt: formData.excerpt,
         body: formData.content, // Changed from 'content' to 'body' to match database schema
+        category: formData.category,
         featured_image_url: formData.featured_image || undefined,
         published_at: publishedAtISO,
       };
@@ -297,6 +300,29 @@ export const NewsEditorPage: React.FC = () => {
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="NEWS">News</option>
+              <option value="ANNOUNCEMENT">Announcement</option>
+              <option value="EVENT">Event</option>
+              <option value="UPDATE">Update</option>
+              <option value="PRESS_RELEASE">Press Release</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              Select the category for this article
+            </p>
           </div>
 
           {/* Publish Date/Time */}
