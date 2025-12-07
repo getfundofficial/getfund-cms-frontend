@@ -9,4 +9,6 @@ export interface BannerBackground {
   gradientDirection?: 'to right' | 'to bottom' | 'to bottom right' | 'to top right'; // Gradient direction
   useGradient?: boolean; // Toggle between solid color and gradient
   tintOpacity?: number;
+  titleColor?: string; // Text color for the title
+  subtitleColor?: string; // Text color for the subtitle
 }

@@ -27,6 +27,8 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
   const useGradient = bannerBg.useGradient ?? false;
   const gradientDirection = bannerBg.gradientDirection || 'to right';
   const tintOpacity = bannerBg.tintOpacity ?? 50;
+  const titleColor = bannerBg.titleColor || '#FFFFFF';
+  const subtitleColor = bannerBg.subtitleColor || '#FCA5A5';
 
   const handleImageSelect = (media: Media) => {
     onChange({
@@ -77,6 +79,20 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
     onChange({
       ...bannerBg,
       tintOpacity: clampedOpacity,
+    });
+  };
+
+  const handleTitleColorChange = (color: string) => {
+    onChange({
+      ...bannerBg,
+      titleColor: color,
+    });
+  };
+
+  const handleSubtitleColorChange = (color: string) => {
+    onChange({
+      ...bannerBg,
+      subtitleColor: color,
     });
   };
 
@@ -289,6 +305,62 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
         </div>
       )}
 
+      {/* Text Colors */}
+      <div className="border-t border-gray-300 pt-4">
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div className="flex items-center gap-2">
+            <Palette className="w-4 h-4" />
+            <span>Text Colors</span>
+          </div>
+        </label>
+
+        <div className="space-y-3">
+          {/* Title Color */}
+          <div>
+            <label className="text-xs text-gray-600 mb-1 block">Title Color</label>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={titleColor}
+                onChange={(e) => handleTitleColorChange(e.target.value)}
+                className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={titleColor}
+                onChange={(e) => handleTitleColorChange(e.target.value)}
+                placeholder="#FFFFFF"
+                className="flex-1 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Subtitle Color */}
+          <div>
+            <label className="text-xs text-gray-600 mb-1 block">Subtitle Color</label>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={subtitleColor}
+                onChange={(e) => handleSubtitleColorChange(e.target.value)}
+                className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={subtitleColor}
+                onChange={(e) => handleSubtitleColorChange(e.target.value)}
+                placeholder="#FCA5A5"
+                className="flex-1 font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-500 mt-2">
+          Choose colors for the title and subtitle text that will be displayed on the banner
+        </p>
+      </div>
+
       {/* Preview */}
       <div className="border-t border-gray-300 pt-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">Preview</label>
@@ -307,8 +379,13 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
           {imageUrl && (
             <div className="absolute inset-0" style={getTintStyle()}></div>
           )}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-white text-xl font-bold drop-shadow-lg">Sample Banner Text</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4">
+            <h1 className="text-2xl font-bold drop-shadow-lg text-center" style={{ color: titleColor }}>
+              About Us
+            </h1>
+            <p className="text-sm drop-shadow-md text-center" style={{ color: subtitleColor }}>
+              Supporting the delivery of quality education to Ghanaians from basic to tertiary level
+            </p>
           </div>
         </div>
       </div>
