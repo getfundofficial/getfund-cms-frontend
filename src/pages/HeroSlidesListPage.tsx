@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { Content, WorkflowStatus } from '../types/content.types';
@@ -100,7 +101,9 @@ export const HeroSlidesListPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-4 sm:space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
         <div className="flex-1 min-w-0">
@@ -240,5 +243,6 @@ export const HeroSlidesListPage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

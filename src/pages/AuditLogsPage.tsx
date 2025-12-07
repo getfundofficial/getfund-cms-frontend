@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import axios from 'axios';
 
 interface AuditLog {
@@ -179,7 +180,9 @@ export const AuditLogsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-4 sm:space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Audit Logs</h1>
@@ -478,5 +481,6 @@ export const AuditLogsPage: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };

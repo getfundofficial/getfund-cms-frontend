@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import mediaService, { Media } from '../services/mediaService';
 import ImageUploader from '../components/Media/ImageUploader';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 
 const MediaLibraryPage: React.FC = () => {
   const [media, setMedia] = useState<Media[]>([]);
@@ -97,9 +98,11 @@ const MediaLibraryPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
+    <>
+      <Breadcrumb />
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -386,6 +389,7 @@ const MediaLibraryPage: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

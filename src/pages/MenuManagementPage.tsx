@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { menuService, MenuItem, CreateMenuItemInput } from '../services/menuService';
 import { pageService } from '../services/pageService';
 import { Button } from '../components/Common/Button';
@@ -322,7 +323,9 @@ export const MenuManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
@@ -384,5 +387,6 @@ export const MenuManagementPage: React.FC = () => {
         {renderItemList(ctaButtons, 'cta')}
       </div>
     </div>
+    </>
   );
 };

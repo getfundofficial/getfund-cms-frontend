@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { pageService, PageSection } from '../services/pageService';
@@ -158,7 +159,9 @@ export const PageEditorPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -366,5 +369,6 @@ export const PageEditorPage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

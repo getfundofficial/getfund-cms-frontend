@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { pageService, Page } from '../services/pageService';
 import { Button } from '../components/Common/Button';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { GripVertical, Eye, EyeOff, Star, Menu, Save } from 'lucide-react';
 
 export const PagesListPage: React.FC = () => {
@@ -181,13 +182,15 @@ export const PagesListPage: React.FC = () => {
   const otherPages = filteredPages.filter(p => !p.show_in_menu && !p.is_cta_button);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Pages & Menu</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Configure navigation menu and edit website pages</p>
-        </div>
+    <>
+      <Breadcrumb />
+      <div className="space-y-4 sm:space-y-6 p-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Pages & Menu</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Configure navigation menu and edit website pages</p>
+          </div>
         <Button
           onClick={saveMenuOrder}
           disabled={isSaving}
@@ -685,5 +688,6 @@ export const PagesListPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };

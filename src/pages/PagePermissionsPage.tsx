@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Common/Button';
@@ -113,7 +114,9 @@ export const PagePermissionsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -347,5 +350,6 @@ export const PagePermissionsPage: React.FC = () => {
         </ul>
       </div>
     </div>
+    </>
   );
 };

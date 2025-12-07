@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import userService, { User } from '../services/userService';
 import UserFormModal from '../components/Users/UserFormModal';
@@ -106,7 +107,9 @@ const UsersListPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Breadcrumb />
+      <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
@@ -413,6 +416,7 @@ const UsersListPage: React.FC = () => {
         user={editingUser}
       />
     </div>
+    </>
   );
 };
 

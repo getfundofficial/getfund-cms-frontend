@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { contentService } from '../services/contentService';
 import { Content } from '../types/content.types';
 import { Button } from '../components/Common/Button';
@@ -94,7 +95,9 @@ export const ReviewQueuePage: React.FC = () => {
 
   if (selectedItem) {
     return (
-      <div className="space-y-4 sm:space-y-6">
+      <>
+        <Breadcrumb />
+        <div className="space-y-4 sm:space-y-6 p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
           <div className="flex-1 min-w-0">
@@ -203,11 +206,14 @@ export const ReviewQueuePage: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-4 sm:space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Review Queue</h1>
@@ -335,5 +341,6 @@ export const ReviewQueuePage: React.FC = () => {
         </>
       )}
     </div>
+    </>
   );
 };

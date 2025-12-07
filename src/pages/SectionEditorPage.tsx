@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { pageService, SectionType } from '../services/pageService';
 import { Button } from '../components/Common/Button';
@@ -388,7 +389,9 @@ export const SectionEditorPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
@@ -525,5 +528,6 @@ export const SectionEditorPage: React.FC = () => {
         </div>
       </form>
     </div>
+    </>
   );
 };

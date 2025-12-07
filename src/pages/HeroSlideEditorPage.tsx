@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
@@ -228,7 +229,9 @@ export const HeroSlideEditorPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -477,5 +480,6 @@ export const HeroSlideEditorPage: React.FC = () => {
         allowUpload={true}
       />
     </div>
+    </>
   );
 };

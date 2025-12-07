@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
@@ -102,7 +103,9 @@ export const HeroSlideViewPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Breadcrumb />
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -273,5 +276,6 @@ export const HeroSlideViewPage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
