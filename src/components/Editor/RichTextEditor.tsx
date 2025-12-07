@@ -69,9 +69,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             return true;
           }
 
-          // If not in a list, insert a tab character or spaces
-          const tabSpaces = '\u00A0\u00A0\u00A0\u00A0'; // 4 non-breaking spaces
-          editor?.chain().focus().insertContent(tabSpaces).run();
+          // If not in a list, insert visible tab spacing (em-space for indentation)
+          // Using a combination of em-space and regular spaces for better visual indentation
+          const tabIndent = '\u2003\u2003'; // 2 em-spaces (1 em-space ≈ width of letter 'M')
+          editor?.chain().focus().insertContent(tabIndent).run();
           return true;
         }
 
