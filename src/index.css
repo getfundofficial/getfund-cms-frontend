@@ -78,3 +78,81 @@ button:focus {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Article content formatting - matches website styles */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose ul li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  display: list-item;
+}
+
+.prose ul li::marker {
+  color: #059669;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose ol li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  display: list-item;
+}
+
+.prose ol li::marker {
+  color: #059669;
+  font-weight: 600;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.prose strong, .prose b {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.prose em, .prose i {
+  font-style: italic;
+}
+
+.prose u {
+  text-decoration: underline;
+}
+
+.prose ul ul,
+.prose ul ol,
+.prose ol ul,
+.prose ol ol {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 2rem;
+}
+
+/* Ensure list items maintain their formatting */
+.prose li > p {
+  margin-bottom: 0.25rem;
+}
+
+/* Preserve white space and formatting */
+.prose pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
