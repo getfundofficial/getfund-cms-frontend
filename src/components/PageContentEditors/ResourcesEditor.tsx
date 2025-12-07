@@ -108,6 +108,8 @@ export const ResourcesEditor: React.FC<ResourcesEditorProps> = ({ content, onCha
             <BannerBackgroundEditor
               value={content.bannerBackground || {}}
               onChange={(bannerBackground) => updateContent({ bannerBackground })}
+              previewTitle={content.heroTitle || 'Resources & Publications'}
+              previewSubtitle={content.heroSubtitle || 'Access our comprehensive collection of reports, policies, research studies, and strategic documents that showcase Ghana\'s educational development journey.'}
             />
 
             <Input

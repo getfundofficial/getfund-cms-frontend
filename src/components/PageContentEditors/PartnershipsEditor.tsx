@@ -125,6 +125,8 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'Partnerships with GETFund'}
+            previewSubtitle="Partner with GETFund to transform education in Ghana"
           />
 
           <Input

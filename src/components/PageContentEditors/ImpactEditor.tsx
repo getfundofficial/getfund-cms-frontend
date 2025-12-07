@@ -220,6 +220,8 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
             <BannerBackgroundEditor
               value={content.bannerBackground || {}}
               onChange={(bannerBackground) => updateContent({ bannerBackground })}
+              previewTitle={content.heroTitle || 'Our Impact'}
+              previewSubtitle={content.heroSubtitle || 'Transforming lives and communities through quality education across Ghana'}
             />
 
             <Input

@@ -121,6 +121,8 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'Why Fundraising?'}
+            previewSubtitle={content.hero?.subtitle || 'Your support helps us expand access to quality education...'}
           />
         </div>
       </div>

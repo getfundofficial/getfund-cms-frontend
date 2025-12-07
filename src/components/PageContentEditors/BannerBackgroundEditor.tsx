@@ -8,6 +8,8 @@ import { BannerBackground } from '../../types/bannerBackground';
 interface BannerBackgroundEditorProps {
   value: BannerBackground;
   onChange: (value: BannerBackground) => void;
+  previewTitle?: string;
+  previewSubtitle?: string;
 }
 
 /**
@@ -17,6 +19,8 @@ interface BannerBackgroundEditorProps {
 export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
   value,
   onChange,
+  previewTitle = 'About Us',
+  previewSubtitle = 'Supporting the delivery of quality education to Ghanaians from basic to tertiary level',
 }) => {
   const [showMediaPicker, setShowMediaPicker] = useState(false);
 
@@ -381,10 +385,10 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
           )}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4">
             <h1 className="text-2xl font-bold drop-shadow-lg text-center" style={{ color: titleColor }}>
-              About Us
+              {previewTitle}
             </h1>
             <p className="text-sm drop-shadow-md text-center" style={{ color: subtitleColor }}>
-              Supporting the delivery of quality education to Ghanaians from basic to tertiary level
+              {previewSubtitle}
             </p>
           </div>
         </div>

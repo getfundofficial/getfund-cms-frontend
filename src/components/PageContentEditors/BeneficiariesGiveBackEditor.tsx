@@ -76,6 +76,8 @@ export const BeneficiariesGiveBackEditor: React.FC<BeneficiariesGiveBackEditorPr
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'GETFund Beneficiaries'}
+            previewSubtitle="To All GETFund Beneficiaries – Give Back, Build Forward"
           />
 
           <Input

@@ -161,6 +161,8 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
             <BannerBackgroundEditor
               value={content.bannerBackground || {}}
               onChange={(bannerBackground) => updateContent({ bannerBackground })}
+              previewTitle={content.heroTitle || 'Who We Are'}
+              previewSubtitle={content.heroSubtitle || 'Supporting the delivery of quality education to Ghanaians from basic to tertiary level'}
             />
           </div>
         )}

@@ -187,6 +187,8 @@ export const WhatWeDoEditor: React.FC<WhatWeDoEditorProps> = ({ content, onChang
             <BannerBackgroundEditor
               value={content.bannerBackground || {}}
               onChange={(bannerBackground) => updateContent({ bannerBackground })}
+              previewTitle={content.servicesTitle || 'What We Do'}
+              previewSubtitle={content.servicesSubtitle || 'GETFund is committed to transforming education in Ghana through strategic investments and key initiatives.'}
             />
 
             <Input

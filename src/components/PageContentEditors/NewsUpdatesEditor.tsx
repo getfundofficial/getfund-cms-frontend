@@ -82,6 +82,8 @@ export const NewsUpdatesEditor: React.FC<NewsUpdatesEditorProps> = ({
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'News & Updates'}
+            previewSubtitle={content.hero?.subtitle || 'Transforming Ghana\'s educational landscape through strategic investments and partnerships'}
           />
 
           <Input

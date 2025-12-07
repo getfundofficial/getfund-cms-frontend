@@ -53,6 +53,8 @@ export const GenericPageContentEditor: React.FC<GenericPageContentEditorProps> =
       <BannerBackgroundEditor
         value={content.bannerBackground || {}}
         onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+        previewTitle={content.hero?.title || content.heroTitle || content.title || 'Page Title'}
+        previewSubtitle={content.hero?.subtitle || content.heroSubtitle || content.subtitle || 'Page subtitle or description'}
       />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

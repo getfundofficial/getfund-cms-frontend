@@ -109,6 +109,8 @@ export const EventsEditor: React.FC<EventsEditorProps> = ({
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'Events'}
+            previewSubtitle="Upcoming GETFund events and fundraising activities"
           />
 
           <Input

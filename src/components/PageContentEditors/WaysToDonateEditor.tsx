@@ -181,6 +181,8 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
           <BannerBackgroundEditor
             value={content.bannerBackground || {}}
             onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
+            previewTitle={content.hero?.title || 'Investing in Education. Building Ghana\'s Tomorrow.'}
+            previewSubtitle={content.hero?.subtitle || 'The Ghana Education Trust Fund (GETFund) is committed to advancing education...'}
           />
 
           <Input
