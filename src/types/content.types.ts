@@ -50,4 +50,6 @@ export interface DashboardStats {
   changes_requested: number;
   approved: number;
   published: number;
+  total_pages: number;
+  total_news: number;
 }
