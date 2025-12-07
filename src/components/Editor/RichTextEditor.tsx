@@ -52,6 +52,31 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[300px] px-4 py-3 text-gray-900 prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-6 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4 prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4 prose-ul:text-gray-700 prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4 prose-ol:text-gray-700 prose-li:mb-2 prose-li:ml-2 prose-li:leading-relaxed prose-strong:font-bold prose-strong:text-gray-900',
       },
+      handleKeyDown: (view, event) => {
+        // Handle Tab key for indentation
+        if (event.key === 'Tab') {
+          event.preventDefault();
+
+          // If in a list, indent/outdent the list item
+          if (editor?.isActive('listItem')) {
+            if (event.shiftKey) {
+              // Shift+Tab: outdent (lift) list item
+              editor.chain().focus().liftListItem('listItem').run();
+            } else {
+              // Tab: indent (sink) list item
+              editor.chain().focus().sinkListItem('listItem').run();
+            }
+            return true;
+          }
+
+          // If not in a list, insert a tab character or spaces
+          const tabSpaces = '\u00A0\u00A0\u00A0\u00A0'; // 4 non-breaking spaces
+          editor?.chain().focus().insertContent(tabSpaces).run();
+          return true;
+        }
+
+        return false;
+      },
     },
   });
 
