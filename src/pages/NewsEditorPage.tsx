@@ -22,6 +22,17 @@ export const NewsEditorPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
+  // Get current date/time in local timezone for datetime-local input
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -30,7 +41,7 @@ export const NewsEditorPage: React.FC = () => {
     featured_image: '',
     category: 'NEWS',
     tags: '',
-    published_at: '',
+    published_at: getCurrentDateTime(),
   });
 
   // Auto-save configuration
