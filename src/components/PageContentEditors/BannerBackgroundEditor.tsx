@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import { Image as ImageIcon, Palette, Droplet } from 'lucide-react';
+import { Image as ImageIcon, Palette, Droplet, Blend } from 'lucide-react';
 import { Input } from '../Common/Input';
 import MediaPickerModal from '../Media/MediaPickerModal';
 import { Media } from '../../services/mediaService';
-
-interface BannerBackground {
-  imageUrl?: string | null;
-  tintColor?: string;
-  tintOpacity?: number;
-}
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface BannerBackgroundEditorProps {
   value: BannerBackground;
@@ -17,7 +12,7 @@ interface BannerBackgroundEditorProps {
 
 /**
  * Reusable component for editing banner background settings
- * Supports background image, tint color, and tint opacity
+ * Supports background image, tint color/gradient, and tint opacity
  */
 export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
   value,
@@ -28,6 +23,9 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
   const bannerBg = value || {};
   const imageUrl = bannerBg.imageUrl || null;
   const tintColor = bannerBg.tintColor || '#DC143C';
+  const tintColor2 = bannerBg.tintColor2 || '#B22222';
+  const useGradient = bannerBg.useGradient ?? false;
+  const gradientDirection = bannerBg.gradientDirection || 'to right';
   const tintOpacity = bannerBg.tintOpacity ?? 50;
 
   const handleImageSelect = (media: Media) => {
@@ -52,6 +50,27 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
     });
   };
 
+  const handleTintColor2Change = (color: string) => {
+    onChange({
+      ...bannerBg,
+      tintColor2: color,
+    });
+  };
+
+  const handleUseGradientToggle = () => {
+    onChange({
+      ...bannerBg,
+      useGradient: !useGradient,
+    });
+  };
+
+  const handleGradientDirectionChange = (direction: string) => {
+    onChange({
+      ...bannerBg,
+      gradientDirection: direction as BannerBackground['gradientDirection'],
+    });
+  };
+
   const handleTintOpacityChange = (opacity: number) => {
     // Clamp between 0 and 100
     const clampedOpacity = Math.min(100, Math.max(0, opacity));
@@ -59,6 +78,21 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
       ...bannerBg,
       tintOpacity: clampedOpacity,
     });
+  };
+
+  // Generate the tint style for preview
+  const getTintStyle = () => {
+    if (useGradient) {
+      return {
+        backgroundImage: `linear-gradient(${gradientDirection}, ${tintColor}, ${tintColor2})`,
+        opacity: imageUrl ? tintOpacity / 100 : 1,
+      };
+    } else {
+      return {
+        backgroundColor: tintColor,
+        opacity: imageUrl ? tintOpacity / 100 : 1,
+      };
+    }
   };
 
   return (
@@ -124,33 +158,103 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
         </p>
       </div>
 
-      {/* Tint Color */}
+      {/* Gradient Toggle */}
+      <div>
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={useGradient}
+            onChange={handleUseGradientToggle}
+            className="w-5 h-5 rounded border-gray-300 text-getfund-primary focus:ring-getfund-primary cursor-pointer"
+          />
+          <div className="flex items-center gap-2">
+            <Blend className="w-4 h-4 text-gray-700" />
+            <span className="text-sm font-medium text-gray-700">Use Gradient Tint</span>
+          </div>
+        </label>
+        <p className="text-xs text-gray-500 mt-2 ml-8">
+          Enable to create a two-color gradient overlay instead of a solid color
+        </p>
+      </div>
+
+      {/* Tint Color(s) */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4" />
-            <span>Tint Color</span>
+            <span>{useGradient ? 'Gradient Colors' : 'Tint Color'}</span>
           </div>
         </label>
-        <div className="flex gap-3 items-center">
-          <input
-            type="color"
-            value={tintColor}
-            onChange={(e) => handleTintColorChange(e.target.value)}
-            className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
-          />
-          <Input
-            type="text"
-            value={tintColor}
-            onChange={(e) => handleTintColorChange(e.target.value)}
-            placeholder="#DC143C"
-            className="flex-1 font-mono"
-          />
+
+        {/* First Color */}
+        <div className="space-y-3">
+          <div>
+            {useGradient && <label className="text-xs text-gray-600 mb-1 block">Start Color</label>}
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={tintColor}
+                onChange={(e) => handleTintColorChange(e.target.value)}
+                className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={tintColor}
+                onChange={(e) => handleTintColorChange(e.target.value)}
+                placeholder="#DC143C"
+                className="flex-1 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Second Color (only for gradient) */}
+          {useGradient && (
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">End Color</label>
+              <div className="flex gap-3 items-center">
+                <input
+                  type="color"
+                  value={tintColor2}
+                  onChange={(e) => handleTintColor2Change(e.target.value)}
+                  className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={tintColor2}
+                  onChange={(e) => handleTintColor2Change(e.target.value)}
+                  placeholder="#B22222"
+                  className="flex-1 font-mono"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Gradient Direction (only for gradient) */}
+          {useGradient && (
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">Gradient Direction</label>
+              <select
+                value={gradientDirection}
+                onChange={(e) => handleGradientDirectionChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="to right">Left to Right →</option>
+                <option value="to bottom">Top to Bottom ↓</option>
+                <option value="to bottom right">Diagonal ↘</option>
+                <option value="to top right">Diagonal ↗</option>
+              </select>
+            </div>
+          )}
         </div>
+
         <p className="text-xs text-gray-500 mt-2">
           {imageUrl
-            ? 'This color will be overlaid on the background image'
-            : 'This color is used in the gradient background'
+            ? useGradient
+              ? 'This gradient will be overlaid on the background image'
+              : 'This color will be overlaid on the background image'
+            : useGradient
+              ? 'This gradient is used for the background'
+              : 'This color is used in the gradient background'
           }
         </p>
       </div>
@@ -191,19 +295,17 @@ export const BannerBackgroundEditor: React.FC<BannerBackgroundEditorProps> = ({
         <div
           className="w-full h-32 rounded-lg relative overflow-hidden"
           style={{
-            backgroundImage: imageUrl ? `url(${imageUrl})` : 'linear-gradient(to bottom right, #DC143C, #B22222)',
+            backgroundImage: imageUrl
+              ? `url(${imageUrl})`
+              : useGradient
+                ? `linear-gradient(${gradientDirection}, ${tintColor}, ${tintColor2})`
+                : 'linear-gradient(to bottom right, #DC143C, #B22222)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
           {imageUrl && (
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundColor: tintColor,
-                opacity: tintOpacity / 100,
-              }}
-            ></div>
+            <div className="absolute inset-0" style={getTintStyle()}></div>
           )}
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-white text-xl font-bold drop-shadow-lg">Sample Banner Text</p>
