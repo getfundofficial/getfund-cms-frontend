@@ -156,3 +156,17 @@ button:focus {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+/* Slow rotation animation for loading logos */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}

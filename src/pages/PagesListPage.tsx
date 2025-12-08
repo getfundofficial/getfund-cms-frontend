@@ -5,6 +5,7 @@ import { pageService, Page } from '../services/pageService';
 import { Button } from '../components/Common/Button';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { GripVertical, Eye, EyeOff, Star, Menu, Save } from 'lucide-react';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const PagesListPage: React.FC = () => {
   const { user } = useAuth();
@@ -167,14 +168,7 @@ export const PagesListPage: React.FC = () => {
   );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading pages...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading pages..." />;
   }
 
   const menuItems = filteredPages.filter(p => p.show_in_menu && !p.is_cta_button);

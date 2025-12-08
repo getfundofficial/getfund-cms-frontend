@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { pageService, PageSection } from '../services/pageService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 // Page templates are managed in code (getfund-website/src/templates/pages/)
 // These are read-only options for the CMS
@@ -132,14 +133,7 @@ export const PageEditorPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading page...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading page..." />;
   }
 
   if (error && isEditMode) {

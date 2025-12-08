@@ -10,6 +10,7 @@ import { RichTextEditor } from '../components/Editor/RichTextEditor';
 import MediaPickerModal from '../components/Media/MediaPickerModal';
 import { useAutoSave, useLocalStorageRecovery } from '../hooks/useAutoSave';
 import { AutoSaveIndicator } from '../components/Common/AutoSaveIndicator';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const NewsEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -215,14 +216,7 @@ export const NewsEditorPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading article...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading article..." />;
   }
 
   if (error && isEditMode) {

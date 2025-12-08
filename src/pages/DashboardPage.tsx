@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { DashboardStats } from '../types/content.types';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -41,14 +42,7 @@ export const DashboardPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading dashboard..." />;
   }
 
   return (

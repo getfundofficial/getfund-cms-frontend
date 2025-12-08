@@ -20,6 +20,7 @@ import { BeneficiariesGiveBackEditor } from '../components/PageContentEditors/Be
 import { EventsEditor } from '../components/PageContentEditors/EventsEditor';
 import { NewsUpdatesEditor } from '../components/PageContentEditors/NewsUpdatesEditor';
 import { GenericPageContentEditor } from '../components/PageContentEditors/GenericPageContentEditor';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
   const { slug, sectionKey } = useParams<{ slug: string; sectionKey: string }>();
@@ -378,14 +379,7 @@ export const SectionEditorPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading section...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading section..." />;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Common/Button';
 import { pageService, PagePermission } from '../services/pageService';
 import { api } from '../services/api';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 interface User {
   id: string;
@@ -103,14 +104,7 @@ export const PagePermissionsPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading permissions...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading permissions..." />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import userService, { User } from '../services/userService';
 import UserFormModal from '../components/Users/UserFormModal';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 const UsersListPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -191,10 +192,7 @@ const UsersListPage: React.FC = () => {
 
         {loading ? (
           /* Loading */
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
-            <p className="mt-4 text-gray-600">Loading users...</p>
-          </div>
+          <LoadingScreen message="Loading users..." />
         ) : error ? (
           /* Error */
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">

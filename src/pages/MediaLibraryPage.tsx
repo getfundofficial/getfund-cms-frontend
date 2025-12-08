@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import mediaService, { Media } from '../services/mediaService';
 import ImageUploader from '../components/Media/ImageUploader';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 const MediaLibraryPage: React.FC = () => {
   const [media, setMedia] = useState<Media[]>([]);
@@ -161,9 +162,7 @@ const MediaLibraryPage: React.FC = () => {
 
             {loading ? (
               /* Loading */
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-              </div>
+              <LoadingScreen message="Loading media library..." />
             ) : error ? (
               /* Error */
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">

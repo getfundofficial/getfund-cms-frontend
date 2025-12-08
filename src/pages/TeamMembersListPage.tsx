@@ -6,6 +6,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableTeamMemberCard } from '../components/TeamMembers/SortableTeamMemberCard';
 import { TeamMemberModal } from '../components/TeamMembers/TeamMemberModal';
+import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const TeamMembersListPage: React.FC = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -147,14 +148,7 @@ export const TeamMembersListPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading team members...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading team members..." />;
   }
 
   return (
