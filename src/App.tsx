@@ -20,6 +20,7 @@ import { SectionEditorPage } from './pages/SectionEditorPage';
 import { MenuManagementPage } from './pages/MenuManagementPage';
 import { TeamMembersListPage } from './pages/TeamMembersListPage';
 import ImpactStatsManager from './components/ImpactStatsManager';
+import FooterConfigEditor from './components/FooterConfigEditor';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -224,6 +225,18 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <ImpactStatsManager />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Footer Settings Route */}
+          <Route
+            path="/admin/footer-settings"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <FooterConfigEditor />
                 </AdminLayout>
               </ProtectedRoute>
             }
