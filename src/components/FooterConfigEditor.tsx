@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { footerService, FooterConfig, UpdateFooterConfigInput } from '../services/footerService';
 
 export default function FooterConfigEditor() {
-  const [config, setConfig] = useState<FooterConfig | null>(null);
+  const [, setConfig] = useState<FooterConfig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
