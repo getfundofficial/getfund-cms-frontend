@@ -177,7 +177,7 @@ export const CampaignEditorPage: React.FC = () => {
         alert('Campaign created successfully');
       }
 
-      navigate('/campaigns');
+      navigate('/admin/campaigns');
     } catch (error: any) {
       alert(error.response?.data?.error || 'Failed to save campaign');
     } finally {
@@ -203,8 +203,8 @@ export const CampaignEditorPage: React.FC = () => {
     <div className="p-6">
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/dashboard' },
-          { label: 'Campaigns', path: '/campaigns' },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Campaigns', path: '/admin/campaigns' },
           { label: isEditMode ? 'Edit Campaign' : 'New Campaign', path: '' }
         ]}
       />
@@ -452,7 +452,7 @@ export const CampaignEditorPage: React.FC = () => {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate('/campaigns')}
+              onClick={() => navigate('/admin/campaigns')}
             >
               Cancel
             </Button>
