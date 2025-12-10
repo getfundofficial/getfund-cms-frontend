@@ -21,6 +21,10 @@ import { MenuManagementPage } from './pages/MenuManagementPage';
 import { TeamMembersListPage } from './pages/TeamMembersListPage';
 import ImpactStatsManager from './components/ImpactStatsManager';
 import FooterConfigEditor from './components/FooterConfigEditor';
+import { CampaignsListPage } from './pages/CampaignsListPage';
+import { CampaignEditorPage } from './pages/CampaignEditorPage';
+import { LotteryConfigPage } from './pages/LotteryConfigPage';
+import { LotteryEntriesPage } from './pages/LotteryEntriesPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -304,6 +308,74 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <SectionEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Campaigns Routes */}
+          <Route
+            path="/admin/campaigns"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <CampaignsListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/campaigns/new"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <CampaignEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/campaigns/:slug"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <CampaignsListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/campaigns/:slug/edit"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <CampaignEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Lottery Routes */}
+          <Route
+            path="/admin/lottery/config"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <LotteryConfigPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/lottery/entries"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <LotteryEntriesPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
