@@ -112,15 +112,15 @@ export const CampaignsListPage: React.FC = () => {
     <div className="p-6">
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/dashboard' },
-          { label: 'Campaigns', path: '/campaigns' }
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Campaigns', path: '/admin/campaigns' }
         ]}
       />
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Fundraising Campaigns</h1>
         {user?.role === 'admin' && (
-          <Button onClick={() => navigate('/campaigns/new')}>
+          <Button onClick={() => navigate('/admin/campaigns/new')}>
             Create Campaign
           </Button>
         )}
@@ -241,7 +241,7 @@ export const CampaignsListPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => navigate(`/campaigns/${campaign.slug}`)}
+                        onClick={() => navigate(`/admin/campaigns/${campaign.slug}`)}
                         className="text-blue-600 hover:text-blue-900 mr-4"
                       >
                         View
@@ -249,7 +249,7 @@ export const CampaignsListPage: React.FC = () => {
                       {user?.role === 'admin' && (
                         <>
                           <button
-                            onClick={() => navigate(`/campaigns/${campaign.slug}/edit`)}
+                            onClick={() => navigate(`/admin/campaigns/${campaign.slug}/edit`)}
                             className="text-indigo-600 hover:text-indigo-900 mr-4"
                           >
                             Edit
