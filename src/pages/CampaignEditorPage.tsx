@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
-import { campaignsService, Campaign, CreateCampaignDto } from '../services/campaignsService';
+import { campaignsService, CreateCampaignDto } from '../services/campaignsService';
 import { Button } from '../components/Common/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
-import { mediaService } from '../services/mediaService';
+import mediaService from '../services/mediaService';
 
 export const CampaignEditorPage: React.FC = () => {
   const { user } = useAuth();
@@ -144,7 +144,7 @@ export const CampaignEditorPage: React.FC = () => {
       newErrors.goal_amount = 'Goal amount must be greater than 0';
     }
 
-    if (formData.end_date && formData.end_date <= formData.start_date) {
+    if (formData.end_date && formData.start_date && formData.end_date <= formData.start_date) {
       newErrors.end_date = 'End date must be after start date';
     }
 
