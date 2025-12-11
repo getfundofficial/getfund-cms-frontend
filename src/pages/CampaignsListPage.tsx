@@ -12,6 +12,7 @@ export const CampaignsListPage: React.FC = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Campaign['status'] | 'all'>('all');
 
@@ -26,10 +27,12 @@ export const CampaignsListPage: React.FC = () => {
   const loadCampaigns = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const data = await campaignsService.getAll();
       setCampaigns(data);
-    } catch (error) {
-      console.error('Failed to load campaigns:', error);
+    } catch (err: any) {
+      console.error('Failed to load campaigns:', err);
+      setError(err?.message || 'Failed to load campaigns. Please check if the backend server is running.');
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +108,35 @@ export const CampaignsListPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen message="Loading campaigns..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Dashboard', path: '/admin/dashboard' },
+            { label: 'Campaigns', path: '/admin/campaigns' }
+          ]}
+        />
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Fundraising Campaigns</h1>
+          {user?.role === 'admin' && (
+            <Button onClick={() => navigate('/admin/campaigns/new')}>
+              Create Campaign
+            </Button>
+          )}
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Campaigns</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadCampaigns} variant="secondary">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -214,11 +245,11 @@ export const CampaignsListPage: React.FC = () => {
                       <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                         <div
                           className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${Math.min(campaign.percentage_funded || 0, 100)}%` }}
+                          style={{ width: `${Math.min(Number(campaign.percentage_funded) || 0, 100)}%` }}
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {campaign.percentage_funded?.toFixed(1)}% funded
+                        {Number(campaign.percentage_funded || 0).toFixed(1)}% funded
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
