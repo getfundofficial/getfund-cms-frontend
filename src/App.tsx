@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NewsListPage } from './pages/NewsListPage';
@@ -30,9 +31,10 @@ import { AdminLayout } from './components/Layout/AdminLayout';
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
 
@@ -341,7 +343,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminLayout>
-                  <CampaignsListPage />
+                  <CampaignEditorPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
@@ -387,9 +389,10 @@ function App() {
 
           {/* Catch all - redirect to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
