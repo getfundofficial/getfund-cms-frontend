@@ -73,13 +73,6 @@ export const PagesListPage: React.FC = () => {
   };
 
   const toggleShowInMenu = async (slug: string, currentValue: boolean) => {
-    const menuItems = pages.filter(p => p.show_in_menu && !p.is_cta_button);
-    
-    if (!currentValue && menuItems.length >= 6) {
-      alert('Maximum 6 menu items allowed. Please remove another item first.');
-      return;
-    }
-
     try {
       await pageService.updateMenuConfig(slug, { show_in_menu: !currentValue });
       loadPages();
@@ -202,17 +195,17 @@ export const PagesListPage: React.FC = () => {
         </div>
       )}
 
-      {/* Menu Limits Info */}
+      {/* Menu Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
         <div className="flex items-start space-x-2 sm:space-x-3">
           <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <h3 className="text-xs sm:text-sm font-semibold text-blue-900 mb-1">Menu Configuration</h3>
             <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
-              <li>• Maximum <strong>6 menu items</strong> in the main navigation</li>
+              <li>• Add pages to the main navigation using the eye icon</li>
               <li>• <strong>1 CTA button</strong> (Call-to-Action button)</li>
               <li className="hidden sm:block">• Drag and drop to reorder menu items</li>
-              <li>• Currently: <strong>{menuItems.length}/6 menu items</strong>, <strong>{ctaButton ? '1/1' : '0/1'} CTA button</strong></li>
+              <li>• Currently: <strong>{menuItems.length} menu items</strong>, <strong>{ctaButton ? '1/1' : '0/1'} CTA button</strong></li>
             </ul>
           </div>
         </div>
@@ -232,7 +225,7 @@ export const PagesListPage: React.FC = () => {
       {/* Main Menu Items */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Main Menu Items ({menuItems.length}/6)</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Main Menu Items ({menuItems.length})</h2>
           <p className="text-xs sm:text-sm text-gray-600 mt-1">
             <span className="hidden sm:inline">Drag to reorder • Click eye icon to hide from menu</span>
             <span className="sm:hidden">Tap to edit • Click eye to remove</span>
@@ -536,13 +529,8 @@ export const PagesListPage: React.FC = () => {
                 <div className="col-span-3 flex items-center justify-end space-x-2">
                   <button
                     onClick={() => toggleShowInMenu(page.slug, false)}
-                    className={`p-2 rounded-lg hover:bg-gray-100 ${
-                      menuItems.length >= 6
-                        ? 'text-gray-300 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-green-600'
-                    }`}
-                    title={menuItems.length >= 6 ? 'Menu is full (6/6)' : 'Add to menu'}
-                    disabled={menuItems.length >= 6}
+                    className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-green-600"
+                    title="Add to menu"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
@@ -614,13 +602,8 @@ export const PagesListPage: React.FC = () => {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => toggleShowInMenu(page.slug, false)}
-                  disabled={menuItems.length >= 6}
-                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md ${
-                    menuItems.length >= 6
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'text-green-700 bg-green-50 hover:bg-green-100'
-                  }`}
-                  title={menuItems.length >= 6 ? 'Menu is full (6/6)' : 'Add to menu'}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100"
+                  title="Add to menu"
                 >
                   <Eye className="w-3 h-3 mr-1" />
                   Add to Menu

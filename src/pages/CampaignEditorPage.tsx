@@ -305,7 +305,7 @@ export const CampaignEditorPage: React.FC = () => {
               <p className="mt-1 text-sm text-blue-600">Uploading image...</p>
             )}
             <p className="mt-1 text-xs text-gray-500">
-              Recommended: 1200x600px, max 5MB
+              Supported formats: JPEG, PNG, GIF, WebP. Recommended: 1200x600px, max 5MB
             </p>
           </div>
 
