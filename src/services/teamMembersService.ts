@@ -43,20 +43,28 @@ export const teamMembersService = {
    * Get all team members
    */
   async getAll(role?: string): Promise<TeamMember[]> {
-    const url = role ? `${API_URL}/team-members?role=${role}` : `${API_URL}/team-members`;
-    const response = await axios.get(url);
+    try {
+      const url = role ? `${API_URL}/team-members?role=${role}` : `${API_URL}/team-members`;
+      console.log('[TeamMembersService] Fetching from:', url);
+      const response = await axios.get(url);
+      console.log('[TeamMembersService] Response:', response.data);
 
-    // If no role specified, the API returns grouped data
-    if (!role && response.data.data) {
-      const { chairman, management, historical_admins } = response.data.data;
-      const all: TeamMember[] = [];
-      if (chairman) all.push(chairman);
-      all.push(...management);
-      all.push(...historical_admins);
-      return all.sort((a, b) => a.display_order - b.display_order);
+      // If no role specified, the API returns grouped data
+      if (!role && response.data.data) {
+        const { chairman, management = [], historical_admins = [] } = response.data.data;
+        const all: TeamMember[] = [];
+        if (chairman) all.push(chairman);
+        if (Array.isArray(management)) all.push(...management);
+        if (Array.isArray(historical_admins)) all.push(...historical_admins);
+        console.log('[TeamMembersService] Combined members:', all.length);
+        return all.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+      }
+
+      return response.data.data || [];
+    } catch (error) {
+      console.error('[TeamMembersService] Error fetching team members:', error);
+      throw error;
     }
-
-    return response.data.data || [];
   },
 
   /**

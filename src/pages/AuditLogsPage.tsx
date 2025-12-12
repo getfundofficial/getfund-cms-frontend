@@ -76,12 +76,15 @@ export const AuditLogsPage: React.FC = () => {
 
       console.log('Audit logs response:', response.data);
 
-      setLogs(response.data.logs);
-      setTotal(response.data.total);
+      const logsData = response.data?.logs || [];
+      const totalData = response.data?.total || 0;
+
+      setLogs(logsData);
+      setTotal(totalData);
       setIsLoading(false); // Show logs immediately
 
       // Fetch content details asynchronously (don't block rendering)
-      const contentLogs = response.data.logs.filter(log => log.entity_type === 'content');
+      const contentLogs = logsData.filter(log => log.entity_type === 'content');
       const contentIds = [...new Set(contentLogs.map(log => log.entity_id))];
 
       // Fetch content details in background
