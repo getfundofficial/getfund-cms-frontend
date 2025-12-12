@@ -26,6 +26,7 @@ import { CampaignsListPage } from './pages/CampaignsListPage';
 import { CampaignEditorPage } from './pages/CampaignEditorPage';
 import { LotteryConfigPage } from './pages/LotteryConfigPage';
 import { LotteryEntriesPage } from './pages/LotteryEntriesPage';
+import { PledgesPage } from './pages/PledgesPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -378,6 +379,18 @@ function App() {
               <ProtectedRoute requiredRoles={['admin']}>
                 <AdminLayout>
                   <LotteryEntriesPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Pledges Route */}
+          <Route
+            path="/admin/pledges"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <PledgesPage />
                 </AdminLayout>
               </ProtectedRoute>
             }

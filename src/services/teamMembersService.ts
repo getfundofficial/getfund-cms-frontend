@@ -40,25 +40,18 @@ export interface UpdateTeamMemberInput {
 
 export const teamMembersService = {
   /**
-   * Get all team members
+   * Get all team members (for CMS admin - returns flat array including inactive)
    */
   async getAll(role?: string): Promise<TeamMember[]> {
     try {
-      const url = role ? `${API_URL}/team-members?role=${role}` : `${API_URL}/team-members`;
+      // Use all=true to get flat array of all members (including inactive) for CMS admin
+      let url = `${API_URL}/team-members?all=true`;
+      if (role) {
+        url += `&role=${role}`;
+      }
       console.log('[TeamMembersService] Fetching from:', url);
       const response = await axios.get(url);
       console.log('[TeamMembersService] Response:', response.data);
-
-      // If no role specified, the API returns grouped data
-      if (!role && response.data.data) {
-        const { chairman, management = [], historical_admins = [] } = response.data.data;
-        const all: TeamMember[] = [];
-        if (chairman) all.push(chairman);
-        if (Array.isArray(management)) all.push(...management);
-        if (Array.isArray(historical_admins)) all.push(...historical_admins);
-        console.log('[TeamMembersService] Combined members:', all.length);
-        return all.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-      }
 
       return response.data.data || [];
     } catch (error) {

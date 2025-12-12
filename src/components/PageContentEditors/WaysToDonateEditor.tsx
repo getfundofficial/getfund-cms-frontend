@@ -26,6 +26,10 @@ interface WaysToDonateContent {
     title: string;
     subtitle: string;
   };
+  impactVisualized: {
+    totalRaised: string;
+    totalDonations: string;
+  };
   donationOptions: DonationOption[];
   otherWays: {
     heading: string;
@@ -205,6 +209,32 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Impact Visualized Section */}
+      <div className="border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Impact Visualized Section</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          These values appear at the top of the Ways to Donate page showing donation statistics.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            type="text"
+            label="Total Raised"
+            placeholder="GH₵ 2,500,000"
+            value={content.impactVisualized?.totalRaised || ''}
+            onChange={(e) => handleChange('impactVisualized', 'totalRaised', e.target.value)}
+            helperText="Display format: GH₵ X,XXX,XXX"
+          />
+          <Input
+            type="text"
+            label="Total Donations"
+            placeholder="1,234"
+            value={content.impactVisualized?.totalDonations || ''}
+            onChange={(e) => handleChange('impactVisualized', 'totalDonations', e.target.value)}
+            helperText="Number of donations received"
+          />
         </div>
       </div>
 
@@ -464,7 +494,7 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
       {/* Help Text */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-sm text-gray-700">
-          <strong>Note:</strong> The Donation Interface and Contact Section components are hardcoded and managed by developers. Impact Stats can be edited via the Impact Stats Manager. This form only controls the text content and donation option cards.
+          <strong>Note:</strong> The Donation Interface, Pledge to Support form, and Contact Section components are hardcoded and managed by developers. The Impact Visualized values (Total Raised and Total Donations) can be edited above. This form controls the text content, donation option cards, and impact statistics display.
         </p>
       </div>
     </div>
