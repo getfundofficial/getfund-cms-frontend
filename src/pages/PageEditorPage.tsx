@@ -132,6 +132,15 @@ export const PageEditorPage: React.FC = () => {
     }
   };
 
+  const handleToggleSectionVisibility = async (sectionKey: string, currentStatus: boolean) => {
+    try {
+      await pageService.updateSection(slug!, sectionKey, { is_active: !currentStatus });
+      await loadPage();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to update section visibility');
+    }
+  };
+
   if (isLoading) {
     return <LoadingScreen message="Loading page..." />;
   }
@@ -207,6 +216,17 @@ export const PageEditorPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleToggleSectionVisibility(section.section_key, section.is_active)}
+                      className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                        section.is_active
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                      }`}
+                      title={section.is_active ? 'Click to hide this section' : 'Click to show this section'}
+                    >
+                      {section.is_active ? 'Visible' : 'Hidden'}
+                    </button>
                     <button
                       onClick={() => navigate(`/admin/pages/${slug}/sections/${section.section_key}`)}
                       className="px-3 py-1 text-sm text-blue-600 hover:text-blue-900"

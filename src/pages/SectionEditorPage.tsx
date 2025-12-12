@@ -20,6 +20,11 @@ import { BeneficiariesGiveBackEditor } from '../components/PageContentEditors/Be
 import { EventsEditor } from '../components/PageContentEditors/EventsEditor';
 import { NewsUpdatesEditor } from '../components/PageContentEditors/NewsUpdatesEditor';
 import { GenericPageContentEditor } from '../components/PageContentEditors/GenericPageContentEditor';
+import { InfrastructureProjectsEditor } from '../components/PageContentEditors/InfrastructureProjectsEditor';
+import { ScholarshipProgrammeEditor } from '../components/PageContentEditors/ScholarshipProgrammeEditor';
+import { EducationSectorSupportEditor } from '../components/PageContentEditors/EducationSectorSupportEditor';
+import { CommunitySHSEditor } from '../components/PageContentEditors/CommunitySHSEditor';
+import { SEIPEditor } from '../components/PageContentEditors/SEIPEditor';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
@@ -340,6 +345,48 @@ export const SectionEditorPage: React.FC = () => {
             />
           );
         }
+        // Service pages
+        if (slug === 'infrastructure-projects') {
+          return (
+            <InfrastructureProjectsEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'scholarship-programme') {
+          return (
+            <ScholarshipProgrammeEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'education-sector-support') {
+          return (
+            <EducationSectorSupportEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // Portfolio pages
+        if (slug === 'community-shs-programme' || slug === 'free-shs-intervention') {
+          return (
+            <CommunitySHSEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'secondary-education-improvement-programme' || slug === 'seip') {
+          return (
+            <SEIPEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
         // Use generic JSON editor for other pages without custom editors
         return (
           <GenericPageContentEditor
@@ -404,6 +451,36 @@ export const SectionEditorPage: React.FC = () => {
             <p className="text-sm">{error}</p>
           </div>
         )}
+
+        {/* Visibility Toggle - Prominent at the top */}
+        <div className={`rounded-lg shadow p-4 flex items-center justify-between ${
+          formData.is_active ? 'bg-green-50 border border-green-200' : 'bg-orange-50 border border-orange-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${formData.is_active ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+            <div>
+              <span className={`font-medium ${formData.is_active ? 'text-green-800' : 'text-orange-800'}`}>
+                {formData.is_active ? 'Section is Visible' : 'Section is Hidden'}
+              </span>
+              <p className={`text-sm ${formData.is_active ? 'text-green-600' : 'text-orange-600'}`}>
+                {formData.is_active
+                  ? 'This section will appear on the website'
+                  : 'This section will not appear on the website'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              formData.is_active
+                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
+          >
+            {formData.is_active ? 'Hide Section' : 'Show Section'}
+          </button>
+        </div>
 
         {/* Content Editor Card - Now at the top */}
         <div className="bg-white rounded-lg shadow p-6">
