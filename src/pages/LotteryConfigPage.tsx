@@ -19,6 +19,11 @@ export const LotteryConfigPage: React.FC = () => {
     how_it_works_steps: [] as LotteryStep[],
     is_active: true,
     banner_color: '#FCD34D',
+    section_title: '',
+    section_description: '',
+    sharing_enabled: true,
+    share_text: '',
+    share_hashtags: '',
   });
 
   useEffect(() => {
@@ -37,6 +42,11 @@ export const LotteryConfigPage: React.FC = () => {
         how_it_works_steps: data.how_it_works_steps,
         is_active: data.is_active,
         banner_color: data.banner_color,
+        section_title: data.section_title || '',
+        section_description: data.section_description || '',
+        sharing_enabled: data.sharing_enabled !== false,
+        share_text: data.share_text || '',
+        share_hashtags: data.share_hashtags || '',
       });
     } catch (error) {
       console.error('Failed to load lottery config:', error);
@@ -372,6 +382,20 @@ export const LotteryConfigPage: React.FC = () => {
                         <p className="mt-1 text-xs text-red-600">{errors[`prize_${index}_description`]}</p>
                       )}
                     </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Flip Card Description (shown on hover)
+                      </label>
+                      <textarea
+                        value={prize.flip_description || ''}
+                        onChange={(e) => updatePrize(index, 'flip_description', e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Additional details shown when prize card is flipped..."
+                      />
+                      <p className="mt-1 text-xs text-gray-500">Optional: This text appears when users hover/tap on the prize card</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -440,9 +464,105 @@ export const LotteryConfigPage: React.FC = () => {
                         <p className="mt-1 text-xs text-red-600">{errors[`step_${index}_description`]}</p>
                       )}
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Flip Card Description (shown on hover)
+                      </label>
+                      <textarea
+                        value={step.flip_description || ''}
+                        onChange={(e) => updateStep(index, 'flip_description', e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Additional details shown when step card is flipped..."
+                      />
+                      <p className="mt-1 text-xs text-gray-500">Optional: This text appears when users hover/tap on the step card</p>
+                    </div>
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Section Title & Description */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Display Settings</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Section Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.section_title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section_title: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="GETFund Scholarship Lottery"
+                />
+                <p className="mt-1 text-xs text-gray-500">Main title displayed above the lottery section on the website</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Section Description
+                </label>
+                <textarea
+                  value={formData.section_description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section_description: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Every contribution to our campaigns automatically enters you into our monthly scholarship lottery..."
+                />
+                <p className="mt-1 text-xs text-gray-500">This text appears below the title on the website</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Sharing Settings */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Sharing</h2>
+
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.sharing_enabled}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sharing_enabled: e.target.checked }))}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-gray-700">
+                  Enable social sharing buttons
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Share Text
+                </label>
+                <textarea
+                  value={formData.share_text}
+                  onChange={(e) => setFormData(prev => ({ ...prev, share_text: e.target.value }))}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Support education in Ghana and enter the GETFund Scholarship Lottery!"
+                />
+                <p className="mt-1 text-xs text-gray-500">Text that will be pre-filled when sharing on social media</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Hashtags (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.share_hashtags}
+                  onChange={(e) => setFormData(prev => ({ ...prev, share_hashtags: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="GETFund,EducationGhana,ScholarshipLottery"
+                />
+                <p className="mt-1 text-xs text-gray-500">Hashtags to include when sharing (without # symbol)</p>
+              </div>
             </div>
           </div>
 
