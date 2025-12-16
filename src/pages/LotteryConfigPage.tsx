@@ -21,6 +21,7 @@ export const LotteryConfigPage: React.FC = () => {
     banner_color: '#FCD34D',
     section_title: '',
     section_description: '',
+    prize_box_title: '',
     sharing_enabled: true,
     share_text: '',
     share_hashtags: '',
@@ -44,6 +45,7 @@ export const LotteryConfigPage: React.FC = () => {
         banner_color: data.banner_color,
         section_title: data.section_title || '',
         section_description: data.section_description || '',
+        prize_box_title: data.prize_box_title || '',
         sharing_enabled: data.sharing_enabled !== false,
         share_text: data.share_text || '',
         share_hashtags: data.share_hashtags || '',
@@ -515,6 +517,20 @@ export const LotteryConfigPage: React.FC = () => {
                   placeholder="Every contribution to our campaigns automatically enters you into our monthly scholarship lottery..."
                 />
                 <p className="mt-1 text-xs text-gray-500">This text appears below the title on the website</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prize Box Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.prize_box_title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, prize_box_title: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Monthly Scholarship Prizes"
+                />
+                <p className="mt-1 text-xs text-gray-500">Title displayed above the prize box on the website</p>
               </div>
             </div>
           </div>
