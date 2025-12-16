@@ -26,6 +26,7 @@ export interface LotteryConfig {
   banner_color: string;
   section_title?: string;
   section_description?: string;
+  prize_box_title?: string;
   sharing_enabled?: boolean;
   share_text?: string;
   share_hashtags?: string;
@@ -43,6 +44,7 @@ export interface UpdateLotteryConfigDto {
   banner_color?: string;
   section_title?: string;
   section_description?: string;
+  prize_box_title?: string;
   sharing_enabled?: boolean;
   share_text?: string;
   share_hashtags?: string;
