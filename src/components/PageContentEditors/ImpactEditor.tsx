@@ -25,11 +25,33 @@ interface Achievement {
   description: string;
 }
 
+interface ProjectCategory {
+  category: string;
+  count: number;
+  description: string;
+  image?: string;
+}
+
+interface ResourceDistribution {
+  type: string;
+  count: number;
+  period: string;
+  image?: string;
+}
+
+interface ScholarshipCategory {
+  title: string;
+  description: string;
+}
+
 interface Region {
   name: string;
-  schools: number;
-  students: number;
-  projects: number;
+  totalProjects: number;
+  basicEducation?: number;
+  secondaryEducation?: number;
+  tertiaryEducation?: number;
+  modelSchools?: number;
+  tvetCenters?: number;
 }
 
 interface ImpactContent {
@@ -44,10 +66,34 @@ interface ImpactContent {
   statsSubtitle?: string;
   stats?: StatItem[];
 
+  // Project Portfolio
+  portfolioTitle?: string;
+  portfolioSubtitle?: string;
+  projectCategories?: ProjectCategory[];
+
+  // Resources Distributed
+  resourcesTitle?: string;
+  resourcesSubtitle?: string;
+  resources?: ResourceDistribution[];
+
   // Impact Stories
   storiesTitle?: string;
   storiesSubtitle?: string;
   stories?: ImpactStory[];
+
+  // Scholarship Program
+  scholarshipTitle?: string;
+  scholarshipSubtitle?: string;
+  totalScholars?: string;
+  scholarshipGrowth?: {
+    from: { year: string; count: number };
+    to: { year: string; count: number };
+  };
+  percentToPublicUniversities?: string;
+  scholarshipCategories?: ScholarshipCategory[];
+  reforms?: string[];
+  universityLogos?: string[];
+  scholarshipImages?: string[];
 
   // Achievements Timeline
   achievementsTitle?: string;
@@ -58,6 +104,7 @@ interface ImpactContent {
   regionalTitle?: string;
   regionalSubtitle?: string;
   regionalDescription?: string;
+  regionalMap?: string;
   regions?: Region[];
 
   // Call to Action
@@ -72,7 +119,7 @@ interface ImpactEditorProps {
   onChange: (content: ImpactContent) => void;
 }
 
-type TabKey = 'hero' | 'statistics' | 'stories' | 'achievements' | 'regional' | 'cta';
+type TabKey = 'hero' | 'statistics' | 'portfolio' | 'resources' | 'stories' | 'scholarship' | 'achievements' | 'regional' | 'cta';
 
 export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('hero');
@@ -153,13 +200,140 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
     updateContent({ achievements: updatedAchievements });
   };
 
+  // Project Categories array management
+  const addProjectCategory = () => {
+    const newCategory: ProjectCategory = {
+      category: '',
+      count: 0,
+      description: '',
+      image: ''
+    };
+    updateContent({
+      projectCategories: [...(content.projectCategories || []), newCategory]
+    });
+  };
+
+  const updateProjectCategory = (index: number, updates: Partial<ProjectCategory>) => {
+    const updatedCategories = [...(content.projectCategories || [])];
+    updatedCategories[index] = { ...updatedCategories[index], ...updates };
+    updateContent({ projectCategories: updatedCategories });
+  };
+
+  const removeProjectCategory = (index: number) => {
+    const updatedCategories = (content.projectCategories || []).filter((_, i) => i !== index);
+    updateContent({ projectCategories: updatedCategories });
+  };
+
+  // Resources array management
+  const addResource = () => {
+    const newResource: ResourceDistribution = {
+      type: '',
+      count: 0,
+      period: '',
+      image: ''
+    };
+    updateContent({
+      resources: [...(content.resources || []), newResource]
+    });
+  };
+
+  const updateResource = (index: number, updates: Partial<ResourceDistribution>) => {
+    const updatedResources = [...(content.resources || [])];
+    updatedResources[index] = { ...updatedResources[index], ...updates };
+    updateContent({ resources: updatedResources });
+  };
+
+  const removeResource = (index: number) => {
+    const updatedResources = (content.resources || []).filter((_, i) => i !== index);
+    updateContent({ resources: updatedResources });
+  };
+
+  // Scholarship Categories array management
+  const addScholarshipCategory = () => {
+    const newCategory: ScholarshipCategory = {
+      title: '',
+      description: ''
+    };
+    updateContent({
+      scholarshipCategories: [...(content.scholarshipCategories || []), newCategory]
+    });
+  };
+
+  const updateScholarshipCategory = (index: number, updates: Partial<ScholarshipCategory>) => {
+    const updatedCategories = [...(content.scholarshipCategories || [])];
+    updatedCategories[index] = { ...updatedCategories[index], ...updates };
+    updateContent({ scholarshipCategories: updatedCategories });
+  };
+
+  const removeScholarshipCategory = (index: number) => {
+    const updatedCategories = (content.scholarshipCategories || []).filter((_, i) => i !== index);
+    updateContent({ scholarshipCategories: updatedCategories });
+  };
+
+  // Reforms array management
+  const addReform = () => {
+    updateContent({
+      reforms: [...(content.reforms || []), '']
+    });
+  };
+
+  const updateReform = (index: number, value: string) => {
+    const updatedReforms = [...(content.reforms || [])];
+    updatedReforms[index] = value;
+    updateContent({ reforms: updatedReforms });
+  };
+
+  const removeReform = (index: number) => {
+    const updatedReforms = (content.reforms || []).filter((_, i) => i !== index);
+    updateContent({ reforms: updatedReforms });
+  };
+
+  // University Logos array management
+  const addUniversityLogo = () => {
+    updateContent({
+      universityLogos: [...(content.universityLogos || []), '']
+    });
+  };
+
+  const updateUniversityLogo = (index: number, value: string) => {
+    const updatedLogos = [...(content.universityLogos || [])];
+    updatedLogos[index] = value;
+    updateContent({ universityLogos: updatedLogos });
+  };
+
+  const removeUniversityLogo = (index: number) => {
+    const updatedLogos = (content.universityLogos || []).filter((_, i) => i !== index);
+    updateContent({ universityLogos: updatedLogos });
+  };
+
+  // Scholarship Images array management
+  const addScholarshipImage = () => {
+    updateContent({
+      scholarshipImages: [...(content.scholarshipImages || []), '']
+    });
+  };
+
+  const updateScholarshipImage = (index: number, value: string) => {
+    const updatedImages = [...(content.scholarshipImages || [])];
+    updatedImages[index] = value;
+    updateContent({ scholarshipImages: updatedImages });
+  };
+
+  const removeScholarshipImage = (index: number) => {
+    const updatedImages = (content.scholarshipImages || []).filter((_, i) => i !== index);
+    updateContent({ scholarshipImages: updatedImages });
+  };
+
   // Regions array management
   const addRegion = () => {
     const newRegion: Region = {
       name: '',
-      schools: 0,
-      students: 0,
-      projects: 0
+      totalProjects: 0,
+      basicEducation: 0,
+      secondaryEducation: 0,
+      tertiaryEducation: 0,
+      modelSchools: 0,
+      tvetCenters: 0
     };
     updateContent({
       regions: [...(content.regions || []), newRegion]
@@ -180,7 +354,10 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
   const tabs = [
     { key: 'hero' as TabKey, label: 'Hero Section' },
     { key: 'statistics' as TabKey, label: 'Statistics' },
+    { key: 'portfolio' as TabKey, label: 'Project Portfolio' },
+    { key: 'resources' as TabKey, label: 'Resources Distributed' },
     { key: 'stories' as TabKey, label: 'Impact Stories' },
+    { key: 'scholarship' as TabKey, label: 'Scholarship Program' },
     { key: 'achievements' as TabKey, label: 'Achievements' },
     { key: 'regional' as TabKey, label: 'Regional Impact' },
     { key: 'cta' as TabKey, label: 'Call to Action' },
@@ -341,6 +518,178 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
           </div>
         )}
 
+        {/* Project Portfolio Tab */}
+        {activeTab === 'portfolio' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Portfolio</h3>
+              <div className="space-y-4">
+                <Input
+                  label="Section Title"
+                  value={content.portfolioTitle || ''}
+                  onChange={(e) => updateContent({ portfolioTitle: e.target.value })}
+                  placeholder="Project Portfolio"
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Section Subtitle
+                  </label>
+                  <textarea
+                    value={content.portfolioSubtitle || ''}
+                    onChange={(e) => updateContent({ portfolioSubtitle: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Our comprehensive investment across all levels of education"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Project Category Items */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Project Categories</h4>
+                <button
+                  type="button"
+                  onClick={addProjectCategory}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Category
+                </button>
+              </div>
+              <div className="space-y-4">
+                {(content.projectCategories || []).map((category, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <span className="text-sm font-medium text-gray-700">Category {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeProjectCategory(index)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="Category Name"
+                        value={category.category}
+                        onChange={(e) => updateProjectCategory(index, { category: e.target.value })}
+                        placeholder="Basic Education"
+                      />
+                      <Input
+                        label="Count"
+                        type="number"
+                        value={category.count.toString()}
+                        onChange={(e) => updateProjectCategory(index, { count: parseInt(e.target.value) || 0 })}
+                        placeholder="6272"
+                      />
+                    </div>
+                    <Input
+                      label="Description"
+                      value={category.description}
+                      onChange={(e) => updateProjectCategory(index, { description: e.target.value })}
+                      placeholder="Primary and elementary schools"
+                    />
+                    <ImageInput
+                      label="Image URL"
+                      value={category.image || ''}
+                      onChange={(value) => updateProjectCategory(index, { image: value })}
+                      placeholder="/images/impact/infrastructure-1.jpg"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Resources Distributed Tab */}
+        {activeTab === 'resources' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resources Distributed</h3>
+              <div className="space-y-4">
+                <Input
+                  label="Section Title"
+                  value={content.resourcesTitle || ''}
+                  onChange={(e) => updateContent({ resourcesTitle: e.target.value })}
+                  placeholder="Resources Distributed"
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Section Subtitle
+                  </label>
+                  <textarea
+                    value={content.resourcesSubtitle || ''}
+                    onChange={(e) => updateContent({ resourcesSubtitle: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Supporting education with essential equipment and resources"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Resource Items */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Resources</h4>
+                <button
+                  type="button"
+                  onClick={addResource}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Resource
+                </button>
+              </div>
+              <div className="space-y-4">
+                {(content.resources || []).map((resource, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <span className="text-sm font-medium text-gray-700">Resource {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeResource(index)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <Input
+                        label="Type"
+                        value={resource.type}
+                        onChange={(e) => updateResource(index, { type: e.target.value })}
+                        placeholder="Vehicles"
+                      />
+                      <Input
+                        label="Count"
+                        type="number"
+                        value={resource.count.toString()}
+                        onChange={(e) => updateResource(index, { count: parseInt(e.target.value) || 0 })}
+                        placeholder="2718"
+                      />
+                      <Input
+                        label="Period"
+                        value={resource.period}
+                        onChange={(e) => updateResource(index, { period: e.target.value })}
+                        placeholder="2019-2021"
+                      />
+                    </div>
+                    <ImageInput
+                      label="Image URL"
+                      value={resource.image || ''}
+                      onChange={(value) => updateResource(index, { image: value })}
+                      placeholder="/images/impact/vehicles-1.jpg"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stories Tab */}
         {activeTab === 'stories' && (
           <div className="space-y-6">
@@ -425,6 +774,272 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
                       onChange={(value) => updateStory(index, { image: value })}
                       placeholder="/images/impact/student-1.jpg"
                     />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Scholarship Program Tab */}
+        {activeTab === 'scholarship' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Scholarship Program</h3>
+              <div className="space-y-4">
+                <Input
+                  label="Section Title"
+                  value={content.scholarshipTitle || ''}
+                  onChange={(e) => updateContent({ scholarshipTitle: e.target.value })}
+                  placeholder="Scholarship Program"
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Section Subtitle
+                  </label>
+                  <textarea
+                    value={content.scholarshipSubtitle || ''}
+                    onChange={(e) => updateContent({ scholarshipSubtitle: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Transforming lives through educational opportunities"
+                  />
+                </div>
+                <Input
+                  label="Total Scholars"
+                  value={content.totalScholars || ''}
+                  onChange={(e) => updateContent({ totalScholars: e.target.value })}
+                  placeholder="16,000+"
+                />
+                <Input
+                  label="Percent to Public Universities"
+                  value={content.percentToPublicUniversities || ''}
+                  onChange={(e) => updateContent({ percentToPublicUniversities: e.target.value })}
+                  placeholder="74%"
+                />
+              </div>
+            </div>
+
+            {/* Scholarship Growth */}
+            <div>
+              <h4 className="text-md font-medium text-gray-900 mb-3">Scholarship Growth</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">From Year</label>
+                  <Input
+                    label="Year"
+                    value={content.scholarshipGrowth?.from?.year || ''}
+                    onChange={(e) => updateContent({
+                      scholarshipGrowth: {
+                        ...content.scholarshipGrowth,
+                        from: {
+                          year: e.target.value,
+                          count: content.scholarshipGrowth?.from?.count || 0
+                        } as { year: string; count: number },
+                        to: content.scholarshipGrowth?.to || { year: '', count: 0 }
+                      }
+                    })}
+                    placeholder="2019/20"
+                  />
+                  <Input
+                    label="Count"
+                    type="number"
+                    value={content.scholarshipGrowth?.from?.count?.toString() || ''}
+                    onChange={(e) => updateContent({
+                      scholarshipGrowth: {
+                        ...content.scholarshipGrowth,
+                        from: {
+                          year: content.scholarshipGrowth?.from?.year || '',
+                          count: parseInt(e.target.value) || 0
+                        } as { year: string; count: number },
+                        to: content.scholarshipGrowth?.to || { year: '', count: 0 }
+                      }
+                    })}
+                    placeholder="1680"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">To Year</label>
+                  <Input
+                    label="Year"
+                    value={content.scholarshipGrowth?.to?.year || ''}
+                    onChange={(e) => updateContent({
+                      scholarshipGrowth: {
+                        ...content.scholarshipGrowth,
+                        from: content.scholarshipGrowth?.from || { year: '', count: 0 },
+                        to: {
+                          year: e.target.value,
+                          count: content.scholarshipGrowth?.to?.count || 0
+                        } as { year: string; count: number }
+                      }
+                    })}
+                    placeholder="2023/24"
+                  />
+                  <Input
+                    label="Count"
+                    type="number"
+                    value={content.scholarshipGrowth?.to?.count?.toString() || ''}
+                    onChange={(e) => updateContent({
+                      scholarshipGrowth: {
+                        ...content.scholarshipGrowth,
+                        from: content.scholarshipGrowth?.from || { year: '', count: 0 },
+                        to: {
+                          year: content.scholarshipGrowth?.to?.year || '',
+                          count: parseInt(e.target.value) || 0
+                        } as { year: string; count: number }
+                      }
+                    })}
+                    placeholder="5026"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Scholarship Categories */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Scholarship Categories</h4>
+                <button
+                  type="button"
+                  onClick={addScholarshipCategory}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Category
+                </button>
+              </div>
+              <div className="space-y-4">
+                {(content.scholarshipCategories || []).map((category, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <span className="text-sm font-medium text-gray-700">Category {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeScholarshipCategory(index)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <Input
+                      label="Title"
+                      value={category.title}
+                      onChange={(e) => updateScholarshipCategory(index, { title: e.target.value })}
+                      placeholder="General Scholarships"
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        value={category.description}
+                        onChange={(e) => updateScholarshipCategory(index, { description: e.target.value })}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Applications from general population for Tertiary education"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Reforms */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Key Reforms</h4>
+                <button
+                  type="button"
+                  onClick={addReform}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Reform
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(content.reforms || []).map((reform, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={reform}
+                      onChange={(e) => updateReform(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Streamlined eligibility criteria"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeReform(index)}
+                      className="px-3 py-2 text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* University Logos */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">University Logos</h4>
+                <button
+                  type="button"
+                  onClick={addUniversityLogo}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Logo
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(content.universityLogos || []).map((logo, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={logo}
+                      onChange={(e) => updateUniversityLogo(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="/images/impact/universities/ug-logo.png"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeUniversityLogo(index)}
+                      className="px-3 py-2 text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Scholarship Images */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Scholarship Images</h4>
+                <button
+                  type="button"
+                  onClick={addScholarshipImage}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Image
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(content.scholarshipImages || []).map((image, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={image}
+                      onChange={(e) => updateScholarshipImage(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="/images/impact/scholarship-1.jpg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeScholarshipImage(index)}
+                      className="px-3 py-2 text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
               </div>
@@ -553,6 +1168,12 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
                     placeholder="Additional description about regional impact..."
                   />
                 </div>
+                <ImageInput
+                  label="Regional Map Image URL"
+                  value={content.regionalMap || ''}
+                  onChange={(value) => updateContent({ regionalMap: value })}
+                  placeholder="/images/impact/ghana-regional-map.png"
+                />
               </div>
             </div>
 
@@ -585,29 +1206,54 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
                       label="Region Name"
                       value={region.name}
                       onChange={(e) => updateRegion(index, { name: e.target.value })}
-                      placeholder="Greater Accra"
+                      placeholder="Ashanti"
                     />
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <Input
-                        label="Schools"
+                        label="Total Projects"
                         type="number"
-                        value={region.schools.toString()}
-                        onChange={(e) => updateRegion(index, { schools: parseInt(e.target.value) || 0 })}
-                        placeholder="850"
+                        value={region.totalProjects?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { totalProjects: parseInt(e.target.value) || 0 })}
+                        placeholder="748"
                       />
                       <Input
-                        label="Students"
+                        label="Basic Education"
                         type="number"
-                        value={region.students.toString()}
-                        onChange={(e) => updateRegion(index, { students: parseInt(e.target.value) || 0 })}
-                        placeholder="425000"
+                        value={region.basicEducation?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { basicEducation: parseInt(e.target.value) || 0 })}
+                        placeholder="451"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="Secondary Education"
+                        type="number"
+                        value={region.secondaryEducation?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { secondaryEducation: parseInt(e.target.value) || 0 })}
+                        placeholder="281"
                       />
                       <Input
-                        label="Projects"
+                        label="Tertiary Education"
                         type="number"
-                        value={region.projects.toString()}
-                        onChange={(e) => updateRegion(index, { projects: parseInt(e.target.value) || 0 })}
+                        value={region.tertiaryEducation?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { tertiaryEducation: parseInt(e.target.value) || 0 })}
                         placeholder="12"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="Model Schools"
+                        type="number"
+                        value={region.modelSchools?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { modelSchools: parseInt(e.target.value) || 0 })}
+                        placeholder="2"
+                      />
+                      <Input
+                        label="TVET Centers"
+                        type="number"
+                        value={region.tvetCenters?.toString() || '0'}
+                        onChange={(e) => updateRegion(index, { tvetCenters: parseInt(e.target.value) || 0 })}
+                        placeholder="2"
                       />
                     </div>
                   </div>
