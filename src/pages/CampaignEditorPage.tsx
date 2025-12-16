@@ -5,7 +5,8 @@ import { campaignsService, CreateCampaignDto } from '../services/campaignsServic
 import { Button } from '../components/Common/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
-import mediaService from '../services/mediaService';
+import mediaService, { Media } from '../services/mediaService';
+import MediaPickerModal from '../components/Media/MediaPickerModal';
 
 export const CampaignEditorPage: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export const CampaignEditorPage: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<CreateCampaignDto>({
@@ -94,28 +95,14 @@ export const CampaignEditorPage: React.FC = () => {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleMediaSelect = (media: Media) => {
+    const fullUrl = mediaService.getFullUrl(media.url);
+    setFormData(prev => ({ ...prev, image_url: fullUrl }));
+  };
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be less than 5MB');
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const uploadedMedia = await mediaService.upload(file);
-      setFormData(prev => ({ ...prev, image_url: uploadedMedia.url }));
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to upload image');
-    } finally {
-      setIsUploading(false);
+  const handleRemoveImage = () => {
+    if (confirm('Remove campaign image?')) {
+      setFormData(prev => ({ ...prev, image_url: '' }));
     }
   };
 
@@ -285,27 +272,69 @@ export const CampaignEditorPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Campaign Image
             </label>
-            {formData.image_url && (
-              <div className="mb-3">
-                <img
-                  src={formData.image_url}
-                  alt="Campaign preview"
-                  className="h-48 w-full object-cover rounded-lg"
-                />
+
+            {formData.image_url ? (
+              /* Image Preview */
+              <div className="space-y-3">
+                <div className="relative inline-block">
+                  <img
+                    src={formData.image_url}
+                    alt="Campaign preview"
+                    className="h-48 w-auto rounded-lg border border-gray-300 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/1200x600?text=Image+Not+Found';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                    title="Remove image"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaPickerOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Change Image
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* No Image - Show Select Button */
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p className="mt-2 text-sm text-gray-600">No campaign image</p>
+                <button
+                  type="button"
+                  onClick={() => setIsMediaPickerOpen(true)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Select from Media Library
+                </button>
               </div>
             )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={isUploading}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {isUploading && (
-              <p className="mt-1 text-sm text-blue-600">Uploading image...</p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              Supported formats: JPEG, PNG, GIF, WebP. Recommended: 1200x600px, max 5MB
+            <p className="mt-2 text-xs text-gray-500">
+              Select an image from the media library. Recommended: 1200x600px
             </p>
           </div>
 
@@ -459,6 +488,14 @@ export const CampaignEditorPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={handleMediaSelect}
+        allowUpload={true}
+      />
     </div>
   );
 };

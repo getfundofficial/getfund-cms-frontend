@@ -6,12 +6,14 @@ export interface LotteryPrize {
   description: string;
   currency: string;
   count?: number;
+  flip_description?: string;
 }
 
 export interface LotteryStep {
   step: number;
   title: string;
   description: string;
+  flip_description?: string;
 }
 
 export interface LotteryConfig {
@@ -22,6 +24,11 @@ export interface LotteryConfig {
   how_it_works_steps: LotteryStep[];
   is_active: boolean;
   banner_color: string;
+  section_title?: string;
+  section_description?: string;
+  sharing_enabled?: boolean;
+  share_text?: string;
+  share_hashtags?: string;
   updated_by?: string;
   updated_at: string;
   current_entries_count?: number;
@@ -34,6 +41,11 @@ export interface UpdateLotteryConfigDto {
   how_it_works_steps?: LotteryStep[];
   is_active?: boolean;
   banner_color?: string;
+  section_title?: string;
+  section_description?: string;
+  sharing_enabled?: boolean;
+  share_text?: string;
+  share_hashtags?: string;
 }
 
 export interface LotteryEntry {
