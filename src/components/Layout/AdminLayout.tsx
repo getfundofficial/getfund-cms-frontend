@@ -22,15 +22,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const getRoleColor = () => {
     switch (user?.role) {
       case 'admin':
-        return 'bg-purple-600';
+        return 'bg-gradient-to-r from-primary-600 to-primary-500';
       case 'creator':
-        return 'bg-blue-600';
+        return 'bg-gradient-to-r from-accent-600 to-accent-500';
       case 'reviewer':
-        return 'bg-yellow-600';
+        return 'bg-gradient-to-r from-secondary-600 to-secondary-500';
       case 'approver':
-        return 'bg-green-600';
+        return 'bg-gradient-to-r from-success-600 to-success-500';
       default:
-        return 'bg-gray-600';
+        return 'bg-gradient-to-r from-gray-600 to-gray-500';
     }
   };
 
@@ -183,11 +183,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -198,42 +198,48 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 ${
           isSidebarOpen ? 'lg:w-64' : 'lg:w-20'
-        } bg-white shadow-lg transition-all duration-300 flex flex-col`}
+        } bg-white shadow-xl transition-all duration-300 flex flex-col border-r border-gray-200`}
       >
         {/* Logo/Brand */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-5 border-b border-gray-200 bg-gradient-to-br from-primary-50 to-white">
           <div className={`flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center lg:flex-col lg:gap-3'}`}>
             {/* Full logo on mobile, conditional on desktop */}
             <div className="lg:hidden flex items-center gap-3">
-              <img
-                src="/images/logos/getfund-logo.png"
-                alt="GETFund Logo"
-                className="h-16 sm:h-20 w-auto"
-              />
+              <div className="bg-white rounded-xl shadow-sm p-2">
+                <img
+                  src="/images/logos/getfund-logo.png"
+                  alt="GETFund Logo"
+                  className="h-14 w-auto"
+                />
+              </div>
             </div>
             {/* Desktop: Show based on sidebar state */}
             {isSidebarOpen ? (
               <div className="hidden lg:flex items-center gap-3">
-                <img
-                  src="/images/logos/getfund-logo.png"
-                  alt="GETFund Logo"
-                  className="h-16 sm:h-20 w-auto"
-                />
+                <div className="bg-white rounded-xl shadow-sm p-2">
+                  <img
+                    src="/images/logos/getfund-logo.png"
+                    alt="GETFund Logo"
+                    className="h-14 w-auto"
+                  />
+                </div>
               </div>
             ) : (
-              <img
-                src="/images/logos/getfund-cropped-icon.png"
-                alt="GETFund"
-                className="hidden lg:block h-10 sm:h-12 w-10 sm:w-12 mx-auto"
-              />
+              <div className="hidden lg:block bg-white rounded-xl shadow-sm p-2">
+                <img
+                  src="/images/logos/getfund-cropped-icon.png"
+                  alt="GETFund"
+                  className="h-10 w-10"
+                />
+              </div>
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 hidden lg:block transition-colors"
+              className="p-2 rounded-lg hover:bg-primary-100 hidden lg:block transition-all hover:scale-105"
               aria-label="Toggle sidebar"
             >
               <svg
-                className="w-4 h-4 text-gray-600"
+                className="w-4 h-4 text-primary-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -248,10 +254,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {/* Mobile close button */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-1 rounded hover:bg-gray-100 lg:hidden"
+              className="p-2 rounded-lg hover:bg-primary-100 lg:hidden transition-colors"
               aria-label="Close menu"
             >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -259,7 +265,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
           {navItems
             .filter(item => item.show)
             .map((item) => (
@@ -267,37 +273,37 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive(item.path)
-                    ? 'bg-blue-50 text-blue-600 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md scale-105'
+                    : 'text-gray-700 hover:bg-gray-100 hover:scale-102 hover:shadow-sm'
                 }`}
               >
-                {item.icon}
+                <span className={isActive(item.path) ? 'scale-110' : ''}>
+                  {item.icon}
+                </span>
                 {/* Always show label on mobile, conditional on desktop */}
-                <span className={`text-sm sm:text-base lg:hidden`}>{item.label}</span>
-                {isSidebarOpen && <span className="hidden lg:inline text-sm sm:text-base">{item.label}</span>}
+                <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
+                {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
               </Link>
             ))}
         </nav>
 
         {/* User Info */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white">
           {/* Full user info on mobile */}
           <div className="lg:hidden">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-gray-600 font-semibold">
+            <div className="flex items-center gap-3 mb-3 bg-white rounded-xl p-3 shadow-sm border border-gray-200">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${getRoleColor()} shadow-sm`}>
+                <span className="text-white font-bold text-lg">
                   {user?.full_name.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate">
                   {user?.full_name}
                 </p>
-                <span
-                  className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold text-white rounded ${getRoleColor()}`}
-                >
+                <span className={`inline-block mt-1 px-2.5 py-0.5 text-xs font-bold text-white rounded-md ${getRoleColor()} shadow-sm`}>
                   {user?.role.toUpperCase()}
                 </span>
               </div>
@@ -308,6 +314,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               onClick={handleLogout}
               className="w-full text-sm"
             >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               Logout
             </Button>
           </div>
@@ -315,19 +324,17 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* Desktop: Show based on sidebar state */}
           {isSidebarOpen ? (
             <div className="hidden lg:block">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-gray-600 font-semibold">
+              <div className="flex items-center gap-3 mb-3 bg-white rounded-xl p-3 shadow-sm border border-gray-200">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${getRoleColor()} shadow-sm`}>
+                  <span className="text-white font-bold text-lg">
                     {user?.full_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
                     {user?.full_name}
                   </p>
-                  <span
-                    className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold text-white rounded ${getRoleColor()}`}
-                  >
+                  <span className={`inline-block mt-1 px-2.5 py-0.5 text-xs font-bold text-white rounded-md ${getRoleColor()} shadow-sm`}>
                     {user?.role.toUpperCase()}
                   </span>
                 </div>
@@ -338,17 +345,20 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 onClick={handleLogout}
                 className="w-full text-sm"
               >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
                 Logout
               </Button>
             </div>
           ) : (
             <button
               onClick={handleLogout}
-              className="hidden lg:block w-full p-2 rounded hover:bg-gray-100"
+              className="hidden lg:block w-full p-3 rounded-xl hover:bg-primary-100 transition-all hover:scale-105 group"
               title="Logout"
               aria-label="Logout"
             >
-              <svg className="w-5 h-5 text-gray-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-primary-600 mx-auto group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
@@ -359,33 +369,38 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto w-full">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-30">
-          <div className="px-4 sm:px-6 py-3 sm:py-4">
+        <header className="bg-white shadow-md sticky top-0 z-30 border-b border-gray-200">
+          <div className="px-4 sm:px-6 py-4 sm:py-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Mobile menu button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+                  className="p-2 rounded-xl hover:bg-primary-50 lg:hidden transition-all hover:scale-105"
                   aria-label="Open menu"
                 >
-                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
-                  {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
-                </h2>
+                <div>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                    {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
+                  </h2>
+                </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
                 <a
                   href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund-website.vercel.app"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 whitespace-nowrap"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-xl transition-all hover:shadow-sm"
                 >
-                  <span className="hidden sm:inline">View Website →</span>
-                  <span className="sm:hidden">Website →</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span className="hidden sm:inline">View Website</span>
+                  <span className="sm:hidden">Website</span>
                 </a>
               </div>
             </div>

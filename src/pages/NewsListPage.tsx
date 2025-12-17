@@ -99,11 +99,11 @@ export const NewsListPage: React.FC = () => {
 
   const getStatusBadge = (status: WorkflowStatus) => {
     const styles = {
-      draft: 'bg-gray-100 text-gray-800',
-      in_review: 'bg-yellow-100 text-yellow-800',
-      changes_requested: 'bg-orange-100 text-orange-800',
-      approved: 'bg-green-100 text-green-800',
-      published: 'bg-blue-100 text-blue-800',
+      draft: 'bg-gray-100 text-gray-700 border border-gray-300',
+      in_review: 'bg-warning-50 text-warning-700 border border-warning-300',
+      changes_requested: 'bg-orange-50 text-orange-700 border border-orange-300',
+      approved: 'bg-success-50 text-success-700 border border-success-300',
+      published: 'bg-accent-50 text-accent-700 border border-accent-300',
     };
 
     const labels = {
@@ -115,7 +115,7 @@ export const NewsListPage: React.FC = () => {
     };
 
     return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[status]}`}>
+      <span className={`inline-flex items-center px-3 py-1 text-xs font-bold rounded-lg shadow-sm ${styles[status]}`}>
         {labels[status]}
       </span>
     );
@@ -180,7 +180,7 @@ export const NewsListPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="bg-white rounded-xl shadow-soft p-5 border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search */}
           <div>
@@ -235,7 +235,7 @@ export const NewsListPage: React.FC = () => {
       </div>
 
       {/* Content Table/Cards */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow-soft overflow-hidden border border-gray-100">
         {filteredContent.length === 0 ? (
           <div className="text-center py-12 px-4">
             <svg
