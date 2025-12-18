@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
+import { LogIn, Clock, Lock } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +36,15 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const testAccounts = [
+    { role: 'ADMIN', email: 'admin@getfund.gov.gh', color: 'bg-blue-600' },
+    { role: 'CREATOR', email: 'creator1@getfund.gov.gh', color: 'bg-teal-500' },
+    { role: 'REVIEWER', email: 'reviewer@getfund.gov.gh', color: 'bg-purple-500' },
+    { role: 'APPROVER', email: 'approver@getfund.gov.gh', color: 'bg-amber-500' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Logo/Title */}
         <div className="text-center mb-8">
@@ -52,8 +60,11 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign In</h2>
+        <div className="bg-slate-50 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <LogIn className="text-blue-600" size={24} />
+            Sign In
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -78,8 +89,8 @@ export const LoginPage: React.FC = () => {
             />
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                <p className="text-sm">{error}</p>
+              <div className="border-l-4 border-red-400 bg-red-50 px-4 py-3">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
@@ -95,44 +106,36 @@ export const LoginPage: React.FC = () => {
           </form>
 
           {/* Demo Accounts */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm font-semibold text-gray-900 mb-2">Test Accounts:</p>
-            <div className="text-xs text-gray-700 space-y-1">
-              <button
-                type="button"
-                onClick={() => { setEmail('admin@getfund.gov.gh'); setPassword('getfund2025'); }}
-                className="block w-full text-left hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-              >
-                <strong>Admin:</strong> admin@getfund.gov.gh
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('creator1@getfund.gov.gh'); setPassword('getfund2025'); }}
-                className="block w-full text-left hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-              >
-                <strong>Creator:</strong> creator1@getfund.gov.gh
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('reviewer@getfund.gov.gh'); setPassword('getfund2025'); }}
-                className="block w-full text-left hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-              >
-                <strong>Reviewer:</strong> reviewer@getfund.gov.gh
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('approver@getfund.gov.gh'); setPassword('getfund2025'); }}
-                className="block w-full text-left hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-              >
-                <strong>Approver:</strong> approver@getfund.gov.gh
-              </button>
-              <p className="mt-2 px-2"><strong>Password (all):</strong> getfund2025</p>
+          <div className="mt-6 p-4 bg-white/60 rounded-lg">
+            <p className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Clock className="text-blue-500" size={18} />
+              Test Accounts
+            </p>
+            <div className="space-y-2">
+              {testAccounts.map((account) => (
+                <button
+                  key={account.role}
+                  type="button"
+                  onClick={() => { setEmail(account.email); setPassword('getfund2025'); }}
+                  className="flex items-center gap-3 w-full text-left hover:bg-gray-100 px-2 py-1.5 rounded transition-colors"
+                >
+                  <span className={`${account.color} text-white text-xs font-semibold px-2 py-0.5 rounded`}>
+                    {account.role}
+                  </span>
+                  <span className="text-sm text-gray-700">{account.email}</span>
+                </button>
+              ))}
+              <p className="mt-3 px-2 text-sm text-gray-700">
+                <strong>Password (all):</strong>{' '}
+                <code className="bg-gray-200 px-2 py-0.5 rounded text-gray-800">getfund2025</code>
+              </p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-sm text-gray-600">
+        <p className="text-center mt-6 text-sm text-gray-500 flex items-center justify-center gap-2">
+          <Lock className="text-gray-400" size={16} />
           Secure login • Role-based access control
         </p>
       </div>

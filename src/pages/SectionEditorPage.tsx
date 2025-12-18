@@ -186,6 +186,61 @@ export const SectionEditorPage: React.FC = () => {
           </div>
         );
 
+      case 'video':
+        // Auto-detect provider from URL
+        const detectProvider = (url: string) => {
+          if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+          if (url.includes('vimeo.com')) return 'vimeo';
+          return 'upload';
+        };
+        return (
+          <div className="space-y-4">
+            <Input
+              type="text"
+              label="Video URL"
+              placeholder="Paste YouTube or Vimeo link here"
+              value={formData.content.url || ''}
+              onChange={(e) => {
+                const url = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  content: {
+                    ...prev.content,
+                    url,
+                    provider: detectProvider(url)
+                  }
+                }));
+              }}
+              required
+            />
+            {formData.content.url && (
+              <p className="text-sm text-gray-500">
+                Detected: <span className="font-medium capitalize">{formData.content.provider || detectProvider(formData.content.url)}</span>
+              </p>
+            )}
+            <Input
+              type="text"
+              label="Title"
+              placeholder="See Our Impact in Action"
+              value={formData.content.title || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                content: { ...prev.content, title: e.target.value }
+              }))}
+            />
+            <Input
+              type="text"
+              label="Subtitle"
+              placeholder="Watch how GETFund is transforming education across Ghana"
+              value={formData.content.subtitle || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                content: { ...prev.content, subtitle: e.target.value }
+              }))}
+            />
+          </div>
+        );
+
       case 'hero':
         return (
           <HeroEditor
