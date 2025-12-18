@@ -196,7 +196,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <aside
         className={`${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 ${
+        } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 ${
           isSidebarOpen ? 'lg:w-64' : 'lg:w-20'
         } bg-white shadow-xl transition-all duration-300 flex flex-col border-r border-gray-200`}
       >
@@ -367,7 +367,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto w-full">
+      <main className={`flex-1 overflow-auto w-full ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} transition-all duration-300`}>
         {/* Header */}
         <header className="bg-white shadow-md sticky top-0 z-30 border-b border-gray-200">
           <div className="px-4 sm:px-6 py-4 sm:py-5">
