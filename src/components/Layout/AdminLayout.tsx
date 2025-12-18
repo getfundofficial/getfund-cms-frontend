@@ -198,7 +198,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 ${
           isSidebarOpen ? 'lg:w-64' : 'lg:w-20'
-        } bg-white shadow-xl transition-all duration-300 flex flex-col border-r border-gray-200`}
+        } bg-white shadow-xl transition-all duration-300 flex flex-col border-r border-gray-200 lg:rounded-r-2xl`}
       >
         {/* Logo/Brand */}
         <div className="p-5 border-b border-gray-200 bg-gradient-to-br from-primary-50 to-white">
@@ -369,7 +369,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <main className={`flex-1 overflow-auto w-full ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} transition-all duration-300`}>
         {/* Header */}
-        <header className="bg-white shadow-md sticky top-0 z-30 border-b border-gray-200">
+        <header className="bg-white shadow-md sticky top-0 z-30 border-b border-gray-200 lg:rounded-b-2xl lg:mx-4 lg:mt-4">
           <div className="px-4 sm:px-6 py-4 sm:py-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
