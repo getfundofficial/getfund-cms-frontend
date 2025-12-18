@@ -189,17 +189,43 @@ export const HeroSlideEditorPage: React.FC = () => {
     }
   };
 
-  // Parse button data from content field
-  let buttonData = { buttonText: '', buttonLink: '' };
+  // Font size options
+  const fontSizeOptions = [
+    { value: 'small', label: 'Small', titleClass: 'text-2xl md:text-3xl lg:text-4xl', subtitleClass: 'text-base md:text-lg lg:text-xl' },
+    { value: 'medium', label: 'Medium (Default)', titleClass: 'text-3xl md:text-4xl lg:text-5xl xl:text-6xl', subtitleClass: 'text-lg md:text-xl lg:text-2xl' },
+    { value: 'large', label: 'Large', titleClass: 'text-4xl md:text-5xl lg:text-6xl xl:text-7xl', subtitleClass: 'text-xl md:text-2xl lg:text-3xl' },
+    { value: 'xlarge', label: 'Extra Large', titleClass: 'text-5xl md:text-6xl lg:text-7xl xl:text-8xl', subtitleClass: 'text-2xl md:text-3xl lg:text-4xl' },
+  ];
+
+  // Parse content data from content field (includes button and font size)
+  let contentData = { buttonText: '', buttonLink: '', titleFontSize: 'medium', subtitleFontSize: 'medium' };
   try {
-    buttonData = JSON.parse(formData.content || '{}');
+    contentData = { ...contentData, ...JSON.parse(formData.content || '{}') };
   } catch {
-    buttonData = { buttonText: '', buttonLink: '' };
+    contentData = { buttonText: '', buttonLink: '', titleFontSize: 'medium', subtitleFontSize: 'medium' };
   }
 
-  const updateButtonData = (field: string, value: string) => {
-    const current = { ...buttonData, [field]: value };
+  // For backwards compatibility, also expose buttonData
+  const buttonData = { buttonText: contentData.buttonText, buttonLink: contentData.buttonLink };
+
+  const updateContentData = (field: string, value: string) => {
+    const current = { ...contentData, [field]: value };
     setFormData(prev => ({ ...prev, content: JSON.stringify(current) }));
+  };
+
+  const updateButtonData = (field: string, value: string) => {
+    updateContentData(field, value);
+  };
+
+  // Get preview font classes based on selected size
+  const getPreviewTitleClass = () => {
+    const size = fontSizeOptions.find(s => s.value === contentData.titleFontSize);
+    return size ? size.titleClass : fontSizeOptions[1].titleClass;
+  };
+
+  const getPreviewSubtitleClass = () => {
+    const size = fontSizeOptions.find(s => s.value === contentData.subtitleFontSize);
+    return size ? size.subtitleClass : fontSizeOptions[1].subtitleClass;
   };
 
   if (isLoading) {
@@ -293,6 +319,45 @@ export const HeroSlideEditorPage: React.FC = () => {
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Font Size Settings */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Title Font Size
+              </label>
+              <select
+                value={contentData.titleFontSize}
+                onChange={(e) => updateContentData('titleFontSize', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {fontSizeOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">Controls the size of the main headline</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Subtitle Font Size
+              </label>
+              <select
+                value={contentData.subtitleFontSize}
+                onChange={(e) => updateContentData('subtitleFontSize', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {fontSizeOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">Controls the size of the description text</p>
+            </div>
           </div>
 
           {/* Background Image */}
@@ -411,11 +476,11 @@ export const HeroSlideEditorPage: React.FC = () => {
             )}
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
+              <h1 className={`${getPreviewTitleClass()} font-bold mb-4 drop-shadow-lg`}>
                 {formData.title || 'Hero Slide Title'}
               </h1>
               {formData.excerpt && (
-                <p className="text-xl md:text-2xl mb-6 drop-shadow-lg max-w-2xl">
+                <p className={`${getPreviewSubtitleClass()} mb-6 drop-shadow-lg max-w-2xl`}>
                   {formData.excerpt}
                 </p>
               )}

@@ -4,12 +4,16 @@ import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react';
 
+type FontSize = 'small' | 'medium' | 'large' | 'xlarge';
+
 interface HeroSlide {
   image: string;
   headline: string;
   description: string;
   ctaText?: string;
   ctaLink?: string;
+  titleFontSize?: FontSize;
+  subtitleFontSize?: FontSize;
 }
 
 interface Service {
@@ -67,6 +71,14 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
     onChange({ ...content, ...updates });
   };
 
+  // Font size options for dropdowns
+  const fontSizeOptions: { value: FontSize; label: string }[] = [
+    { value: 'small', label: 'Small' },
+    { value: 'medium', label: 'Medium (Default)' },
+    { value: 'large', label: 'Large' },
+    { value: 'xlarge', label: 'Extra Large' },
+  ];
+
   // Hero Slides Methods
   const addHeroSlide = () => {
     const newSlide: HeroSlide = {
@@ -75,6 +87,8 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
       description: '',
       ctaText: '',
       ctaLink: '',
+      titleFontSize: 'medium',
+      subtitleFontSize: 'medium',
     };
     updateContent({ heroSlides: [...(content.heroSlides || []), newSlide] });
   };
@@ -246,6 +260,46 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                   onChange={(e) => updateHeroSlide(index, { ...slide, ctaLink: e.target.value })}
                   placeholder="/scholarship-apply"
                 />
+              </div>
+
+              {/* Font Size Settings */}
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <h5 className="text-sm font-medium text-gray-700 mb-2">Text Sizes</h5>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Headline Font Size
+                    </label>
+                    <select
+                      value={slide.titleFontSize || 'medium'}
+                      onChange={(e) => updateHeroSlide(index, { ...slide, titleFontSize: e.target.value as FontSize })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {fontSizeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Description Font Size
+                    </label>
+                    <select
+                      value={slide.subtitleFontSize || 'medium'}
+                      onChange={(e) => updateHeroSlide(index, { ...slide, subtitleFontSize: e.target.value as FontSize })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {fontSizeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
