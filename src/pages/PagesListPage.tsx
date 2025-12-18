@@ -5,7 +5,6 @@ import { pageService, Page } from '../services/pageService';
 import { Button } from '../components/Common/Button';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { GripVertical, Eye, EyeOff, Star, Menu, Save } from 'lucide-react';
-import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const PagesListPage: React.FC = () => {
   const { user } = useAuth();
@@ -24,7 +23,7 @@ export const PagesListPage: React.FC = () => {
 
   // Track loading time to show timeout message
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isLoading) {
       interval = setInterval(() => {
         setLoadingTime(prev => prev + 1);
