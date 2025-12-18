@@ -5,6 +5,15 @@ import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react';
 
 type FontSize = 'small' | 'medium' | 'large' | 'xlarge';
+type GradientDirection = 'to right' | 'to bottom' | 'to bottom right' | 'to top right';
+
+interface SlideOverlay {
+  tintColor?: string;
+  tintColor2?: string;
+  useGradient?: boolean;
+  gradientDirection?: GradientDirection;
+  tintOpacity?: number;
+}
 
 interface HeroSlide {
   image: string;
@@ -14,6 +23,7 @@ interface HeroSlide {
   ctaLink?: string;
   titleFontSize?: FontSize;
   subtitleFontSize?: FontSize;
+  overlay?: SlideOverlay;
 }
 
 interface Service {
@@ -79,6 +89,23 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
     { value: 'xlarge', label: 'Extra Large' },
   ];
 
+  // Gradient direction options
+  const gradientDirectionOptions: { value: GradientDirection; label: string }[] = [
+    { value: 'to bottom', label: 'Top to Bottom' },
+    { value: 'to right', label: 'Left to Right' },
+    { value: 'to bottom right', label: 'Diagonal (↘)' },
+    { value: 'to top right', label: 'Diagonal (↗)' },
+  ];
+
+  // Default overlay settings
+  const defaultOverlay: SlideOverlay = {
+    tintColor: '#059669',
+    tintColor2: '#0d9488',
+    useGradient: true,
+    gradientDirection: 'to bottom',
+    tintOpacity: 60,
+  };
+
   // Hero Slides Methods
   const addHeroSlide = () => {
     const newSlide: HeroSlide = {
@@ -89,6 +116,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
       ctaLink: '',
       titleFontSize: 'medium',
       subtitleFontSize: 'medium',
+      overlay: { ...defaultOverlay },
     };
     updateContent({ heroSlides: [...(content.heroSlides || []), newSlide] });
   };
@@ -299,6 +327,144 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                       ))}
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Overlay/Tint Settings */}
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <h5 className="text-sm font-medium text-gray-700 mb-2">Overlay & Tint</h5>
+
+                {/* Use Gradient Toggle */}
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id={`useGradient-${index}`}
+                    checked={slide.overlay?.useGradient ?? true}
+                    onChange={(e) => updateHeroSlide(index, {
+                      ...slide,
+                      overlay: { ...defaultOverlay, ...slide.overlay, useGradient: e.target.checked }
+                    })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor={`useGradient-${index}`} className="text-sm text-gray-600">
+                    Use gradient (two colors)
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {/* Primary Color */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      {slide.overlay?.useGradient ? 'Primary Color' : 'Tint Color'}
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={slide.overlay?.tintColor || '#059669'}
+                        onChange={(e) => updateHeroSlide(index, {
+                          ...slide,
+                          overlay: { ...defaultOverlay, ...slide.overlay, tintColor: e.target.value }
+                        })}
+                        className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={slide.overlay?.tintColor || '#059669'}
+                        onChange={(e) => updateHeroSlide(index, {
+                          ...slide,
+                          overlay: { ...defaultOverlay, ...slide.overlay, tintColor: e.target.value }
+                        })}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        placeholder="#059669"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Secondary Color (only shown when gradient is enabled) */}
+                  {(slide.overlay?.useGradient ?? true) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Secondary Color
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={slide.overlay?.tintColor2 || '#0d9488'}
+                          onChange={(e) => updateHeroSlide(index, {
+                            ...slide,
+                            overlay: { ...defaultOverlay, ...slide.overlay, tintColor2: e.target.value }
+                          })}
+                          className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={slide.overlay?.tintColor2 || '#0d9488'}
+                          onChange={(e) => updateHeroSlide(index, {
+                            ...slide,
+                            overlay: { ...defaultOverlay, ...slide.overlay, tintColor2: e.target.value }
+                          })}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          placeholder="#0d9488"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Gradient Direction (only shown when gradient is enabled) */}
+                  {(slide.overlay?.useGradient ?? true) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Gradient Direction
+                      </label>
+                      <select
+                        value={slide.overlay?.gradientDirection || 'to bottom'}
+                        onChange={(e) => updateHeroSlide(index, {
+                          ...slide,
+                          overlay: { ...defaultOverlay, ...slide.overlay, gradientDirection: e.target.value as GradientDirection }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {gradientDirectionOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Opacity */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Opacity: {slide.overlay?.tintOpacity ?? 60}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={slide.overlay?.tintOpacity ?? 60}
+                      onChange={(e) => updateHeroSlide(index, {
+                        ...slide,
+                        overlay: { ...defaultOverlay, ...slide.overlay, tintOpacity: parseInt(e.target.value) }
+                      })}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Preview</label>
+                  <div
+                    className="h-16 rounded-md border border-gray-300"
+                    style={{
+                      background: (slide.overlay?.useGradient ?? true)
+                        ? `linear-gradient(${slide.overlay?.gradientDirection || 'to bottom'}, ${slide.overlay?.tintColor || '#059669'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')}, ${slide.overlay?.tintColor2 || '#0d9488'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')})`
+                        : `${slide.overlay?.tintColor || '#059669'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')}`
+                    }}
+                  />
                 </div>
               </div>
             </div>
