@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
+import { LogIn, Clock, Lock } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,13 @@ export const LoginPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const testAccounts = [
+    { role: 'ADMIN', email: 'admin@getfund.gov.gh', color: 'bg-blue-600' },
+    { role: 'CREATOR', email: 'creator1@getfund.gov.gh', color: 'bg-teal-500' },
+    { role: 'REVIEWER', email: 'reviewer@getfund.gov.gh', color: 'bg-purple-500' },
+    { role: 'APPROVER', email: 'approver@getfund.gov.gh', color: 'bg-amber-500' },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center px-4 relative overflow-hidden">
@@ -92,8 +100,8 @@ export const LoginPage: React.FC = () => {
             />
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                <p className="text-sm">{error}</p>
+              <div className="border-l-4 border-red-400 bg-red-50 px-4 py-3">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
