@@ -66,14 +66,25 @@ body {
 
 /* Better focus states for keyboard navigation */
 *:focus-visible {
-  outline: 2px solid #16a34a;
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
 }
 
 /* Remove default button focus outline (we use focus-visible above) */
 button:focus {
   outline: none;
+}
+
+/* Global rounded edges for form elements */
+input,
+select,
+textarea {
+  border-radius: 0.75rem;
+}
+
+button {
+  border-radius: 0.75rem;
 }
 
 /* Smooth transitions for interactive elements */
@@ -88,11 +99,23 @@ textarea {
 /* Card hover effects */
 .card-hover {
   transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;
+  border-radius: 1rem;
 }
 
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Global rounded cards and containers */
+.rounded-card {
+  border-radius: 1rem;
+}
+
+/* Rounded modals and dialogs */
+[role="dialog"],
+[role="alertdialog"] {
+  border-radius: 1rem;
 }
 
 /* Improve line clamping */
@@ -117,7 +140,7 @@ textarea {
 }
 
 .prose ul li::marker {
-  color: #059669;
+  color: #2563eb;
 }
 
 .prose ol {
@@ -133,7 +156,7 @@ textarea {
 }
 
 .prose ol li::marker {
-  color: #059669;
+  color: #2563eb;
   font-weight: 600;
 }
 

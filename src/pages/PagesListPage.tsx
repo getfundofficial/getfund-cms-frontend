@@ -16,20 +16,39 @@ export const PagesListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(0);
 
   useEffect(() => {
     loadPages();
   }, []);
 
+  // Track loading time to show timeout message
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      interval = setInterval(() => {
+        setLoadingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
   const loadPages = async () => {
     try {
       setIsLoading(true);
+      setError('');
+      console.log('[PagesListPage] Fetching pages...');
       const data = await pageService.getAll();
+      console.log('[PagesListPage] Received pages:', data?.length);
       // Sort by menu_order
       const sorted = data.sort((a, b) => (a.menu_order || 0) - (b.menu_order || 0));
       setPages(sorted);
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to load pages');
+      console.error('[PagesListPage] Error loading pages:', error);
+      const errorMsg = error.response?.data?.error || error.response?.data?.details || error.message || 'Failed to load pages';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +180,36 @@ export const PagesListPage: React.FC = () => {
   );
 
   if (isLoading) {
-    return <LoadingScreen message="Loading pages..." />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md px-4">
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <img
+              src="/images/logos/getfund-cropped-icon.png"
+              alt="GETFund Logo"
+              className="w-full h-full object-contain animate-spin-slow"
+              loading="eager"
+            />
+          </div>
+          <p className="text-gray-600 text-lg font-medium mb-2">Loading pages...</p>
+          {loadingTime > 5 && (
+            <p className="text-gray-500 text-sm">
+              {loadingTime > 30
+                ? 'This is taking longer than expected. The database may be waking up...'
+                : `Please wait... (${loadingTime}s)`}
+            </p>
+          )}
+          {loadingTime > 60 && (
+            <button
+              onClick={() => loadPages()}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const menuItems = filteredPages.filter(p => p.show_in_menu && !p.is_cta_button);
@@ -191,7 +239,18 @@ export const PagesListPage: React.FC = () => {
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          <p className="text-sm">{error}</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="font-medium">Failed to load pages</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+            <button
+              onClick={() => loadPages()}
+              className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       )}
 
