@@ -153,34 +153,54 @@ export const LotteryConfigPage: React.FC = () => {
     try {
       setIsSaving(true);
 
+      console.log('[LotteryConfig] Submitting update with data:', {
+        section_title: formData.section_title,
+        section_description: formData.section_description,
+        prize_box_title: formData.prize_box_title,
+      });
+
       const updatedConfig = await lotteryService.updateConfig({
         ...formData,
         next_draw_date: new Date(formData.next_draw_date).toISOString(),
       });
 
-      // Use the returned config directly instead of re-fetching to avoid caching issues
-      if (updatedConfig) {
-        setConfig(updatedConfig);
-        setFormData({
-          prizes: updatedConfig.prizes,
-          next_draw_date: updatedConfig.next_draw_date.split('T')[0],
-          draw_frequency: updatedConfig.draw_frequency,
-          how_it_works_steps: updatedConfig.how_it_works_steps,
-          is_active: updatedConfig.is_active,
-          banner_color: updatedConfig.banner_color,
-          section_title: updatedConfig.section_title || '',
-          section_description: updatedConfig.section_description || '',
-          prize_box_title: updatedConfig.prize_box_title || '',
-          sharing_enabled: updatedConfig.sharing_enabled !== false,
-          share_text: updatedConfig.share_text || '',
-          share_hashtags: updatedConfig.share_hashtags || '',
+      console.log('[LotteryConfig] Received response:', updatedConfig);
+
+      // Verify we got a valid response with the updated data
+      if (!updatedConfig || !updatedConfig.id) {
+        throw new Error('Invalid response from server - no config returned');
+      }
+
+      // Verify the update actually happened by checking if key fields match what we sent
+      if (updatedConfig.section_title !== formData.section_title) {
+        console.warn('[LotteryConfig] Warning: section_title mismatch', {
+          sent: formData.section_title,
+          received: updatedConfig.section_title
         });
       }
 
-      alert('Lottery configuration updated successfully');
+      // Update state with the returned config
+      setConfig(updatedConfig);
+      setFormData({
+        prizes: updatedConfig.prizes || [],
+        next_draw_date: updatedConfig.next_draw_date?.split('T')[0] || '',
+        draw_frequency: updatedConfig.draw_frequency || 'monthly',
+        how_it_works_steps: updatedConfig.how_it_works_steps || [],
+        is_active: updatedConfig.is_active ?? true,
+        banner_color: updatedConfig.banner_color || '#FCD34D',
+        section_title: updatedConfig.section_title || '',
+        section_description: updatedConfig.section_description || '',
+        prize_box_title: updatedConfig.prize_box_title || '',
+        sharing_enabled: updatedConfig.sharing_enabled !== false,
+        share_text: updatedConfig.share_text || '',
+        share_hashtags: updatedConfig.share_hashtags || '',
+      });
+
+      alert('Lottery configuration updated successfully!');
     } catch (error: any) {
-      console.error('Update error:', error);
-      alert(error.response?.data?.error || 'Failed to update lottery configuration');
+      console.error('[LotteryConfig] Update error:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to update lottery configuration';
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsSaving(false);
     }
