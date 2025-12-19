@@ -153,14 +153,33 @@ export const LotteryConfigPage: React.FC = () => {
     try {
       setIsSaving(true);
 
-      await lotteryService.updateConfig({
+      const updatedConfig = await lotteryService.updateConfig({
         ...formData,
         next_draw_date: new Date(formData.next_draw_date).toISOString(),
       });
 
+      // Use the returned config directly instead of re-fetching to avoid caching issues
+      if (updatedConfig) {
+        setConfig(updatedConfig);
+        setFormData({
+          prizes: updatedConfig.prizes,
+          next_draw_date: updatedConfig.next_draw_date.split('T')[0],
+          draw_frequency: updatedConfig.draw_frequency,
+          how_it_works_steps: updatedConfig.how_it_works_steps,
+          is_active: updatedConfig.is_active,
+          banner_color: updatedConfig.banner_color,
+          section_title: updatedConfig.section_title || '',
+          section_description: updatedConfig.section_description || '',
+          prize_box_title: updatedConfig.prize_box_title || '',
+          sharing_enabled: updatedConfig.sharing_enabled !== false,
+          share_text: updatedConfig.share_text || '',
+          share_hashtags: updatedConfig.share_hashtags || '',
+        });
+      }
+
       alert('Lottery configuration updated successfully');
-      await loadConfig();
     } catch (error: any) {
+      console.error('Update error:', error);
       alert(error.response?.data?.error || 'Failed to update lottery configuration');
     } finally {
       setIsSaving(false);

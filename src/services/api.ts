@@ -13,6 +13,8 @@ class ApiService {
       baseURL: API_URL,
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
       },
       withCredentials: true, // For cookies
       timeout: 180000, // 180 seconds (3 minutes) - allows for database wake-up time
