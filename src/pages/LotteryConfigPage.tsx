@@ -153,30 +153,46 @@ export const LotteryConfigPage: React.FC = () => {
     try {
       setIsSaving(true);
 
-      console.log('[LotteryConfig] Submitting update with data:', {
-        section_title: formData.section_title,
-        section_description: formData.section_description,
-        prize_box_title: formData.prize_box_title,
-      });
-
-      const updatedConfig = await lotteryService.updateConfig({
+      // Log ALL form data being submitted
+      const dataToSubmit = {
         ...formData,
         next_draw_date: new Date(formData.next_draw_date).toISOString(),
-      });
+      };
 
-      console.log('[LotteryConfig] Received response:', updatedConfig);
+      console.log('[LotteryConfig] === FULL FORM DATA BEING SUBMITTED ===');
+      console.log('[LotteryConfig] section_title:', dataToSubmit.section_title);
+      console.log('[LotteryConfig] section_description:', dataToSubmit.section_description);
+      console.log('[LotteryConfig] prize_box_title:', dataToSubmit.prize_box_title);
+      console.log('[LotteryConfig] sharing_enabled:', dataToSubmit.sharing_enabled);
+      console.log('[LotteryConfig] share_text:', dataToSubmit.share_text);
+      console.log('[LotteryConfig] share_hashtags:', dataToSubmit.share_hashtags);
+      console.log('[LotteryConfig] how_it_works_steps count:', dataToSubmit.how_it_works_steps?.length);
+      console.log('[LotteryConfig] Full data:', JSON.stringify(dataToSubmit, null, 2));
+
+      const updatedConfig = await lotteryService.updateConfig(dataToSubmit);
+
+      console.log('[LotteryConfig] === RESPONSE FROM SERVER ===');
+      console.log('[LotteryConfig] Response section_title:', updatedConfig?.section_title);
+      console.log('[LotteryConfig] Response section_description:', updatedConfig?.section_description);
+      console.log('[LotteryConfig] Response prize_box_title:', updatedConfig?.prize_box_title);
+      console.log('[LotteryConfig] Response sharing_enabled:', updatedConfig?.sharing_enabled);
+      console.log('[LotteryConfig] Response share_text:', updatedConfig?.share_text);
+      console.log('[LotteryConfig] Response share_hashtags:', updatedConfig?.share_hashtags);
 
       // Verify we got a valid response with the updated data
       if (!updatedConfig || !updatedConfig.id) {
         throw new Error('Invalid response from server - no config returned');
       }
 
-      // Verify the update actually happened by checking if key fields match what we sent
-      if (updatedConfig.section_title !== formData.section_title) {
-        console.warn('[LotteryConfig] Warning: section_title mismatch', {
-          sent: formData.section_title,
-          received: updatedConfig.section_title
-        });
+      // Verify ALL fields match what we sent
+      const fieldsToCheck = ['section_title', 'section_description', 'prize_box_title', 'share_text', 'share_hashtags'] as const;
+      for (const field of fieldsToCheck) {
+        if (updatedConfig[field] !== dataToSubmit[field]) {
+          console.error(`[LotteryConfig] MISMATCH on ${field}:`, {
+            sent: dataToSubmit[field],
+            received: updatedConfig[field]
+          });
+        }
       }
 
       // Update state with the returned config
