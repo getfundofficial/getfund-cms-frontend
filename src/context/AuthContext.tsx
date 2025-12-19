@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, UserRole, ContentType, LoginCredentials, AuthContextType } from '../types/auth.types';
+import {
+  User,
+  UserRole,
+  UserPermissions,
+  LoginCredentials,
+  AuthContextType,
+  DEFAULT_PERMISSIONS
+} from '../types/auth.types';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -10,7 +17,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
     const savedToken = authService.getToken();
     const savedUser = authService.getUser();
 
@@ -49,14 +55,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return roleArray.includes(user.role);
   };
 
-  const hasPermission = (contentType: ContentType): boolean => {
-    if (!user) return false;
+  // Get the effective permissions (user's custom permissions or role defaults)
+  const getEffectivePermissions = (): UserPermissions | null => {
+    if (!user) return null;
+    return user.permissions || DEFAULT_PERMISSIONS[user.role];
+  };
 
-    // Admins have all permissions
-    if (user.role === 'admin') return true;
+  const hasNavPermission = (key: keyof UserPermissions['navigation']): boolean => {
+    const perms = getEffectivePermissions();
+    if (!perms) return false;
+    return perms.navigation[key] === true;
+  };
 
-    // Check if user has the specific content type permission
-    return user.permissions?.includes(contentType) || false;
+  const hasAdminPermission = (key: keyof UserPermissions['admin']): boolean => {
+    const perms = getEffectivePermissions();
+    if (!perms) return false;
+    return perms.admin[key] === true;
+  };
+
+  const hasActionPermission = (key: keyof UserPermissions['actions']): boolean => {
+    const perms = getEffectivePermissions();
+    if (!perms) return false;
+    return perms.actions[key] === true;
   };
 
   const value: AuthContextType = {
@@ -67,7 +87,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     logout,
     hasRole,
-    hasPermission,
+    hasNavPermission,
+    hasAdminPermission,
+    hasActionPermission,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

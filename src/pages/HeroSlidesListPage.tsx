@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const HeroSlidesListPage: React.FC = () => {
-  const { user, hasPermission } = useAuth();
+  const { user, hasNavPermission } = useAuth();
   const navigate = useNavigate();
   const [content, setContent] = useState<Content[]>([]);
   const [filteredContent, setFilteredContent] = useState<Content[]>([]);
@@ -106,7 +106,7 @@ export const HeroSlidesListPage: React.FC = () => {
             Manage homepage carousel slides
           </p>
         </div>
-        {hasPermission('hero_slide') && (
+        {hasNavPermission('heroSlides') && (
           <Button
             variant="primary"
             onClick={() => navigate('/admin/hero-slides/new')}

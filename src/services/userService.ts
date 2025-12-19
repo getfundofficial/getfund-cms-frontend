@@ -1,4 +1,5 @@
 import { api } from './api';
+import { UserPermissions } from '../types/auth.types';
 
 export type UserRole = 'admin' | 'creator' | 'reviewer' | 'approver';
 
@@ -8,6 +9,7 @@ export interface User {
   full_name: string;
   role: UserRole;
   is_active: boolean;
+  permissions?: UserPermissions;
   created_at: string;
   updated_at: string;
 }
@@ -17,6 +19,7 @@ export interface CreateUserData {
   full_name: string;
   role: UserRole;
   password?: string; // Optional - will be auto-generated if not provided
+  permissions?: UserPermissions;
 }
 
 export interface UpdateUserData {
@@ -24,6 +27,7 @@ export interface UpdateUserData {
   role?: UserRole;
   is_active?: boolean;
   password?: string; // Optional - only if changing password
+  permissions?: UserPermissions;
 }
 
 export interface CreateUserResponse {

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import userService, { User, UserRole, CreateUserData } from '../../services/userService';
+import { UserPermissions, DEFAULT_PERMISSIONS } from '../../types/auth.types';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
+import { PermissionSelector } from './PermissionSelector';
 
 interface UserFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  user?: User | null; // If provided, edit mode; otherwise create mode
+  user?: User | null;
 }
 
 const UserFormModal: React.FC<UserFormModalProps> = ({
@@ -26,9 +28,11 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     is_active: true,
   });
 
+  const [permissions, setPermissions] = useState<UserPermissions>(DEFAULT_PERMISSIONS.creator);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [showPermissions, setShowPermissions] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -39,6 +43,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         password: '',
         is_active: user.is_active,
       });
+      setPermissions(user.permissions || DEFAULT_PERMISSIONS[user.role]);
     } else {
       setFormData({
         email: '',
@@ -47,10 +52,17 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         password: '',
         is_active: true,
       });
+      setPermissions(DEFAULT_PERMISSIONS.creator);
     }
     setError(null);
     setGeneratedPassword(null);
+    setShowPermissions(false);
   }, [user, isOpen]);
+
+  const handleRoleChange = (role: UserRole) => {
+    setFormData({ ...formData, role });
+    setPermissions(DEFAULT_PERMISSIONS[role]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,28 +71,27 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
 
     try {
       if (isEditMode && user) {
-        // Update existing user
         await userService.update(user.id, {
           full_name: formData.full_name,
           role: formData.role,
           is_active: formData.is_active,
+          permissions,
           ...(formData.password ? { password: formData.password } : {}),
         });
       } else {
-        // Create new user
         const createData: CreateUserData = {
           email: formData.email,
           full_name: formData.full_name,
           role: formData.role,
+          permissions,
           ...(formData.password ? { password: formData.password } : {}),
         };
 
         const response = await userService.create(createData);
 
-        // If password was auto-generated, show it to admin
         if (response.generatedPassword) {
           setGeneratedPassword(response.generatedPassword);
-          return; // Don't close modal yet, let admin copy password
+          return;
         }
       }
 
@@ -110,20 +121,19 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={generatedPassword ? undefined : onClose}
       />
 
-      {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className="relative bg-white rounded-lg shadow-xl max-w-md w-full"
+          className={`relative bg-white rounded-lg shadow-xl w-full transition-all ${
+            showPermissions ? 'max-w-3xl' : 'max-w-md'
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
           {generatedPassword ? (
-            /* Password Generated Success Screen */
             <div className="p-6">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +168,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
                 <p className="text-xs text-yellow-800">
-                  ⚠️ <strong>Important:</strong> This password will not be shown again. Make sure to copy it before closing this window.
+                  <strong>Important:</strong> This password will not be shown again. Make sure to copy it before closing this window.
                 </p>
               </div>
 
@@ -170,9 +180,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               </button>
             </div>
           ) : (
-            /* User Form */
             <>
-              {/* Header */}
               <div className="flex items-center justify-between p-6 border-b">
                 <h2 className="text-xl font-bold text-gray-900">
                   {isEditMode ? 'Edit User' : 'Create New User'}
@@ -188,8 +196,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 </button>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {error}
@@ -202,7 +209,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  disabled={isEditMode} // Cannot change email
+                  disabled={isEditMode}
                   placeholder="user@getfund.gov.gh"
                 />
 
@@ -221,7 +228,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                   </label>
                   <select
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                    onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
@@ -266,8 +273,41 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                   }
                 />
 
+                {/* Permissions Toggle */}
+                <div className="border-t pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPermissions(!showPermissions)}
+                    className="flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
+                  >
+                    <svg
+                      className={`w-4 h-4 transition-transform ${showPermissions ? 'rotate-90' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    {showPermissions ? 'Hide' : 'Customize'} Permissions
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Click to customize individual permissions for this user
+                  </p>
+                </div>
+
+                {/* Permission Selector */}
+                {showPermissions && (
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <PermissionSelector
+                      permissions={permissions}
+                      onChange={setPermissions}
+                      disabled={isSaving}
+                    />
+                  </div>
+                )}
+
                 {/* Actions */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 border-t">
                   <Button
                     type="button"
                     variant="secondary"
