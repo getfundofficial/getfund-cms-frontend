@@ -36,6 +36,14 @@ export interface CreateUserResponse {
   generatedPassword?: string; // Only present if password was auto-generated
 }
 
+export interface UserPagePermission {
+  page_id: string;
+  page_slug: string;
+  page_title: string;
+  permission_id?: string;
+  has_edit_permission: boolean;
+}
+
 const userService = {
   // Get all users (admin only)
   getAll: async (): Promise<User[]> => {
@@ -80,6 +88,19 @@ const userService = {
       password: newPassword,
     });
     return response.data.user;
+  },
+
+  // Get page permissions for a user (admin only)
+  getUserPagePermissions: async (userId: string): Promise<UserPagePermission[]> => {
+    const response = await api.get<{ permissions: UserPagePermission[] }>(
+      `/users/${userId}/page-permissions`
+    );
+    return response.data.permissions;
+  },
+
+  // Sync page permissions for a user (admin only)
+  syncUserPagePermissions: async (userId: string, pageIds: string[]): Promise<void> => {
+    await api.put(`/users/${userId}/page-permissions`, { page_ids: pageIds });
   },
 };
 

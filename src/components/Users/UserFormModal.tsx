@@ -4,6 +4,7 @@ import { UserPermissions, DEFAULT_PERMISSIONS } from '../../types/auth.types';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
 import { PermissionSelector } from './PermissionSelector';
+import { PagePermissionSelector } from './PagePermissionSelector';
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -29,10 +30,12 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
   });
 
   const [permissions, setPermissions] = useState<UserPermissions>(DEFAULT_PERMISSIONS.creator);
+  const [editablePageIds, setEditablePageIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [showPermissions, setShowPermissions] = useState(false);
+  const [showPagePermissions, setShowPagePermissions] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -44,6 +47,8 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         is_active: user.is_active,
       });
       setPermissions(user.permissions || DEFAULT_PERMISSIONS[user.role]);
+      // Load existing page permissions
+      loadUserPagePermissions(user.id);
     } else {
       setFormData({
         email: '',
@@ -53,11 +58,26 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         is_active: true,
       });
       setPermissions(DEFAULT_PERMISSIONS.creator);
+      setEditablePageIds([]);
     }
     setError(null);
     setGeneratedPassword(null);
     setShowPermissions(false);
+    setShowPagePermissions(false);
   }, [user, isOpen]);
+
+  const loadUserPagePermissions = async (userId: string) => {
+    try {
+      const pagePerms = await userService.getUserPagePermissions(userId);
+      const selectedIds = pagePerms
+        .filter(p => p.has_edit_permission)
+        .map(p => p.page_id);
+      setEditablePageIds(selectedIds);
+    } catch (err) {
+      console.error('Error loading page permissions:', err);
+      setEditablePageIds([]);
+    }
+  };
 
   const handleRoleChange = (role: UserRole) => {
     setFormData({ ...formData, role });
@@ -70,6 +90,8 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     setIsSaving(true);
 
     try {
+      let userId: string;
+
       if (isEditMode && user) {
         await userService.update(user.id, {
           full_name: formData.full_name,
@@ -78,6 +100,10 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           permissions,
           ...(formData.password ? { password: formData.password } : {}),
         });
+        userId = user.id;
+
+        // Sync page permissions for existing user
+        await userService.syncUserPagePermissions(userId, editablePageIds);
       } else {
         const createData: CreateUserData = {
           email: formData.email,
@@ -88,6 +114,12 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         };
 
         const response = await userService.create(createData);
+        userId = response.user.id;
+
+        // Sync page permissions for new user
+        if (editablePageIds.length > 0) {
+          await userService.syncUserPagePermissions(userId, editablePageIds);
+        }
 
         if (response.generatedPassword) {
           setGeneratedPassword(response.generatedPassword);
@@ -129,7 +161,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className={`relative bg-white rounded-lg shadow-xl w-full transition-all ${
-            showPermissions ? 'max-w-3xl' : 'max-w-md'
+            showPermissions || showPagePermissions ? 'max-w-3xl' : 'max-w-md'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -301,6 +333,39 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                     <PermissionSelector
                       permissions={permissions}
                       onChange={setPermissions}
+                      disabled={isSaving}
+                    />
+                  </div>
+                )}
+
+                {/* Page Permissions Toggle */}
+                <div className="border-t pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPagePermissions(!showPagePermissions)}
+                    className="flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
+                  >
+                    <svg
+                      className={`w-4 h-4 transition-transform ${showPagePermissions ? 'rotate-90' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    {showPagePermissions ? 'Hide' : 'Configure'} Page Edit Permissions
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select which pages this user can edit
+                  </p>
+                </div>
+
+                {/* Page Permission Selector */}
+                {showPagePermissions && (
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <PagePermissionSelector
+                      selectedPageIds={editablePageIds}
+                      onChange={setEditablePageIds}
                       disabled={isSaving}
                     />
                   </div>

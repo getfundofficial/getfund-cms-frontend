@@ -2,8 +2,13 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // Use relative URL in development to leverage Vite proxy, absolute URL in production
 const API_URL = import.meta.env.PROD
-  ? (import.meta.env.VITE_API_URL || 'http://localhost:5000/api')
+  ? (import.meta.env.VITE_API_URL || 'https://getfund-cms-backend.vercel.app/api')
   : '/api';
+
+// Log the API URL for debugging
+console.log('[API] Environment:', import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT');
+console.log('[API] VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+console.log('[API] Final API_URL:', API_URL);
 
 class ApiService {
   private api: AxiosInstance;
