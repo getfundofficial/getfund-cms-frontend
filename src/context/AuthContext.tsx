@@ -56,27 +56,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Get the effective permissions (user's custom permissions or role defaults)
-  const getEffectivePermissions = (): UserPermissions | null => {
-    if (!user) return null;
-    return user.permissions || DEFAULT_PERMISSIONS[user.role];
+  const getEffectivePermissions = (): UserPermissions => {
+    if (!user) return DEFAULT_PERMISSIONS.creator;
+    // Handle null/undefined permissions - fall back to role defaults
+    if (user.permissions && typeof user.permissions === 'object' && user.permissions.navigation) {
+      return user.permissions;
+    }
+    // Fall back to role-based defaults, or creator as ultimate fallback
+    return DEFAULT_PERMISSIONS[user.role] || DEFAULT_PERMISSIONS.creator;
   };
 
   const hasNavPermission = (key: keyof UserPermissions['navigation']): boolean => {
     const perms = getEffectivePermissions();
-    if (!perms) return false;
-    return perms.navigation[key] === true;
+    return perms.navigation?.[key] === true;
   };
 
   const hasAdminPermission = (key: keyof UserPermissions['admin']): boolean => {
     const perms = getEffectivePermissions();
-    if (!perms) return false;
-    return perms.admin[key] === true;
+    return perms.admin?.[key] === true;
   };
 
   const hasActionPermission = (key: keyof UserPermissions['actions']): boolean => {
     const perms = getEffectivePermissions();
-    if (!perms) return false;
-    return perms.actions[key] === true;
+    return perms.actions?.[key] === true;
   };
 
   const value: AuthContextType = {
