@@ -84,7 +84,8 @@ export interface LotteryEntriesResponse {
 class LotteryService {
   async getConfig(): Promise<LotteryConfig> {
     console.log('[LotteryService] Fetching config...');
-    const response = await api.get('/lottery/config');
+    // Add timestamp to prevent caching
+    const response = await api.get(`/lottery/config?_t=${Date.now()}`);
     console.log('[LotteryService] Got config:', response.data);
     return response.data.config;
   }
