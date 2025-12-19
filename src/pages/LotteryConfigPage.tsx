@@ -196,7 +196,7 @@ export const LotteryConfigPage: React.FC = () => {
         share_hashtags: updatedConfig.share_hashtags || '',
       });
 
-      alert('Lottery configuration updated successfully!');
+      alert('Lottery configuration saved successfully!');
     } catch (error: any) {
       console.error('[LotteryConfig] Update error:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to update lottery configuration';
