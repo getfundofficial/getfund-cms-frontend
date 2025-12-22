@@ -19,6 +19,7 @@ const AVAILABLE_PAGE_TEMPLATES = [
   { name: 'support-us', displayName: 'Support Us', description: 'Template for donations and support page with impact stats, support options, and scholarship info' },
   { name: 'faq', displayName: 'FAQ', description: 'Template for frequently asked questions with collapsible sections' },
   { name: 'contact', displayName: 'Contact Page', description: 'Template for Contact pages with contact form, office locations, and social media links' },
+  { name: 'fundraising-campaigns', displayName: 'Fundraising Campaigns', description: 'Template for the Fundraising Campaigns page with hero banner, campaigns, and lottery sections' },
   { name: 'generic', displayName: 'Generic Page', description: 'Use custom sections (hero, text, stats, etc.) to build the page' },
 ];
 

@@ -25,6 +25,7 @@ import { ScholarshipProgrammeEditor } from '../components/PageContentEditors/Sch
 import { EducationSectorSupportEditor } from '../components/PageContentEditors/EducationSectorSupportEditor';
 import { CommunitySHSEditor } from '../components/PageContentEditors/CommunitySHSEditor';
 import { SEIPEditor } from '../components/PageContentEditors/SEIPEditor';
+import { FundraisingCampaignsEditor } from '../components/PageContentEditors/FundraisingCampaignsEditor';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
@@ -442,6 +443,15 @@ export const SectionEditorPage: React.FC = () => {
             />
           );
         }
+        // Fundraising Campaigns page
+        if (slug === 'fundraising-campaigns') {
+          return (
+            <FundraisingCampaignsEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
         // Use generic JSON editor for other pages without custom editors
         return (
           <GenericPageContentEditor
@@ -603,6 +613,7 @@ export const SectionEditorPage: React.FC = () => {
                 <option value="stats">Statistics</option>
                 <option value="hero">Hero Banner</option>
                 <option value="cta">Call-to-Action</option>
+                <option value="page_content">Page Content</option>
               </select>
             </div>
           )}
