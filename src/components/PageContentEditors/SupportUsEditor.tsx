@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
 import { Plus, Trash2, Heart } from 'lucide-react';
+import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import { BannerBackground } from '../../types/bannerBackground';
 
 interface Stat {
   number: string;
@@ -34,6 +36,7 @@ export const SupportUsEditor: React.FC<SupportUsEditorProps> = ({ initialData, o
     heroSubtitle: initialData?.heroSubtitle || '',
     heroCtaText: initialData?.heroCtaText || '',
     heroCtaLink: initialData?.heroCtaLink || '',
+    bannerBackground: initialData?.bannerBackground || {} as BannerBackground,
 
     // Impact Stats
     impactTitle: initialData?.impactTitle || '',
@@ -167,6 +170,16 @@ export const SupportUsEditor: React.FC<SupportUsEditorProps> = ({ initialData, o
               value={content.heroCtaLink}
               onChange={(e) => updateField('heroCtaLink', e.target.value)}
               placeholder="https://donate.getfund.gov.gh/"
+            />
+          </div>
+
+          {/* Banner Background Settings */}
+          <div className="mt-6">
+            <BannerBackgroundEditor
+              value={content.bannerBackground}
+              onChange={(value) => updateField('bannerBackground', value)}
+              previewTitle={content.heroTitle || 'Support Ghana\'s Educational Future'}
+              previewSubtitle={content.heroSubtitle || 'Join us in transforming lives through education'}
             />
           </div>
         </div>
