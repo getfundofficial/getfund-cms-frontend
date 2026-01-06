@@ -7,11 +7,17 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+interface NavChildItem {
+  path: string;
+  label: string;
+}
+
 interface NavItem {
   path: string;
   icon: React.ReactNode;
   label: string;
   show: boolean;
+  children?: NavChildItem[];
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
