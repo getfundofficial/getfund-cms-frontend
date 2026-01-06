@@ -7,6 +7,13 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+interface NavItem {
+  path: string;
+  icon: React.ReactNode;
+  label: string;
+  show: boolean;
+}
+
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout, hasNavPermission, hasAdminPermission } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +56,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       path: '/admin/dashboard',
       icon: (
