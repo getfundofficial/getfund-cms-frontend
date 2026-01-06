@@ -83,12 +83,24 @@ export interface LotteryEntriesResponse {
 
 class LotteryService {
   async getConfig(): Promise<LotteryConfig> {
-    const response = await api.get('/lottery/config');
+    console.log('[LotteryService] Fetching config...');
+    // Add timestamp to prevent caching
+    const response = await api.get(`/lottery/config?_t=${Date.now()}`);
+    console.log('[LotteryService] Got config:', response.data);
     return response.data.config;
   }
 
   async updateConfig(data: UpdateLotteryConfigDto): Promise<LotteryConfig> {
+    console.log('[LotteryService] Updating config with:', JSON.stringify(data, null, 2));
     const response = await api.put('/lottery/config', data);
+    console.log('[LotteryService] Update response status:', response.status);
+    console.log('[LotteryService] Update response data:', response.data);
+
+    if (!response.data || !response.data.config) {
+      console.error('[LotteryService] Server did not return config in response');
+      throw new Error('Server did not return updated config');
+    }
+
     return response.data.config;
   }
 
