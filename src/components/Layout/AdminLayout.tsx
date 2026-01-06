@@ -13,6 +13,17 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+
+  const toggleMenu = (path: string) => {
+    setExpandedMenus(prev =>
+      prev.includes(path) ? prev.filter(p => p !== path) : [...prev, path]
+    );
+  };
+
+  const isMenuExpanded = (path: string) => {
+    return expandedMenus.includes(path) || location.pathname.startsWith(path + '/');
+  };
 
   const handleLogout = () => {
     logout();
@@ -121,7 +132,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       show: true,
     },
     {
-      path: '/admin/lottery/config',
+      path: '/admin/lottery',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
@@ -129,15 +140,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       ),
       label: 'Lottery',
       show: user?.role === 'admin',
+      children: [
+        { path: '/admin/lottery/config', label: 'Configuration' },
+        { path: '/admin/lottery/entries', label: 'Entries' },
+      ],
     },
     {
-      path: '/admin/lottery/entries',
+      path: '/admin/footer-settings',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
         </svg>
       ),
-      label: 'Lottery Entries',
+      label: 'Footer Settings',
       show: user?.role === 'admin',
     },
     {
@@ -158,6 +173,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Team Members',
+      show: true,
+    },
+    {
+      path: '/admin/partners',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      ),
+      label: 'Partners',
       show: true,
     },
     {
@@ -269,23 +294,75 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {navItems
             .filter(item => item.show)
             .map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                  isActive(item.path)
-                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md scale-105'
-                    : 'text-gray-700 hover:bg-gray-100 hover:scale-102 hover:shadow-sm'
-                }`}
-              >
-                <span className={isActive(item.path) ? 'scale-110' : ''}>
-                  {item.icon}
-                </span>
-                {/* Always show label on mobile, conditional on desktop */}
-                <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
-                {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
-              </Link>
+              <div key={item.path}>
+                {item.children ? (
+                  // Collapsible menu item
+                  <>
+                    <button
+                      onClick={() => toggleMenu(item.path)}
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                        isActive(item.path)
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md'
+                          : 'text-gray-700 hover:bg-gray-100 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={isActive(item.path) ? 'scale-110' : ''}>
+                          {item.icon}
+                        </span>
+                        <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
+                        {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
+                      </div>
+                      {isSidebarOpen && (
+                        <svg
+                          className={`w-4 h-4 transition-transform ${isMenuExpanded(item.path) ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
+                    </button>
+                    {isMenuExpanded(item.path) && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                              location.pathname === child.path
+                                ? 'bg-primary-100 text-primary-700 font-semibold'
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full bg-current opacity-50"></span>
+                            <span className="text-sm">{child.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Regular menu item
+                  <Link
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md scale-105'
+                        : 'text-gray-700 hover:bg-gray-100 hover:scale-102 hover:shadow-sm'
+                    }`}
+                  >
+                    <span className={isActive(item.path) ? 'scale-110' : ''}>
+                      {item.icon}
+                    </span>
+                    <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
+                    {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
+                  </Link>
+                )}
+              </div>
             ))}
         </nav>
 
