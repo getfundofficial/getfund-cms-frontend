@@ -20,6 +20,7 @@ import { PagePermissionsPage } from './pages/PagePermissionsPage';
 import { SectionEditorPage } from './pages/SectionEditorPage';
 import { MenuManagementPage } from './pages/MenuManagementPage';
 import { TeamMembersListPage } from './pages/TeamMembersListPage';
+import { PartnersListPage } from './pages/PartnersListPage';
 import ImpactStatsManager from './components/ImpactStatsManager';
 import FooterConfigEditor from './components/FooterConfigEditor';
 import { CampaignsListPage } from './pages/CampaignsListPage';
@@ -220,6 +221,18 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <TeamMembersListPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Partners Route */}
+          <Route
+            path="/admin/partners"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <PartnersListPage />
                 </AdminLayout>
               </ProtectedRoute>
             }

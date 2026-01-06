@@ -18,6 +18,7 @@ export const CampaignEditorPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const [formData, setFormData] = useState<CreateCampaignDto>({
     title: '',
@@ -40,15 +41,20 @@ export const CampaignEditorPage: React.FC = () => {
     }
   }, [slug]);
 
-  useEffect(() => {
-    if (!isEditMode && formData.title && !formData.slug) {
+  const generateSlugFromTitle = () => {
+    if (!isEditMode && formData.title && !slugManuallyEdited) {
       const generatedSlug = formData.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
       setFormData(prev => ({ ...prev, slug: generatedSlug }));
     }
-  }, [formData.title, isEditMode]);
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugManuallyEdited(true);
+    setFormData(prev => ({ ...prev, slug: e.target.value }));
+  };
 
   const loadCampaign = async () => {
     try {
@@ -196,7 +202,7 @@ export const CampaignEditorPage: React.FC = () => {
         ]}
       />
 
-      <div className="max-w-4xl">
+      <div className="max-w-4xl mt-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           {isEditMode ? 'Edit Campaign' : 'Create New Campaign'}
         </h1>
@@ -211,6 +217,7 @@ export const CampaignEditorPage: React.FC = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
+              onBlur={generateSlugFromTitle}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.title ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -229,7 +236,7 @@ export const CampaignEditorPage: React.FC = () => {
               type="text"
               name="slug"
               value={formData.slug}
-              onChange={handleChange}
+              onChange={handleSlugChange}
               disabled={isEditMode}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.slug ? 'border-red-500' : 'border-gray-300'
