@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { DashboardStats } from '../types/content.types';
 import LoadingScreen from '../components/Common/LoadingScreen';
+import { CalendarWidget } from '../components/Dashboard/CalendarWidget';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -145,114 +146,124 @@ export const DashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-soft p-6 sm:p-8 border border-gray-100">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
-            <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(user?.role === 'admin' || user?.role === 'creator') && (
+        {/* Quick Actions and Calendar Row */}
+        <div className="flex flex-col lg:flex-row lg:items-stretch gap-4 sm:gap-6">
+          {/* Quick Actions */}
+          <div className="flex-1 bg-white rounded-xl shadow-soft p-6 sm:p-8 border border-gray-100 flex flex-col">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
+              <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(user?.role === 'admin' || user?.role === 'creator') && (
+                <button
+                  onClick={() => navigate('/admin/news/new')}
+                  className="group flex items-center p-4 border-2 border-accent-200 rounded-xl hover:border-accent-400 hover:bg-accent-50 transition-all hover:shadow-md text-left"
+                >
+                  <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-base font-bold text-gray-900 mb-1">Create News Article</h4>
+                    <p className="text-sm text-gray-600">Write a new article</p>
+                  </div>
+                </button>
+              )}
+
+              {(user?.role === 'admin' || user?.role === 'creator') && (
+                <button
+                  onClick={() => navigate('/admin/pages')}
+                  className="group flex items-center p-4 border-2 border-primary-200 rounded-xl hover:border-primary-400 hover:bg-primary-50 transition-all hover:shadow-md text-left"
+                >
+                  <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-base font-bold text-gray-900 mb-1">Manage Web Pages</h4>
+                    <p className="text-sm text-gray-600">Edit website pages</p>
+                  </div>
+                </button>
+              )}
+
               <button
-                onClick={() => navigate('/admin/news/new')}
-                className="group flex items-center p-4 border-2 border-accent-200 rounded-xl hover:border-accent-400 hover:bg-accent-50 transition-all hover:shadow-md text-left"
+                onClick={() => navigate('/admin/news')}
+                className="group flex items-center p-4 border-2 border-secondary-200 rounded-xl hover:border-secondary-400 hover:bg-secondary-50 transition-all hover:shadow-md text-left"
               >
-                <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                <div className="bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-bold text-gray-900 mb-1">Create News Article</h4>
-                  <p className="text-sm text-gray-600">Write a new article</p>
+                  <h4 className="text-base font-bold text-gray-900 mb-1">View All News Content</h4>
+                  <p className="text-sm text-gray-600">Browse all articles</p>
                 </div>
               </button>
-            )}
 
-            {(user?.role === 'admin' || user?.role === 'creator') && (
-              <button
-                onClick={() => navigate('/admin/pages')}
-                className="group flex items-center p-4 border-2 border-primary-200 rounded-xl hover:border-primary-400 hover:bg-primary-50 transition-all hover:shadow-md text-left"
-              >
-                <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-bold text-gray-900 mb-1">Manage Web Pages</h4>
-                  <p className="text-sm text-gray-600">Edit website pages</p>
-                </div>
-              </button>
-            )}
+              {(user?.role === 'reviewer' || user?.role === 'admin') && (
+                <button
+                  onClick={() => navigate('/admin/review')}
+                  className="flex items-center p-3 sm:p-4 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition text-left"
+                >
+                  <div className="bg-yellow-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Review Queue</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">{stats?.in_review || 0} items pending</p>
+                  </div>
+                </button>
+              )}
 
-            <button
-              onClick={() => navigate('/admin/news')}
-              className="group flex items-center p-4 border-2 border-secondary-200 rounded-xl hover:border-secondary-400 hover:bg-secondary-50 transition-all hover:shadow-md text-left"
-            >
-              <div className="bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg p-3 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-base font-bold text-gray-900 mb-1">View All News Content</h4>
-                <p className="text-sm text-gray-600">Browse all articles</p>
-              </div>
-            </button>
+              {(user?.role === 'approver' || user?.role === 'admin') && (
+                <button
+                  onClick={() => navigate('/admin/approval')}
+                  className="flex items-center p-3 sm:p-4 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left"
+                >
+                  <div className="bg-indigo-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Approval Queue</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">{stats?.approved || 0} ready to publish</p>
+                  </div>
+                </button>
+              )}
 
-            {(user?.role === 'reviewer' || user?.role === 'admin') && (
-              <button
-                onClick={() => navigate('/admin/review')}
-                className="flex items-center p-3 sm:p-4 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition text-left"
-              >
-                <div className="bg-yellow-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Review Queue</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">{stats?.in_review || 0} items pending</p>
-                </div>
-              </button>
-            )}
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => navigate('/admin/users')}
+                  className="flex items-center p-3 sm:p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left"
+                >
+                  <div className="bg-red-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Manage Users</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">User accounts & roles</p>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
 
-            {(user?.role === 'approver' || user?.role === 'admin') && (
-              <button
-                onClick={() => navigate('/admin/approval')}
-                className="flex items-center p-3 sm:p-4 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left"
-              >
-                <div className="bg-indigo-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Approval Queue</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">{stats?.approved || 0} ready to publish</p>
-                </div>
-              </button>
-            )}
-
-            {user?.role === 'admin' && (
-              <button
-                onClick={() => navigate('/admin/users')}
-                className="flex items-center p-3 sm:p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left"
-              >
-                <div className="bg-red-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4 flex-shrink-0">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Manage Users</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">User accounts & roles</p>
-                </div>
-              </button>
-            )}
+          {/* Calendar Widget */}
+          <div className="lg:w-80 flex-shrink-0 flex">
+            <div className="w-full">
+              <CalendarWidget />
+            </div>
           </div>
         </div>
 
