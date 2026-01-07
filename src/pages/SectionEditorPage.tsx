@@ -36,7 +36,6 @@ export const SectionEditorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -96,7 +95,6 @@ export const SectionEditorPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
     setIsSaving(true);
 
     try {
@@ -107,12 +105,8 @@ export const SectionEditorPage: React.FC = () => {
           is_active: formData.is_active,
           order_index: formData.order_index,
         });
-        // Stay on page and show success message
-        setSuccessMessage('Section updated successfully!');
-        // Auto-hide success message after 3 seconds
-        setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        const newSection = await pageService.createSection(slug!, {
+        await pageService.createSection(slug!, {
           section_key: formData.section_key,
           section_type: formData.section_type,
           title: formData.title,
@@ -120,9 +114,8 @@ export const SectionEditorPage: React.FC = () => {
           order_index: formData.order_index,
           is_active: formData.is_active,
         });
-        // Navigate to edit mode for the new section
-        navigate(`/admin/pages/${slug}/sections/${newSection.section_key}`);
       }
+      navigate(`/admin/pages/${slug}`);
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to save section');
     } finally {
@@ -517,20 +510,6 @@ export const SectionEditorPage: React.FC = () => {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Success Message */}
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center justify-between">
-            <p className="text-sm font-medium">{successMessage}</p>
-            <button
-              type="button"
-              onClick={() => setSuccessMessage('')}
-              className="text-green-500 hover:text-green-700"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -669,22 +648,20 @@ export const SectionEditorPage: React.FC = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => navigate(`/admin/pages/${slug}`)}
+            onClick={handleCancel}
             disabled={isSaving}
           >
-            ← Back to Page
+            Cancel
           </Button>
 
-          <div className="flex gap-3">
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSaving}
-              disabled={isSaving || !formData.title || !formData.section_key}
-            >
-              {isEditMode ? 'Update Section' : 'Create Section'}
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            isLoading={isSaving}
+            disabled={isSaving || !formData.title || !formData.section_key}
+          >
+            {isEditMode ? 'Update Section' : 'Create Section'}
+          </Button>
         </div>
       </form>
     </div>

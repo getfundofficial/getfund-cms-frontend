@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2, MoveUp, MoveDown } from 'lucide-react';
-import { pageService, Page } from '../../services/pageService';
 
 type FontSize = 'small' | 'medium' | 'large' | 'xlarge';
 type GradientDirection = 'to right' | 'to bottom' | 'to bottom right' | 'to top right';
@@ -25,11 +24,6 @@ interface HeroSlide {
   titleFontSize?: FontSize;
   subtitleFontSize?: FontSize;
   overlay?: SlideOverlay;
-  // Content box fields for the blue overlay
-  boxTitle?: string;
-  boxDescription?: string;
-  exploreText?: string;
-  exploreLink?: string;
 }
 
 interface Service {
@@ -85,24 +79,6 @@ interface HomePageEditorProps {
 
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<'hero' | 'video' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
-  const [availablePages, setAvailablePages] = useState<Page[]>([]);
-  const [loadingPages, setLoadingPages] = useState(true);
-  const [customUrlMode, setCustomUrlMode] = useState<Record<number, boolean>>({});
-
-  // Fetch available pages for link dropdown
-  useEffect(() => {
-    const fetchPages = async () => {
-      try {
-        const pages = await pageService.getAll();
-        setAvailablePages(pages.filter(p => p.is_active));
-      } catch (error) {
-        console.error('Failed to fetch pages:', error);
-      } finally {
-        setLoadingPages(false);
-      }
-    };
-    fetchPages();
-  }, []);
 
   // Debug logging
   console.log('[HomePageEditor] Received content:', content);
@@ -149,11 +125,6 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
       titleFontSize: 'medium',
       subtitleFontSize: 'medium',
       overlay: { ...defaultOverlay },
-      // Content box defaults
-      boxTitle: 'Supporting Research & Innovation',
-      boxDescription: 'The Ghana Education Trust Fund is committed to supporting innovative educational initiatives that address national priorities, enhance academic capacity, and contribute to sustainable development in Ghana.',
-      exploreText: 'EXPLORE',
-      exploreLink: '/scholarship-apply',
     };
     updateContent({ heroSlides: [...(content.heroSlides || []), newSlide] });
   };
@@ -243,22 +214,19 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
 
       {/* Hero Slides Tab */}
       {activeTab === 'hero' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-lg font-semibold">Hero Carousel Slides</h3>
-              <p className="text-sm text-gray-600">Each slide has its own background image and content box.</p>
-            </div>
-            <Button type="button" onClick={addHeroSlide} variant="secondary" size="sm">
+            <h3 className="text-lg font-semibold">Hero Carousel Slides</h3>
+            <Button onClick={addHeroSlide} variant="secondary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Add Slide
             </Button>
           </div>
 
           {content.heroSlides?.map((slide, index) => (
-            <div key={index} className="border border-gray-300 rounded-lg p-4 space-y-4 bg-gray-50">
+            <div key={index} className="border border-gray-300 rounded-lg p-4 space-y-3 bg-gray-50">
               <div className="flex justify-between items-center">
-                <h4 className="font-semibold text-lg">Slide {index + 1}</h4>
+                <h4 className="font-semibold">Slide {index + 1}</h4>
                 <div className="flex gap-2">
                   {index > 0 && (
                     <button
@@ -288,156 +256,231 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                 </div>
               </div>
 
-              {/* Background Image */}
               <ImageInput
-                label="Background Image URL"
+                label="Image URL"
                 value={slide.image}
                 onChange={(value) => updateHeroSlide(index, { ...slide, image: value })}
                 placeholder="/images/hero/slide.jpg"
               />
 
-              {/* Content Box Section */}
-              <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
-                <h5 className="text-sm font-semibold text-blue-900 mb-3">Content Box (Blue Overlay)</h5>
+              <Input
+                label="Headline"
+                value={slide.headline}
+                onChange={(e) => updateHeroSlide(index, { ...slide, headline: e.target.value })}
+                placeholder="Every Ghanaian Child Deserves..."
+              />
 
-                <div className="space-y-3">
-                  <Input
-                    label="Title"
-                    value={slide.boxTitle || ''}
-                    onChange={(e) => updateHeroSlide(index, { ...slide, boxTitle: e.target.value })}
-                    placeholder="Supporting Research & Innovation"
-                  />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={slide.description}
+                  onChange={(e) => updateHeroSlide(index, { ...slide, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={2}
+                  placeholder="Supporting the delivery of quality education..."
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  label="CTA Button Text (Optional)"
+                  value={slide.ctaText || ''}
+                  onChange={(e) => updateHeroSlide(index, { ...slide, ctaText: e.target.value })}
+                  placeholder="Apply for Scholarship"
+                />
+
+                <Input
+                  label="CTA Button Link (Optional)"
+                  value={slide.ctaLink || ''}
+                  onChange={(e) => updateHeroSlide(index, { ...slide, ctaLink: e.target.value })}
+                  placeholder="/scholarship-apply"
+                />
+              </div>
+
+              {/* Font Size Settings */}
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <h5 className="text-sm font-medium text-gray-700 mb-2">Text Sizes</h5>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Headline Font Size
                     </label>
-                    <textarea
-                      value={slide.boxDescription || ''}
-                      onChange={(e) => updateHeroSlide(index, { ...slide, boxDescription: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      rows={3}
-                      placeholder="The Ghana Education Trust Fund is committed to supporting innovative educational initiatives..."
-                    />
+                    <select
+                      value={slide.titleFontSize || 'medium'}
+                      onChange={(e) => updateHeroSlide(index, { ...slide, titleFontSize: e.target.value as FontSize })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {fontSizeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      label="Button Text"
-                      value={slide.exploreText || ''}
-                      onChange={(e) => updateHeroSlide(index, { ...slide, exploreText: e.target.value })}
-                      placeholder="EXPLORE"
-                    />
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Button Link
-                      </label>
-                      {(() => {
-                        const isExistingCustomUrl = slide.exploreLink && !availablePages.some(p => `/${p.slug}` === slide.exploreLink);
-                        const isInCustomMode = customUrlMode[index] || isExistingCustomUrl;
-                        const selectValue = isInCustomMode ? 'custom' : (slide.exploreLink || '');
-                        return (
-                          <>
-                            <select
-                              value={selectValue}
-                              onChange={(e) => {
-                                if (e.target.value === 'custom') {
-                                  setCustomUrlMode({ ...customUrlMode, [index]: true });
-                                } else {
-                                  setCustomUrlMode({ ...customUrlMode, [index]: false });
-                                  updateHeroSlide(index, { ...slide, exploreLink: e.target.value });
-                                }
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
-                            >
-                              <option value="">Select a page...</option>
-                              <option value="custom">-- Custom URL --</option>
-                              {loadingPages ? (
-                                <option disabled>Loading pages...</option>
-                              ) : (
-                                availablePages.map((page) => (
-                                  <option key={page.id} value={`/${page.slug}`}>
-                                    /{page.slug} - {page.title}
-                                  </option>
-                                ))
-                              )}
-                            </select>
-                            {isInCustomMode && (
-                              <input
-                                type="text"
-                                value={slide.exploreLink || ''}
-                                onChange={(e) => updateHeroSlide(index, { ...slide, exploreLink: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md mt-2"
-                                placeholder="Enter custom URL (e.g., /my-page or https://...)"
-                                autoFocus
-                              />
-                            )}
-                          </>
-                        );
-                      })()}
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Description Font Size
+                    </label>
+                    <select
+                      value={slide.subtitleFontSize || 'medium'}
+                      onChange={(e) => updateHeroSlide(index, { ...slide, subtitleFontSize: e.target.value as FontSize })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {fontSizeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
               {/* Overlay/Tint Settings */}
-              <div className="border-t border-gray-200 pt-3">
-                <h5 className="text-sm font-medium text-gray-700 mb-2">Image Overlay</h5>
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <h5 className="text-sm font-medium text-gray-700 mb-2">Overlay & Tint</h5>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Tint Color */}
+                {/* Use Gradient Toggle */}
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id={`useGradient-${index}`}
+                    checked={slide.overlay?.useGradient ?? true}
+                    onChange={(e) => updateHeroSlide(index, {
+                      ...slide,
+                      overlay: { ...defaultOverlay, ...slide.overlay, useGradient: e.target.checked }
+                    })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor={`useGradient-${index}`} className="text-sm text-gray-600">
+                    Use gradient (two colors)
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {/* Primary Color */}
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Tint Color
+                      {slide.overlay?.useGradient ? 'Primary Color' : 'Tint Color'}
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="color"
-                        value={slide.overlay?.tintColor || '#000000'}
+                        value={slide.overlay?.tintColor || '#059669'}
                         onChange={(e) => updateHeroSlide(index, {
                           ...slide,
-                          overlay: { ...slide.overlay, tintColor: e.target.value, useGradient: false }
+                          overlay: { ...defaultOverlay, ...slide.overlay, tintColor: e.target.value }
                         })}
                         className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
                       />
                       <input
                         type="text"
-                        value={slide.overlay?.tintColor || '#000000'}
+                        value={slide.overlay?.tintColor || '#059669'}
                         onChange={(e) => updateHeroSlide(index, {
                           ...slide,
-                          overlay: { ...slide.overlay, tintColor: e.target.value, useGradient: false }
+                          overlay: { ...defaultOverlay, ...slide.overlay, tintColor: e.target.value }
                         })}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="#000000"
+                        placeholder="#059669"
                       />
                     </div>
                   </div>
 
+                  {/* Secondary Color (only shown when gradient is enabled) */}
+                  {(slide.overlay?.useGradient ?? true) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Secondary Color
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={slide.overlay?.tintColor2 || '#0d9488'}
+                          onChange={(e) => updateHeroSlide(index, {
+                            ...slide,
+                            overlay: { ...defaultOverlay, ...slide.overlay, tintColor2: e.target.value }
+                          })}
+                          className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={slide.overlay?.tintColor2 || '#0d9488'}
+                          onChange={(e) => updateHeroSlide(index, {
+                            ...slide,
+                            overlay: { ...defaultOverlay, ...slide.overlay, tintColor2: e.target.value }
+                          })}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          placeholder="#0d9488"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Gradient Direction (only shown when gradient is enabled) */}
+                  {(slide.overlay?.useGradient ?? true) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Gradient Direction
+                      </label>
+                      <select
+                        value={slide.overlay?.gradientDirection || 'to bottom'}
+                        onChange={(e) => updateHeroSlide(index, {
+                          ...slide,
+                          overlay: { ...defaultOverlay, ...slide.overlay, gradientDirection: e.target.value as GradientDirection }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {gradientDirectionOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   {/* Opacity */}
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Opacity: {slide.overlay?.tintOpacity ?? 20}%
+                      Opacity: {slide.overlay?.tintOpacity ?? 60}%
                     </label>
                     <input
                       type="range"
                       min="0"
                       max="100"
-                      value={slide.overlay?.tintOpacity ?? 20}
+                      value={slide.overlay?.tintOpacity ?? 60}
                       onChange={(e) => updateHeroSlide(index, {
                         ...slide,
-                        overlay: { ...slide.overlay, tintOpacity: parseInt(e.target.value), useGradient: false }
+                        overlay: { ...defaultOverlay, ...slide.overlay, tintOpacity: parseInt(e.target.value) }
                       })}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-3"
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
+                </div>
+
+                {/* Preview */}
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Preview</label>
+                  <div
+                    className="h-16 rounded-md border border-gray-300"
+                    style={{
+                      background: (slide.overlay?.useGradient ?? true)
+                        ? `linear-gradient(${slide.overlay?.gradientDirection || 'to bottom'}, ${slide.overlay?.tintColor || '#059669'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')}, ${slide.overlay?.tintColor2 || '#0d9488'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')})`
+                        : `${slide.overlay?.tintColor || '#059669'}${Math.round(((slide.overlay?.tintOpacity ?? 60) / 100) * 255).toString(16).padStart(2, '0')}`
+                    }}
+                  />
                 </div>
               </div>
             </div>
           ))}
 
           {(!content.heroSlides || content.heroSlides.length === 0) && (
-            <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg">
+            <div className="text-center py-8 text-gray-500">
               No slides added yet. Click "Add Slide" to create your first slide.
             </div>
           )}
@@ -661,7 +704,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <label className="block text-sm font-medium text-gray-700">Content Paragraphs</label>
-              <Button type="button" onClick={addAboutParagraph} variant="secondary" size="sm">
+              <Button onClick={addAboutParagraph} variant="secondary" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Paragraph
               </Button>
@@ -701,7 +744,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
           <div className="space-y-3 mt-6">
             <div className="flex justify-between items-center">
               <label className="block text-sm font-medium text-gray-700">Relevant Factors</label>
-              <Button type="button" onClick={addRelevantFactor} variant="secondary" size="sm">
+              <Button onClick={addRelevantFactor} variant="secondary" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Factor
               </Button>
