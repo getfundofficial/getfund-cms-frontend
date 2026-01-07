@@ -36,6 +36,7 @@ export const SectionEditorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSettingsCollapsed, setIsSettingsCollapsed] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -95,6 +96,7 @@ export const SectionEditorPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsSaving(true);
 
     try {
@@ -105,6 +107,9 @@ export const SectionEditorPage: React.FC = () => {
           is_active: formData.is_active,
           order_index: formData.order_index,
         });
+        setSuccessMessage('Section updated successfully!');
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => setSuccessMessage(''), 5000);
       } else {
         await pageService.createSection(slug!, {
           section_key: formData.section_key,
@@ -114,8 +119,9 @@ export const SectionEditorPage: React.FC = () => {
           order_index: formData.order_index,
           is_active: formData.is_active,
         });
+        // Navigate to edit the newly created section
+        navigate(`/admin/pages/${slug}/sections/${formData.section_key}`);
       }
-      navigate(`/admin/pages/${slug}`);
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to save section');
     } finally {
@@ -510,6 +516,27 @@ export const SectionEditorPage: React.FC = () => {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-sm font-medium">{successMessage}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSuccessMessage('')}
+              className="text-green-500 hover:text-green-700"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">

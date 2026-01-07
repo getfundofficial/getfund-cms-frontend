@@ -50,8 +50,8 @@ export const LotteryConfigPage: React.FC = () => {
         share_text: data.share_text || '',
         share_hashtags: data.share_hashtags || '',
       });
-    } catch (error) {
-      console.error('Failed to load lottery config:', error);
+    } catch {
+      // Failed to load config
     } finally {
       setIsLoading(false);
     }
@@ -153,49 +153,17 @@ export const LotteryConfigPage: React.FC = () => {
     try {
       setIsSaving(true);
 
-      // Log ALL form data being submitted
       const dataToSubmit = {
         ...formData,
         next_draw_date: new Date(formData.next_draw_date).toISOString(),
       };
 
-      console.log('[LotteryConfig] === FULL FORM DATA BEING SUBMITTED ===');
-      console.log('[LotteryConfig] section_title:', dataToSubmit.section_title);
-      console.log('[LotteryConfig] section_description:', dataToSubmit.section_description);
-      console.log('[LotteryConfig] prize_box_title:', dataToSubmit.prize_box_title);
-      console.log('[LotteryConfig] sharing_enabled:', dataToSubmit.sharing_enabled);
-      console.log('[LotteryConfig] share_text:', dataToSubmit.share_text);
-      console.log('[LotteryConfig] share_hashtags:', dataToSubmit.share_hashtags);
-      console.log('[LotteryConfig] how_it_works_steps count:', dataToSubmit.how_it_works_steps?.length);
-      console.log('[LotteryConfig] Full data:', JSON.stringify(dataToSubmit, null, 2));
-
       const updatedConfig = await lotteryService.updateConfig(dataToSubmit);
 
-      console.log('[LotteryConfig] === RESPONSE FROM SERVER ===');
-      console.log('[LotteryConfig] Response section_title:', updatedConfig?.section_title);
-      console.log('[LotteryConfig] Response section_description:', updatedConfig?.section_description);
-      console.log('[LotteryConfig] Response prize_box_title:', updatedConfig?.prize_box_title);
-      console.log('[LotteryConfig] Response sharing_enabled:', updatedConfig?.sharing_enabled);
-      console.log('[LotteryConfig] Response share_text:', updatedConfig?.share_text);
-      console.log('[LotteryConfig] Response share_hashtags:', updatedConfig?.share_hashtags);
-
-      // Verify we got a valid response with the updated data
       if (!updatedConfig || !updatedConfig.id) {
         throw new Error('Invalid response from server - no config returned');
       }
 
-      // Verify ALL fields match what we sent
-      const fieldsToCheck = ['section_title', 'section_description', 'prize_box_title', 'share_text', 'share_hashtags'] as const;
-      for (const field of fieldsToCheck) {
-        if (updatedConfig[field] !== dataToSubmit[field]) {
-          console.error(`[LotteryConfig] MISMATCH on ${field}:`, {
-            sent: dataToSubmit[field],
-            received: updatedConfig[field]
-          });
-        }
-      }
-
-      // Update state with the returned config
       setConfig(updatedConfig);
       setFormData({
         prizes: updatedConfig.prizes || [],
@@ -213,9 +181,9 @@ export const LotteryConfigPage: React.FC = () => {
       });
 
       alert('Lottery configuration saved successfully!');
-    } catch (error: any) {
-      console.error('[LotteryConfig] Update error:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to update lottery configuration';
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string } }; message?: string };
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to update lottery configuration';
       alert(`Error: ${errorMessage}`);
     } finally {
       setIsSaving(false);

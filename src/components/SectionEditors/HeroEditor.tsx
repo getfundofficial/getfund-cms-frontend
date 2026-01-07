@@ -10,6 +10,9 @@ interface HeroSlide {
   ctaLink?: string;
   overlay?: boolean;
   overlayOpacity?: number;
+  blueBoxText?: string; // Label text shown above the headline in blue box
+  blueBoxColor?: string; // Background color of the content box
+  blueBoxOpacity?: number; // Opacity of the content box (0-100)
 }
 
 interface HeroEditorProps {
@@ -199,6 +202,56 @@ export const HeroEditor: React.FC<HeroEditorProps> = ({ initialData, onChange })
             </div>
 
             <div className="space-y-4">
+              {/* Content Box Settings */}
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h5 className="text-sm font-semibold text-gray-900 mb-3">Content Box Settings</h5>
+                <div className="space-y-4">
+                  <Input
+                    type="text"
+                    label="Box Label (Optional)"
+                    placeholder="e.g., GETFund Initiative, Featured Program"
+                    value={slides[activeSlide].blueBoxText || ''}
+                    onChange={(e) => updateSlide(activeSlide, 'blueBoxText', e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 -mt-2">Small label text displayed above the headline</p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Box Color</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={slides[activeSlide].blueBoxColor || '#2a3f75'}
+                          onChange={(e) => updateSlide(activeSlide, 'blueBoxColor', e.target.value)}
+                          className="w-10 h-8 rounded border border-gray-300 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={slides[activeSlide].blueBoxColor || '#2a3f75'}
+                          onChange={(e) => updateSlide(activeSlide, 'blueBoxColor', e.target.value)}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm font-mono"
+                          placeholder="#2a3f75"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Box Opacity: {slides[activeSlide].blueBoxOpacity ?? 100}%
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={slides[activeSlide].blueBoxOpacity ?? 100}
+                        onChange={(e) => updateSlide(activeSlide, 'blueBoxOpacity', parseInt(e.target.value))}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Title */}
               <Input
                 type="text"
@@ -237,7 +290,7 @@ export const HeroEditor: React.FC<HeroEditorProps> = ({ initialData, onChange })
               {slides[activeSlide].backgroundImage && (
                 <div className="mt-2">
                   <p className="text-xs text-gray-500 mb-1">Image Preview:</p>
-                  <div className="relative h-32 rounded-lg overflow-hidden border border-gray-200">
+                  <div className="relative h-48 rounded-lg overflow-hidden border border-gray-200">
                     <img
                       src={slides[activeSlide].backgroundImage}
                       alt="Preview"
@@ -252,11 +305,26 @@ export const HeroEditor: React.FC<HeroEditorProps> = ({ initialData, onChange })
                         style={{ opacity: slides[activeSlide].overlayOpacity || 0.5 }}
                       />
                     )}
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-center p-4">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">{slides[activeSlide].title || 'Title'}</h3>
-                        <p className="text-sm">{slides[activeSlide].subtitle || 'Subtitle'}</p>
-                      </div>
+                    {/* Blue Box Preview - Bottom Left */}
+                    <div
+                      className="absolute bottom-4 left-4 p-4 max-w-[60%] text-white"
+                      style={{
+                        backgroundColor: slides[activeSlide].blueBoxColor || '#2a3f75',
+                        opacity: (slides[activeSlide].blueBoxOpacity ?? 100) / 100,
+                      }}
+                    >
+                      {slides[activeSlide].blueBoxText && (
+                        <span className="text-xs text-blue-200 uppercase tracking-wider block mb-1">
+                          {slides[activeSlide].blueBoxText}
+                        </span>
+                      )}
+                      <h3 className="text-lg font-bold mb-1">{slides[activeSlide].title || 'Title'}</h3>
+                      <p className="text-xs text-gray-200">{slides[activeSlide].subtitle || 'Subtitle'}</p>
+                      {slides[activeSlide].ctaText && (
+                        <span className="text-xs uppercase tracking-wider mt-2 inline-flex items-center gap-1">
+                          {slides[activeSlide].ctaText} →
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
