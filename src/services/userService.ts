@@ -1,4 +1,5 @@
 import { api } from './api';
+import { UserPermissions } from '../types/auth.types';
 
 export type UserRole = 'admin' | 'creator' | 'reviewer' | 'approver';
 
@@ -8,6 +9,7 @@ export interface User {
   full_name: string;
   role: UserRole;
   is_active: boolean;
+  permissions?: UserPermissions;
   created_at: string;
   updated_at: string;
 }
@@ -17,6 +19,7 @@ export interface CreateUserData {
   full_name: string;
   role: UserRole;
   password?: string; // Optional - will be auto-generated if not provided
+  permissions?: UserPermissions;
 }
 
 export interface UpdateUserData {
@@ -24,12 +27,21 @@ export interface UpdateUserData {
   role?: UserRole;
   is_active?: boolean;
   password?: string; // Optional - only if changing password
+  permissions?: UserPermissions;
 }
 
 export interface CreateUserResponse {
   message: string;
   user: User;
   generatedPassword?: string; // Only present if password was auto-generated
+}
+
+export interface UserPagePermission {
+  page_id: string;
+  page_slug: string;
+  page_title: string;
+  permission_id?: string;
+  has_edit_permission: boolean;
 }
 
 const userService = {
@@ -76,6 +88,19 @@ const userService = {
       password: newPassword,
     });
     return response.data.user;
+  },
+
+  // Get page permissions for a user (admin only)
+  getUserPagePermissions: async (userId: string): Promise<UserPagePermission[]> => {
+    const response = await api.get<{ permissions: UserPagePermission[] }>(
+      `/users/${userId}/page-permissions`
+    );
+    return response.data.permissions;
+  },
+
+  // Sync page permissions for a user (admin only)
+  syncUserPagePermissions: async (userId: string, pageIds: string[]): Promise<void> => {
+    await api.put(`/users/${userId}/page-permissions`, { page_ids: pageIds });
   },
 };
 

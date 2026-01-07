@@ -8,7 +8,7 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, hasNavPermission, hasAdminPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -58,7 +58,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Dashboard',
-      show: true,
+      show: hasNavPermission('dashboard'),
     },
     {
       path: '/admin/news',
@@ -68,7 +68,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'News Articles',
-      show: true,
+      show: hasNavPermission('news'),
     },
     {
       path: '/admin/pages',
@@ -78,7 +78,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Pages',
-      show: true,
+      show: hasNavPermission('pages'),
     },
     {
       path: '/admin/review',
@@ -89,7 +89,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Review Queue',
-      show: user?.role === 'reviewer' || user?.role === 'admin',
+      show: hasNavPermission('reviewQueue'),
     },
     {
       path: '/admin/approval',
@@ -99,7 +99,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Approval Queue',
-      show: user?.role === 'approver' || user?.role === 'admin',
+      show: hasNavPermission('approvalQueue'),
     },
     {
       path: '/admin/media',
@@ -109,7 +109,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Media Library',
-      show: true,
+      show: hasNavPermission('mediaLibrary'),
     },
     {
       path: '/admin/impact-stats',
@@ -119,7 +119,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Impact Stats',
-      show: true,
+      show: hasNavPermission('impactStats'),
     },
     {
       path: '/admin/campaigns',
@@ -129,7 +129,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Fundraising Campaigns',
-      show: true,
+      show: hasNavPermission('campaigns'),
     },
     {
       path: '/admin/lottery',
@@ -139,11 +139,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Lottery',
-      show: user?.role === 'admin',
-      children: [
-        { path: '/admin/lottery/config', label: 'Configuration' },
-        { path: '/admin/lottery/entries', label: 'Entries' },
-      ],
+      show: hasAdminPermission('lotteryConfig'),
     },
     {
       path: '/admin/footer-settings',
@@ -152,8 +148,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
         </svg>
       ),
-      label: 'Footer Settings',
-      show: user?.role === 'admin',
+      label: 'Lottery Entries',
+      show: hasAdminPermission('lotteryEntries'),
     },
     {
       path: '/admin/pledges',
@@ -163,7 +159,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Pledges',
-      show: user?.role === 'admin',
+      show: hasAdminPermission('pledges'),
     },
     {
       path: '/admin/team-members',
@@ -173,7 +169,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Team Members',
-      show: true,
+      show: hasNavPermission('teamMembers'),
     },
     {
       path: '/admin/partners',
@@ -193,7 +189,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Users',
-      show: user?.role === 'admin',
+      show: hasAdminPermission('users'),
     },
     {
       path: '/admin/audit-logs',
@@ -203,7 +199,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Audit Logs',
-      show: user?.role === 'admin',
+      show: hasAdminPermission('auditLogs'),
     },
   ];
 
