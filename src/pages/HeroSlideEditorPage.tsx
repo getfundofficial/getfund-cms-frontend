@@ -197,35 +197,40 @@ export const HeroSlideEditorPage: React.FC = () => {
     { value: 'xlarge', label: 'Extra Large', titleClass: 'text-5xl md:text-6xl lg:text-7xl xl:text-8xl', subtitleClass: 'text-2xl md:text-3xl lg:text-4xl' },
   ];
 
-  // Parse content data from content field (includes button and font size)
-  let contentData = { buttonText: '', buttonLink: '', titleFontSize: 'medium', subtitleFontSize: 'medium' };
+  // Parse content data from content field (includes button, font size, and blue box settings)
+  let contentData = {
+    buttonText: '',
+    buttonLink: '',
+    titleFontSize: 'medium',
+    subtitleFontSize: 'medium',
+    blueBoxText: '',
+    blueBoxColor: '#2a3f75',
+    blueBoxOpacity: 100,
+  };
   try {
     contentData = { ...contentData, ...JSON.parse(formData.content || '{}') };
   } catch {
-    contentData = { buttonText: '', buttonLink: '', titleFontSize: 'medium', subtitleFontSize: 'medium' };
+    contentData = {
+      buttonText: '',
+      buttonLink: '',
+      titleFontSize: 'medium',
+      subtitleFontSize: 'medium',
+      blueBoxText: '',
+      blueBoxColor: '#2a3f75',
+      blueBoxOpacity: 100,
+    };
   }
 
   // For backwards compatibility, also expose buttonData
   const buttonData = { buttonText: contentData.buttonText, buttonLink: contentData.buttonLink };
 
-  const updateContentData = (field: string, value: string) => {
+  const updateContentData = (field: string, value: string | number) => {
     const current = { ...contentData, [field]: value };
     setFormData(prev => ({ ...prev, content: JSON.stringify(current) }));
   };
 
   const updateButtonData = (field: string, value: string) => {
     updateContentData(field, value);
-  };
-
-  // Get preview font classes based on selected size
-  const getPreviewTitleClass = () => {
-    const size = fontSizeOptions.find(s => s.value === contentData.titleFontSize);
-    return size ? size.titleClass : fontSizeOptions[1].titleClass;
-  };
-
-  const getPreviewSubtitleClass = () => {
-    const size = fontSizeOptions.find(s => s.value === contentData.subtitleFontSize);
-    return size ? size.subtitleClass : fontSizeOptions[1].subtitleClass;
   };
 
   if (isLoading) {
@@ -319,6 +324,62 @@ export const HeroSlideEditorPage: React.FC = () => {
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Blue Box Settings */}
+          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Content Box Settings</h3>
+
+            <div className="space-y-4">
+              <Input
+                type="text"
+                label="Box Label (Optional)"
+                placeholder="e.g., GETFund Initiative, Featured Program"
+                value={contentData.blueBoxText}
+                onChange={(e) => updateContentData('blueBoxText', e.target.value)}
+                helperText="Small label text displayed above the headline"
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Box Color
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={contentData.blueBoxColor}
+                      onChange={(e) => updateContentData('blueBoxColor', e.target.value)}
+                      className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={contentData.blueBoxColor}
+                      onChange={(e) => updateContentData('blueBoxColor', e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                      placeholder="#2a3f75"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">Background color for the content box</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Box Opacity: {contentData.blueBoxOpacity}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={contentData.blueBoxOpacity}
+                    onChange={(e) => updateContentData('blueBoxOpacity', parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Transparency of the content box (100% = fully opaque)</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Font Size Settings */}
@@ -475,19 +536,31 @@ export const HeroSlideEditorPage: React.FC = () => {
               </div>
             )}
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
-              <h1 className={`${getPreviewTitleClass()} font-bold mb-4 drop-shadow-lg`}>
+            {/* Blue Box Preview - Bottom Left */}
+            <div
+              className="absolute bottom-6 left-6 p-6 max-w-[65%] text-white"
+              style={{
+                backgroundColor: contentData.blueBoxColor || '#2a3f75',
+                opacity: (contentData.blueBoxOpacity ?? 100) / 100,
+              }}
+            >
+              {contentData.blueBoxText && (
+                <span className="text-xs text-blue-200 uppercase tracking-wider block mb-2">
+                  {contentData.blueBoxText}
+                </span>
+              )}
+              <h1 className="text-xl md:text-2xl font-bold mb-2">
                 {formData.title || 'Hero Slide Title'}
               </h1>
               {formData.excerpt && (
-                <p className={`${getPreviewSubtitleClass()} mb-6 drop-shadow-lg max-w-2xl`}>
+                <p className="text-sm text-gray-200 mb-3">
                   {formData.excerpt}
                 </p>
               )}
               {buttonData.buttonText && (
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg">
-                  {buttonData.buttonText}
-                </button>
+                <span className="text-sm uppercase tracking-wider inline-flex items-center gap-1 text-white">
+                  {buttonData.buttonText} →
+                </span>
               )}
             </div>
           </div>
