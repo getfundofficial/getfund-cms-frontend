@@ -26,6 +26,7 @@ import { EducationSectorSupportEditor } from '../components/PageContentEditors/E
 import { CommunitySHSEditor } from '../components/PageContentEditors/CommunitySHSEditor';
 import { SEIPEditor } from '../components/PageContentEditors/SEIPEditor';
 import { FundraisingCampaignsEditor } from '../components/PageContentEditors/FundraisingCampaignsEditor';
+import { LotteryEditor } from '../components/PageContentEditors/LotteryEditor';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
@@ -453,6 +454,15 @@ export const SectionEditorPage: React.FC = () => {
         if (slug === 'fundraising-campaigns') {
           return (
             <FundraisingCampaignsEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // Lottery page
+        if (slug === 'lottery') {
+          return (
+            <LotteryEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />
