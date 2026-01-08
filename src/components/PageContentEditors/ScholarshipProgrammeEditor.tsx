@@ -1,16 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
+import ImageUploader from '../Media/ImageUploader';
+import { Media } from '../../services/mediaService';
 import { Plus, Trash2 } from 'lucide-react';
 
-interface BannerBackground {
-  imageUrl?: string | null;
-  tintColor?: string;
-  tintOpacity?: number;
-}
-
 interface ScholarshipProgrammeContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -106,6 +100,7 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
   onChange,
 }) => {
   const mergedContent = { ...defaultContent, ...content };
+  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
 
   const handleChange = (section: keyof ScholarshipProgrammeContent, field: string, value: any) => {
     onChange({
@@ -136,8 +131,21 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
     handleChange(section, field, newItems);
   };
 
+  const handleHeroImageUpload = (media: Media) => {
+    handleChange('hero', 'heroImage', media.url);
+    setIsUploadingHeroImage(false);
+  };
+
   return (
     <div className="space-y-8">
+      {/* Page Layout Preview */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-blue-800 mb-2">Page Layout</h3>
+        <p className="text-xs text-blue-600">
+          This page uses a clean, professional layout with: Title + icon → Two-column intro (text + image) → Key Objectives cards → Eligibility & Application Process side-by-side → Important Notes box → Navy CTA section
+        </p>
+      </div>
+
       {/* Meta Information */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Meta Information</h3>
@@ -164,47 +172,101 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Page Title Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Title</h3>
+        <Input
+          type="text"
+          label="Page Heading"
+          placeholder="GETFund Scholarship Programme"
+          value={mergedContent.hero?.title || ''}
+          onChange={(e) => handleChange('hero', 'title', e.target.value)}
+        />
+        <p className="text-xs text-gray-500 mt-2">
+          This title appears at the top with a graduation cap icon and navy blue underline accent.
+        </p>
+      </div>
+
+      {/* Introduction Section */}
+      <div className="border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Introduction Section</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          This section displays as two columns: intro text on the left, image on the right.
+        </p>
         <div className="space-y-4">
-          <Input
-            type="text"
-            label="Hero Title"
-            placeholder="GETFund Scholarship Programme"
-            value={mergedContent.hero?.title || ''}
-            onChange={(e) => handleChange('hero', 'title', e.target.value)}
-          />
+          {/* Hero Image */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
-            <textarea
-              placeholder="Empowering Ghanaian students..."
-              value={mergedContent.hero?.subtitle || ''}
-              onChange={(e) => handleChange('hero', 'subtitle', e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Section Image (Right Column)
+            </label>
+            {mergedContent.hero?.heroImage ? (
+              <div className="relative">
+                <img
+                  src={mergedContent.hero.heroImage}
+                  alt="Scholarship Programme"
+                  className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                />
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsUploadingHeroImage(true)}
+                    className="bg-white text-gray-700 px-3 py-1 rounded text-sm font-medium shadow hover:bg-gray-50"
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('hero', 'heroImage', '')}
+                    className="bg-red-500 text-white px-3 py-1 rounded text-sm font-medium shadow hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => setIsUploadingHeroImage(true)}
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+              >
+                <div className="text-gray-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-600 font-medium">Click to upload image</p>
+                <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger</p>
+              </div>
+            )}
+            {isUploadingHeroImage && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-semibold">Upload Section Image</h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsUploadingHeroImage(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <ImageUploader
+                    onUploadSuccess={handleHeroImageUpload}
+                    onUploadError={(error) => console.error('Upload error:', error)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-          <Input
-            type="text"
-            label="Hero Image URL"
-            placeholder="/images/scholarship/GETFund-Scholarship-Programme.jpg"
-            value={mergedContent.hero?.heroImage || ''}
-            onChange={(e) => handleChange('hero', 'heroImage', e.target.value)}
-            helperText="Image shown in the hero banner"
-          />
-          <BannerBackgroundEditor
-            value={mergedContent.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...mergedContent, bannerBackground })}
-            previewTitle={mergedContent.hero?.title || 'GETFund Scholarship Programme'}
-            previewSubtitle={mergedContent.hero?.subtitle || ''}
-          />
         </div>
       </div>
 
       {/* Programme Overview */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Programme Overview</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          This text appears in the left column of the introduction section.
+        </p>
         <Input
           type="text"
           label="Section Heading"
@@ -225,6 +287,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
       {/* Key Objectives */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Objectives</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Each objective is displayed as a card with a green checkmark icon.
+        </p>
         <Input
           type="text"
           label="Section Heading"
@@ -262,6 +327,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
       {/* Eligibility Criteria */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Eligibility Criteria</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Each criterion is displayed with a numbered navy blue circle. Shown on the left side.
+        </p>
         <Input
           type="text"
           label="Section Heading"
@@ -271,6 +339,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
         <div className="mt-4 space-y-2">
           {mergedContent.eligibility?.items?.map((item, index) => (
             <div key={index} className="flex gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 text-sm font-bold flex-shrink-0">
+                {index + 1}
+              </span>
               <input
                 type="text"
                 value={item}
@@ -299,6 +370,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
       {/* Application Process */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Process</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Each step is displayed with a numbered green circle. Shown on the right side.
+        </p>
         <Input
           type="text"
           label="Section Heading"
@@ -309,7 +383,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
           <label className="block text-sm font-medium text-gray-700">Steps (in order)</label>
           {mergedContent.applicationProcess?.steps?.map((step, index) => (
             <div key={index} className="flex gap-2 items-center">
-              <span className="text-sm font-medium text-gray-500 w-6">{index + 1}.</span>
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-800 text-sm font-bold flex-shrink-0">
+                {index + 1}
+              </span>
               <input
                 type="text"
                 value={step}
@@ -338,6 +414,9 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
       {/* Important Notes */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Important Notes</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Displayed in an amber/yellow highlighted box to draw attention.
+        </p>
         <Input
           type="text"
           label="Section Heading"
@@ -372,16 +451,27 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
         </div>
       </div>
 
-      {/* Closing Paragraph */}
+      {/* Closing Paragraph / CTA */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Closing Paragraph</h3>
-        <textarea
-          placeholder="For detailed guidelines..."
-          value={mergedContent.closingParagraph || ''}
-          onChange={(e) => onChange({ ...mergedContent, closingParagraph: e.target.value })}
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Call-to-Action Section</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          This text appears in the navy blue CTA section at the bottom of the page.
+        </p>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">CTA Description</label>
+          <textarea
+            placeholder="For detailed guidelines..."
+            value={mergedContent.closingParagraph || ''}
+            onChange={(e) => onChange({ ...mergedContent, closingParagraph: e.target.value })}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <p className="text-sm text-gray-600">
+            <strong>Note:</strong> The CTA section includes "Apply Now" and "View Resources" buttons that link to the scholarship application and resources pages.
+          </p>
+        </div>
       </div>
     </div>
   );
