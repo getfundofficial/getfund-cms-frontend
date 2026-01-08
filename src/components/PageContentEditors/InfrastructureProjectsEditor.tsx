@@ -1,13 +1,6 @@
 import React from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
 import { Plus, Trash2 } from 'lucide-react';
-
-interface BannerBackground {
-  imageUrl?: string | null;
-  tintColor?: string;
-  tintOpacity?: number;
-}
 
 interface ProjectCard {
   title: string;
@@ -23,7 +16,6 @@ interface FundingHighlight {
 }
 
 interface InfrastructureProjectsContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -199,6 +191,14 @@ export const InfrastructureProjectsEditor: React.FC<InfrastructureProjectsEditor
 
   return (
     <div className="space-y-8">
+      {/* Page Layout Preview */}
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-green-800 mb-2">Page Layout</h3>
+        <p className="text-xs text-green-600">
+          This page uses a clean, professional layout with: Title + icon (green theme) → Two-column intro (text + image) → Project Highlights cards → Recent Projects grid → Achievements & Funding side-by-side → Green CTA section
+        </p>
+      </div>
+
       {/* Meta Information */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Meta Information</h3>
@@ -225,36 +225,19 @@ export const InfrastructureProjectsEditor: React.FC<InfrastructureProjectsEditor
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Page Title Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-4">
-          <Input
-            type="text"
-            label="Hero Title"
-            placeholder="Infrastructure Projects"
-            value={mergedContent.hero?.title || ''}
-            onChange={(e) => handleChange('hero', 'title', e.target.value)}
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Hero Subtitle
-            </label>
-            <textarea
-              placeholder="GETFund's infrastructure investments..."
-              value={mergedContent.hero?.subtitle || ''}
-              onChange={(e) => handleChange('hero', 'subtitle', e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <BannerBackgroundEditor
-            value={mergedContent.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...mergedContent, bannerBackground })}
-            previewTitle={mergedContent.hero?.title || 'Infrastructure Projects'}
-            previewSubtitle={mergedContent.hero?.subtitle || ''}
-          />
-        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Title</h3>
+        <Input
+          type="text"
+          label="Page Heading"
+          placeholder="Infrastructure Projects"
+          value={mergedContent.hero?.title || ''}
+          onChange={(e) => handleChange('hero', 'title', e.target.value)}
+        />
+        <p className="text-xs text-gray-500 mt-2">
+          This title appears at the top with a building icon and green underline accent.
+        </p>
       </div>
 
       {/* Main Introduction */}

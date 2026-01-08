@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
+import MediaPickerModal from '../Media/MediaPickerModal';
+import mediaService, { Media } from '../../services/mediaService';
 
 interface PartnershipBenefit {
   title: string;
@@ -10,7 +10,6 @@ interface PartnershipBenefit {
 }
 
 interface PartnershipsContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -20,6 +19,7 @@ interface PartnershipsContent {
   };
   intro: {
     paragraph: string;
+    image?: string;
   };
   waysToPartner: {
     heading: string;
@@ -44,6 +44,8 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
   content,
   onChange,
 }) => {
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+
   const handleChange = (section: keyof PartnershipsContent, field: string, value: any) => {
     onChange({
       ...content,
@@ -89,8 +91,20 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
     handleChange('whySupport', 'benefits', newBenefits);
   };
 
+  const handleIntroImageSelect = (media: Media) => {
+    handleChange('intro', 'image', media.url);
+  };
+
   return (
     <div className="space-y-8">
+      {/* Page Layout Preview */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-blue-800 mb-2">Page Layout</h3>
+        <p className="text-xs text-blue-600">
+          This page uses a clean, professional layout with: Title section → Two-column intro (text + image) → Partners logos → Ways to Partner & Benefits side-by-side
+        </p>
+      </div>
+
       {/* Meta Information */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Meta Information</h3>
@@ -118,56 +132,141 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Page Title Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-6">
-          <BannerBackgroundEditor
-            value={content.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-            previewTitle={content.hero?.title || 'Partnerships with GETFund'}
-            previewSubtitle="Partner with GETFund to transform education in Ghana"
-          />
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Title</h3>
+        <Input
+          type="text"
+          label="Page Heading"
+          placeholder="Partnerships"
+          value={content.hero?.title || ''}
+          onChange={(e) => handleChange('hero', 'title', e.target.value)}
+          required
+        />
+        <p className="text-xs text-gray-500 mt-2">
+          This title appears at the top of the page with a navy blue underline accent.
+        </p>
+      </div>
 
-          <Input
-            type="text"
-            label="Hero Title"
-            placeholder="Partnerships with GETFund"
-            value={content.hero?.title || ''}
-            onChange={(e) => handleChange('hero', 'title', e.target.value)}
-            required
-          />
+      {/* Introduction Section */}
+      <div className="border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Introduction Section</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          This section displays as two columns: text on the left, image on the right.
+        </p>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Introduction Paragraph
+            </label>
+            <textarea
+              placeholder="GETFund partners with organizations, institutions, and individuals who share our commitment to transforming education in Ghana..."
+              value={content.intro?.paragraph || ''}
+              onChange={(e) => handleChange('intro', 'paragraph', e.target.value)}
+              rows={5}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {content.intro?.paragraph?.length || 0} characters
+            </p>
+          </div>
+
+          {/* Intro Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Section Image
+            </label>
+            {content.intro?.image ? (
+              <div className="relative">
+                <img
+                  src={mediaService.getFullUrl(content.intro.image)}
+                  alt="Introduction"
+                  className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                />
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaPicker(true)}
+                    className="bg-white text-gray-700 px-3 py-1 rounded text-sm font-medium shadow hover:bg-gray-50"
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('intro', 'image', '')}
+                    className="bg-red-500 text-white px-3 py-1 rounded text-sm font-medium shadow hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => setShowMediaPicker(true)}
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+              >
+                <div className="text-gray-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-600 font-medium">Click to select from media library</p>
+                <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger</p>
+              </div>
+            )}
+            <MediaPickerModal
+              isOpen={showMediaPicker}
+              onClose={() => setShowMediaPicker(false)}
+              onSelect={handleIntroImageSelect}
+              allowUpload={true}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Intro Paragraph */}
+      {/* Our Partners Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Introduction Paragraph</h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Intro Paragraph
-          </label>
-          <textarea
-            placeholder="Partnering with the Ghana Education Trust Fund (GETFund)..."
-            value={content.intro?.paragraph || ''}
-            onChange={(e) => handleChange('intro', 'paragraph', e.target.value)}
-            rows={5}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Our Partners Section</h3>
+        <div className="space-y-4">
+          <Input
+            type="text"
+            label="Section Heading"
+            placeholder="Our Partners"
+            value={content.ourPartners?.heading || ''}
+            onChange={(e) => handleChange('ourPartners', 'heading', e.target.value)}
+            required
           />
-          <p className="text-xs text-gray-500 mt-1">
-            {content.intro?.paragraph?.length || 0} characters
-          </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description (optional)
+            </label>
+            <textarea
+              placeholder="Optional description about our partnerships..."
+              value={content.ourPartners?.description || ''}
+              onChange={(e) => handleChange('ourPartners', 'description', e.target.value)}
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className="text-sm text-amber-800">
+              <strong>Note:</strong> Partner logos are managed in the <strong>Partners</strong> section of the CMS. This section will automatically display all active partners.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Ways to Partner */}
       <div className="border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Ways to Partner Section</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Each way to partner is displayed as a card with an auto-selected icon based on the text.
+        </p>
         <div className="space-y-4">
           <Input
             type="text"
             label="Section Heading"
-            placeholder="Ways to partner"
+            placeholder="Ways to Partner"
             value={content.waysToPartner?.heading || ''}
             onChange={(e) => handleChange('waysToPartner', 'heading', e.target.value)}
             required
@@ -192,7 +291,7 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
               <div key={index} className="flex items-center gap-2">
                 <Input
                   type="text"
-                  placeholder="Infrastructure sponsorship"
+                  placeholder="e.g., Infrastructure Funding, Scholarship Support, Technology Donations"
                   value={way}
                   onChange={(e) => handleWayChange(index, e.target.value)}
                   required
@@ -212,18 +311,22 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
                 <p className="text-gray-500 text-sm">No ways added yet. Click "Add Way" to create one.</p>
               </div>
             )}
+
+            <p className="text-xs text-gray-500">
+              Icons are automatically selected based on keywords: infrastructure, scholarship, technology, volunteer, corporate, donation, etc.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Why Support Us */}
+      {/* Benefits of Partnership */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Why Support Us Section</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits of Partnership</h3>
         <div className="space-y-4">
           <Input
             type="text"
             label="Section Heading"
-            placeholder="Why support us?"
+            placeholder="Benefits of Partnership"
             value={content.whySupport?.heading || ''}
             onChange={(e) => handleChange('whySupport', 'heading', e.target.value)}
             required
@@ -260,7 +363,7 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
                 <Input
                   type="text"
                   label="Benefit Title"
-                  placeholder="Tax and Financial Incentives:"
+                  placeholder="e.g., Tax Benefits"
                   value={benefit.title}
                   onChange={(e) => handleBenefitChange(index, 'title', e.target.value)}
                   required
@@ -271,10 +374,10 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
                     Benefit Description
                   </label>
                   <textarea
-                    placeholder="The Ghana Revenue Authority (GRA) has, in a written communication..."
+                    placeholder="Describe the benefit..."
                     value={benefit.description}
                     onChange={(e) => handleBenefitChange(index, 'description', e.target.value)}
-                    rows={4}
+                    rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -288,43 +391,6 @@ export const PartnershipsEditor: React.FC<PartnershipsEditorProps> = ({
             )}
           </div>
         </div>
-      </div>
-
-      {/* Our Partners */}
-      <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Our Partners Section</h3>
-        <div className="space-y-4">
-          <Input
-            type="text"
-            label="Section Heading"
-            placeholder="Our Partners"
-            value={content.ourPartners?.heading || ''}
-            onChange={(e) => handleChange('ourPartners', 'heading', e.target.value)}
-            required
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description/Note
-            </label>
-            <textarea
-              placeholder="(display logos of partners. Click-through functionality takes you to articles on the partnership)"
-              value={content.ourPartners?.description || ''}
-              onChange={(e) => handleChange('ourPartners', 'description', e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Note: Partner logos are managed separately by developers
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Help Text */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="text-sm text-gray-700">
-          <strong>Note:</strong> The Contact Section component is hardcoded. Partner logos will be added by developers as separate functionality.
-        </p>
       </div>
     </div>
   );
