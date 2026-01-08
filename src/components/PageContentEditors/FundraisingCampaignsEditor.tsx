@@ -13,10 +13,6 @@ interface FundraisingCampaignsContent {
   campaignsSectionTitle?: string;
   campaignsSectionSubtitle?: string;
   viewAllButtonText?: string;
-
-  // Lottery Section
-  lotterySectionTitle?: string;
-  lotterySectionSubtitle?: string;
 }
 
 interface FundraisingCampaignsEditorProps {
@@ -109,43 +105,10 @@ export const FundraisingCampaignsEditor: React.FC<FundraisingCampaignsEditorProp
         </div>
       </div>
 
-      {/* Lottery Section */}
-      <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Lottery Section</h3>
-        <div className="space-y-4">
-          <Input
-            type="text"
-            label="Section Title (Optional Override)"
-            placeholder="GETFund Scholarship Lottery"
-            value={content.lotterySectionTitle || ''}
-            onChange={(e) => updateContent({ lotterySectionTitle: e.target.value })}
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Section Subtitle (Optional Override)
-            </label>
-            <textarea
-              placeholder="Every contribution to our campaigns automatically enters you into our monthly scholarship lottery..."
-              value={content.lotterySectionSubtitle || ''}
-              onChange={(e) => updateContent({ lotterySectionSubtitle: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> If left empty, the lottery section will use the default values from the Lottery Config.
-            The prizes and other lottery settings are managed separately in Lottery Settings.
-          </p>
-        </div>
-      </div>
-
       {/* Help Text */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-sm text-gray-700">
-          <strong>Note:</strong> The Campaign Cards and Lottery Prize components display data from the Campaigns and Lottery Config.
+          <strong>Note:</strong> The Campaign Cards display data from the Campaigns section.
           This form controls the page text content and hero banner appearance.
         </p>
       </div>
