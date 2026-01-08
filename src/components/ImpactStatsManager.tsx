@@ -22,6 +22,7 @@ interface StatFormData {
 
 export default function ImpactStatsManager() {
   const [stats, setStats] = useState<ImpactStat[]>([]);
+  const [sectionTitle, setSectionTitle] = useState<string>('Our Impact');
   const [subtitle, setSubtitle] = useState<string>('');
   const [selectedPage, setSelectedPage] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,9 +49,10 @@ export default function ImpactStatsManager() {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/impact-stats?page=${selectedPage}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.data.stats || []);
+        setSectionTitle(data.data.title || 'Our Impact');
         setSubtitle(data.data.subtitle || '');
       }
     } catch (err) {
@@ -151,24 +153,24 @@ export default function ImpactStatsManager() {
     }
   };
 
-  const handleUpdateSubtitle = async () => {
+  const handleUpdateConfig = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/impact-stats/subtitle`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: selectedPage, subtitle }),
+        body: JSON.stringify({ page: selectedPage, title: sectionTitle, subtitle }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
-        setSuccess('Subtitle updated successfully');
+        setSuccess('Title and subtitle updated successfully');
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(data.error || 'Failed to update subtitle');
+        setError(data.error || 'Failed to update config');
       }
     } catch (err) {
-      setError('Failed to update subtitle');
+      setError('Failed to update config');
       console.error(err);
     }
   };
@@ -201,44 +203,65 @@ export default function ImpactStatsManager() {
         </div>
       )}
 
-      {/* Page Filter */}
+      {/* Page Filter & Section Config */}
       <div className="bg-white rounded-lg shadow mb-6 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-          <div className="md:col-span-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-4">
+          <div className="md:col-span-12">
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Page</label>
             <select
               value={selectedPage}
               onChange={(e) => setSelectedPage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="all">All Pages</option>
               <option value="why-fundraising">Why Fundraising</option>
               <option value="ways-to-donate">Ways to Donate</option>
             </select>
           </div>
-          <div className="md:col-span-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Subtitle
-              <span className="text-gray-400 font-normal ml-2">Subtitle displayed below 'Our Impact'</span>
-            </label>
-            <input
-              type="text"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
-              placeholder="25+ years of giving"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <button
-              onClick={handleUpdateSubtitle}
-              className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              Save
-            </button>
+        </div>
+
+        <div className="border-t border-gray-200 pt-4 mt-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Section Header</h3>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div className="md:col-span-5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Title
+                <span className="text-gray-400 font-normal ml-2">Main heading for the section</span>
+              </label>
+              <input
+                type="text"
+                value={sectionTitle}
+                onChange={(e) => setSectionTitle(e.target.value)}
+                placeholder="Our Impact"
+                maxLength={100}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            <div className="md:col-span-5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Subtitle
+                <span className="text-gray-400 font-normal ml-2">Displayed below the title</span>
+              </label>
+              <input
+                type="text"
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+                placeholder="25+ years of giving"
+                maxLength={200}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <button
+                onClick={handleUpdateConfig}
+                className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Save
+              </button>
+            </div>
           </div>
         </div>
       </div>
