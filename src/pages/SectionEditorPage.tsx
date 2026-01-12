@@ -27,6 +27,8 @@ import { CommunitySHSEditor } from '../components/PageContentEditors/CommunitySH
 import { SEIPEditor } from '../components/PageContentEditors/SEIPEditor';
 import { FundraisingCampaignsEditor } from '../components/PageContentEditors/FundraisingCampaignsEditor';
 import { LotteryEditor } from '../components/PageContentEditors/LotteryEditor';
+import { FAQEditor } from '../components/PageContentEditors/FAQEditor';
+import { ScholarshipApplyEditor } from '../components/PageContentEditors/ScholarshipApplyEditor';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
@@ -463,6 +465,24 @@ export const SectionEditorPage: React.FC = () => {
         if (slug === 'lottery') {
           return (
             <LotteryEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // FAQ page
+        if (slug === 'faq') {
+          return (
+            <FAQEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        // Scholarship Apply page
+        if (slug === 'scholarship-apply') {
+          return (
+            <ScholarshipApplyEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />
