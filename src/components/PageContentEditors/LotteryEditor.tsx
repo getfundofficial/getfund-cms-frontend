@@ -1,10 +1,7 @@
 import React from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface LotteryContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -15,6 +12,11 @@ interface LotteryContent {
   };
   intro: {
     paragraph: string;
+  };
+  featuredImage?: {
+    url: string;
+    alt: string;
+    caption?: string;
   };
 }
 
@@ -32,6 +34,18 @@ export const LotteryEditor: React.FC<LotteryEditorProps> = ({
       ...content,
       [section]: {
         ...(content[section] as Record<string, unknown>),
+        [field]: value,
+      },
+    });
+  };
+
+  const handleFeaturedImageChange = (field: string, value: string) => {
+    onChange({
+      ...content,
+      featuredImage: {
+        ...content.featuredImage,
+        url: content.featuredImage?.url || '',
+        alt: content.featuredImage?.alt || '',
         [field]: value,
       },
     });
@@ -63,14 +77,14 @@ export const LotteryEditor: React.FC<LotteryEditorProps> = ({
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Page Title Section */}
       <div className="border border-gray-200 rounded-lg p-5">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Banner</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Title</h3>
         <div className="space-y-4">
           <Input
             type="text"
             label="Title"
-            placeholder="GETFund Scholarship Lottery"
+            placeholder="Scholarship Lottery"
             value={content.hero?.title || ''}
             onChange={(e) => handleChange('hero', 'title', e.target.value)}
           />
@@ -84,12 +98,52 @@ export const LotteryEditor: React.FC<LotteryEditorProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
-          <BannerBackgroundEditor
-            value={content.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-            previewTitle={content.hero?.title || 'GETFund Scholarship Lottery'}
-            previewSubtitle={content.hero?.subtitle || ''}
+        </div>
+      </div>
+
+      {/* Featured Image Section */}
+      <div className="border border-gray-200 rounded-lg p-5">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Featured Image (Optional)</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Add an optional featured image to display below the page title.
+        </p>
+        <div className="space-y-4">
+          <Input
+            type="text"
+            label="Image URL"
+            placeholder="https://example.com/image.jpg or /uploads/lottery-banner.jpg"
+            value={content.featuredImage?.url || ''}
+            onChange={(e) => handleFeaturedImageChange('url', e.target.value)}
           />
+          <Input
+            type="text"
+            label="Alt Text"
+            placeholder="Description of the image for accessibility"
+            value={content.featuredImage?.alt || ''}
+            onChange={(e) => handleFeaturedImageChange('alt', e.target.value)}
+          />
+          <Input
+            type="text"
+            label="Caption (Optional)"
+            placeholder="Image caption displayed below the image"
+            value={content.featuredImage?.caption || ''}
+            onChange={(e) => handleFeaturedImageChange('caption', e.target.value)}
+          />
+          {content.featuredImage?.url && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+              <div className="rounded-lg overflow-hidden border border-gray-200 max-w-md">
+                <img
+                  src={content.featuredImage.url}
+                  alt={content.featuredImage.alt || 'Featured image preview'}
+                  className="w-full h-auto"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -109,7 +163,7 @@ export const LotteryEditor: React.FC<LotteryEditorProps> = ({
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-sm text-gray-700">
           <strong>Note:</strong> The lottery prizes, countdown timer, and "How It Works" steps are managed in the Lottery Settings section.
-          This form controls the page banner, intro text, and SEO settings.
+          This form controls the page title, featured image, intro text, and SEO settings.
         </p>
       </div>
     </div>

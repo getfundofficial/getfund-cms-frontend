@@ -1,10 +1,7 @@
 import React from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface BeneficiariesGiveBackContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -17,6 +14,11 @@ interface BeneficiariesGiveBackContent {
     paragraph1: string;
     paragraph2: string;
     ctaButtonText: string;
+  };
+  featuredImage?: {
+    url: string;
+    alt: string;
+    caption?: string;
   };
 }
 
@@ -34,6 +36,18 @@ export const BeneficiariesGiveBackEditor: React.FC<BeneficiariesGiveBackEditorPr
       ...content,
       [section]: {
         ...content[section],
+        [field]: value,
+      },
+    });
+  };
+
+  const handleFeaturedImageChange = (field: string, value: string) => {
+    onChange({
+      ...content,
+      featuredImage: {
+        ...content.featuredImage,
+        url: content.featuredImage?.url || '',
+        alt: content.featuredImage?.alt || '',
         [field]: value,
       },
     });
@@ -69,25 +83,64 @@ export const BeneficiariesGiveBackEditor: React.FC<BeneficiariesGiveBackEditorPr
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Page Title Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Title</h3>
         <div className="space-y-6">
-          <BannerBackgroundEditor
-            value={content.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-            previewTitle={content.hero?.title || 'GETFund Beneficiaries'}
-            previewSubtitle="To All GETFund Beneficiaries – Give Back, Build Forward"
-          />
-
           <Input
             type="text"
-            label="Hero Title"
+            label="Title"
             placeholder="GETFund Beneficiaries"
             value={content.hero?.title || ''}
             onChange={(e) => handleChange('hero', 'title', e.target.value)}
             required
           />
+        </div>
+      </div>
+
+      {/* Featured Image Section */}
+      <div className="border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Featured Image (Optional)</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Add an optional featured image to display below the page title.
+        </p>
+        <div className="space-y-4">
+          <Input
+            type="text"
+            label="Image URL"
+            placeholder="https://example.com/image.jpg or /uploads/beneficiaries.jpg"
+            value={content.featuredImage?.url || ''}
+            onChange={(e) => handleFeaturedImageChange('url', e.target.value)}
+          />
+          <Input
+            type="text"
+            label="Alt Text"
+            placeholder="Description of the image for accessibility"
+            value={content.featuredImage?.alt || ''}
+            onChange={(e) => handleFeaturedImageChange('alt', e.target.value)}
+          />
+          <Input
+            type="text"
+            label="Caption (Optional)"
+            placeholder="Image caption displayed below the image"
+            value={content.featuredImage?.caption || ''}
+            onChange={(e) => handleFeaturedImageChange('caption', e.target.value)}
+          />
+          {content.featuredImage?.url && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+              <div className="rounded-lg overflow-hidden border border-gray-200 max-w-md">
+                <img
+                  src={content.featuredImage.url}
+                  alt={content.featuredImage.alt || 'Featured image preview'}
+                  className="w-full h-auto"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
