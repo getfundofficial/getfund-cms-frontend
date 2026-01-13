@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '../Common/Input';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://getfund-cms-backend.vercel.app/api';
+import { api } from '../../services/api';
 
 interface WhyFundraisingContent {
   meta: {
@@ -46,51 +45,44 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
     phone: '+233 30 266 4061',
     email: 'info@getfund.gov.gh',
     address: 'GETFund House, Accra',
-    button_text: 'GET IN TOUCH WITH FUNDRAISING!',
+    button_text: 'Contact Fundraising Unit',
   });
   const [contactLoading, setContactLoading] = useState(true);
   const [contactSaving, setContactSaving] = useState(false);
   const [contactMessage, setContactMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/fundraising-contact`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
+    const loadContact = async () => {
+      try {
+        const response = await api.get('/fundraising-contact');
+        const data = response.data;
         if (data) {
           setFloatingContact({
             phone: data.phone || '+233 30 266 4061',
             email: data.email || 'info@getfund.gov.gh',
             address: data.address || 'GETFund House, Accra',
-            button_text: data.button_text || 'GET IN TOUCH WITH FUNDRAISING!',
+            button_text: data.button_text || 'Contact Fundraising Unit',
           });
         }
-      })
-      .catch(() => {})
-      .finally(() => setContactLoading(false));
+      } catch (error) {
+        console.error('Failed to load contact:', error);
+      } finally {
+        setContactLoading(false);
+      }
+    };
+    loadContact();
   }, []);
 
   const saveFloatingContact = async () => {
     setContactSaving(true);
     setContactMessage(null);
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`${API_URL}/fundraising-contact`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(floatingContact),
-      });
-      if (res.ok) {
-        setContactMessage({ type: 'success', text: 'Saved!' });
-        setTimeout(() => setContactMessage(null), 3000);
-      } else {
-        const data = await res.json();
-        setContactMessage({ type: 'error', text: data.error || 'Failed to save' });
-      }
-    } catch {
-      setContactMessage({ type: 'error', text: 'Failed to save' });
+      await api.put('/fundraising-contact', floatingContact);
+      setContactMessage({ type: 'success', text: 'Saved!' });
+      setTimeout(() => setContactMessage(null), 3000);
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to save';
+      setContactMessage({ type: 'error', text: errorMsg });
     } finally {
       setContactSaving(false);
     }
@@ -317,7 +309,7 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
             <Input
               type="text"
               label="Button Text"
-              placeholder="GET IN TOUCH WITH FUNDRAISING!"
+              placeholder="Contact Fundraising Unit"
               value={floatingContact.button_text}
               onChange={(e) => setFloatingContact({ ...floatingContact, button_text: e.target.value })}
             />
