@@ -275,7 +275,7 @@ export const NewsListPage: React.FC = () => {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Updated
+                      Published
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -302,7 +302,9 @@ export const NewsListPage: React.FC = () => {
                       {getStatusBadge(item.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(item.updated_at).toLocaleDateString()}
+                      {item.published_at
+                        ? new Date(item.published_at).toLocaleDateString()
+                        : <span className="text-gray-400">Not set</span>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
@@ -411,7 +413,9 @@ export const NewsListPage: React.FC = () => {
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                   <span className="truncate">{item.creator_name}</span>
                   <span className="whitespace-nowrap ml-2">
-                    {new Date(item.updated_at).toLocaleDateString()}
+                    {item.published_at
+                      ? new Date(item.published_at).toLocaleDateString()
+                      : 'No date'}
                   </span>
                 </div>
 
