@@ -15,6 +15,7 @@ export const NewsListPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<WorkflowStatus | 'all'>('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
     loadContent();
@@ -22,7 +23,7 @@ export const NewsListPage: React.FC = () => {
 
   useEffect(() => {
     filterContent();
-  }, [content, searchQuery, statusFilter]);
+  }, [content, searchQuery, statusFilter, sortOrder]);
 
   const loadContent = async () => {
     try {
@@ -53,6 +54,13 @@ export const NewsListPage: React.FC = () => {
         item.creator_name?.toLowerCase().includes(query)
       );
     }
+
+    // Sort by date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.published_at || a.created_at).getTime();
+      const dateB = new Date(b.published_at || b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
     setFilteredContent(filtered);
   };
@@ -95,6 +103,24 @@ export const NewsListPage: React.FC = () => {
     } catch (error: any) {
       alert(error.response?.data?.error || 'Failed to unpublish');
     }
+  };
+
+  const handleToggleVisibility = async (item: Content) => {
+    try {
+      if (item.status === 'published') {
+        await contentService.unpublish(item.id);
+      } else {
+        await contentService.publish(item.id);
+      }
+      await loadContent();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to toggle visibility');
+    }
+  };
+
+  const canToggleVisibility = (item: Content) => {
+    if (user?.role !== 'admin') return false;
+    return item.status === 'published' || item.status === 'approved';
   };
 
   const getStatusBadge = (status: WorkflowStatus) => {
@@ -181,7 +207,7 @@ export const NewsListPage: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-soft p-5 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -214,17 +240,33 @@ export const NewsListPage: React.FC = () => {
               <option value="published">Published</option>
             </select>
           </div>
+
+          {/* Sort Order */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sort By
+            </label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
         </div>
 
         <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
           <span>
             Showing {filteredContent.length} of {content.length} articles
           </span>
-          {(searchQuery || statusFilter !== 'all') && (
+          {(searchQuery || statusFilter !== 'all' || sortOrder !== 'newest') && (
             <button
               onClick={() => {
                 setSearchQuery('');
                 setStatusFilter('all');
+                setSortOrder('newest');
               }}
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
@@ -308,17 +350,25 @@ export const NewsListPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
-                        {/* View */}
-                        <button
-                          onClick={() => navigate(`/admin/news/${item.id}`)}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="View"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </button>
+                        {/* Toggle Visibility */}
+                        {canToggleVisibility(item) && (
+                          <button
+                            onClick={() => handleToggleVisibility(item)}
+                            className={item.status === 'published' ? 'text-green-600 hover:text-green-900' : 'text-gray-400 hover:text-gray-600'}
+                            title={item.status === 'published' ? 'Hide (Unpublish)' : 'Show (Publish)'}
+                          >
+                            {item.status === 'published' ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                              </svg>
+                            )}
+                          </button>
+                        )}
 
                         {/* Edit */}
                         {canEdit(item) && (
@@ -421,16 +471,33 @@ export const NewsListPage: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => navigate(`/admin/news/${item.id}`)}
-                    className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    View
-                  </button>
+                  {canToggleVisibility(item) && (
+                    <button
+                      onClick={() => handleToggleVisibility(item)}
+                      className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md ${
+                        item.status === 'published'
+                          ? 'text-green-700 bg-green-50 hover:bg-green-100'
+                          : 'text-gray-700 bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      {item.status === 'published' ? (
+                        <>
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Hide
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                          </svg>
+                          Show
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   {canEdit(item) && (
                     <button
