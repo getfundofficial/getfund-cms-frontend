@@ -10,7 +10,7 @@ interface BannerBackground {
   tintOpacity?: number;
 }
 
-interface WhoWeAreContent {
+interface AboutPageContent {
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
@@ -54,17 +54,17 @@ interface WhoWeAreContent {
   footerMessage?: string;
 }
 
-interface WhoWeAreEditorProps {
-  content: WhoWeAreContent;
-  onChange: (content: WhoWeAreContent) => void;
+interface AboutPageEditorProps {
+  content: AboutPageContent;
+  onChange: (content: AboutPageContent) => void;
 }
 
 type TabKey = 'hero' | 'about' | 'vision-mission' | 'financing' | 'funding' | 'leadership' | 'footer';
 
-export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChange }) => {
+export const AboutPageEditor: React.FC<AboutPageEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('hero');
 
-  const updateContent = (updates: Partial<WhoWeAreContent>) => {
+  const updateContent = (updates: Partial<AboutPageContent>) => {
     onChange({ ...content, ...updates });
   };
 
@@ -161,7 +161,7 @@ export const WhoWeAreEditor: React.FC<WhoWeAreEditorProps> = ({ content, onChang
             <BannerBackgroundEditor
               value={content.bannerBackground || {}}
               onChange={(bannerBackground) => updateContent({ bannerBackground })}
-              previewTitle={content.heroTitle || 'Who We Are'}
+              previewTitle={content.heroTitle || 'About Us'}
               previewSubtitle={content.heroSubtitle || 'Supporting the delivery of quality education to Ghanaians from basic to tertiary level'}
             />
           </div>

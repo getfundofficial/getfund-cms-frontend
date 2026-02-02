@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
+import { VideoInput, VideoProvider } from '../Common/VideoInput';
 import { BannerBackgroundEditor } from './BannerBackgroundEditor';
 import { BannerBackground } from '../../types/bannerBackground';
 
@@ -54,12 +55,23 @@ interface Region {
   tvetCenters?: number;
 }
 
+interface VideoSection {
+  url: string;
+  provider: VideoProvider;
+  title?: string;
+  subtitle?: string;
+  thumbnail?: string;
+}
+
 interface ImpactContent {
   bannerBackground?: BannerBackground;
 
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
+
+  // Video Section
+  videoSection?: VideoSection;
 
   // Impact Statistics
   statsTitle?: string;
@@ -119,7 +131,7 @@ interface ImpactEditorProps {
   onChange: (content: ImpactContent) => void;
 }
 
-type TabKey = 'hero' | 'statistics' | 'portfolio' | 'resources' | 'stories' | 'scholarship' | 'achievements' | 'regional' | 'cta';
+type TabKey = 'hero' | 'video' | 'statistics' | 'portfolio' | 'resources' | 'stories' | 'scholarship' | 'achievements' | 'regional' | 'cta';
 
 export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('hero');
@@ -353,6 +365,7 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
 
   const tabs = [
     { key: 'hero' as TabKey, label: 'Hero Section' },
+    { key: 'video' as TabKey, label: 'Impact Video' },
     { key: 'statistics' as TabKey, label: 'Statistics' },
     { key: 'portfolio' as TabKey, label: 'Project Portfolio' },
     { key: 'resources' as TabKey, label: 'Resources Distributed' },
@@ -418,6 +431,73 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Transforming lives and communities through quality education across Ghana"
               />
+            </div>
+          </div>
+        )}
+
+        {/* Video Section Tab */}
+        {activeTab === 'video' && (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Impact Video</h3>
+            <p className="text-sm text-gray-600">
+              Add a video to showcase GETFund's impact. You can use YouTube, Vimeo, or upload your own video.
+            </p>
+
+            <div className="border border-gray-300 rounded-lg p-4 space-y-4 bg-gray-50">
+              <VideoInput
+                label="Video"
+                value={{
+                  url: content.videoSection?.url || '',
+                  provider: content.videoSection?.provider || 'youtube',
+                  thumbnail: content.videoSection?.thumbnail,
+                }}
+                onChange={(video) => updateContent({
+                  videoSection: {
+                    ...content.videoSection,
+                    url: video.url,
+                    provider: video.provider,
+                    thumbnail: video.thumbnail,
+                    title: content.videoSection?.title || 'See Our Impact in Action',
+                    subtitle: content.videoSection?.subtitle || ''
+                  }
+                })}
+                placeholder="https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+              />
+
+              <Input
+                label="Video Title"
+                value={content.videoSection?.title || ''}
+                onChange={(e) => updateContent({
+                  videoSection: {
+                    ...content.videoSection,
+                    url: content.videoSection?.url || '',
+                    provider: content.videoSection?.provider || 'youtube',
+                    title: e.target.value
+                  }
+                })}
+                placeholder="See Our Impact in Action"
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Video Subtitle
+                </label>
+                <textarea
+                  value={content.videoSection?.subtitle || ''}
+                  onChange={(e) => updateContent({
+                    videoSection: {
+                      ...content.videoSection,
+                      url: content.videoSection?.url || '',
+                      provider: content.videoSection?.provider || 'youtube',
+                      title: content.videoSection?.title || '',
+                      subtitle: e.target.value
+                    }
+                  })}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Watch how GETFund is transforming education and building futures across Ghana"
+                />
+              </div>
             </div>
           </div>
         )}

@@ -6,7 +6,7 @@ export interface TeamMember {
   id: string;
   name: string;
   title: string;
-  role: 'board_chairman' | 'board_member' | 'management' | 'historical_admin';
+  role: 'board_chairman' | 'board_member' | 'management' | 'historical_admin' | 'deputy_administrator' | 'financial_controller';
   image_url?: string;
   bio?: string;
   date_range?: string;
