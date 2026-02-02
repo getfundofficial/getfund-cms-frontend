@@ -132,6 +132,9 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
         await teamMembersService.create(formData);
       }
 
+      // Show success message
+      alert(member ? 'Team member updated successfully!' : 'Team member created successfully!');
+
       onSave();
       onClose();
     } catch (error: any) {
