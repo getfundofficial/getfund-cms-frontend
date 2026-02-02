@@ -9,7 +9,7 @@ import { StatsEditor } from '../components/SectionEditors/StatsEditor';
 import { HeroEditor } from '../components/SectionEditors/HeroEditor';
 import { HomePageEditor } from '../components/PageContentEditors/HomePageEditor';
 import { SupportUsEditor } from '../components/PageContentEditors/SupportUsEditor';
-import { WhoWeAreEditor } from '../components/PageContentEditors/WhoWeAreEditor';
+import { AboutPageEditor } from '../components/PageContentEditors/AboutPageEditor';
 import { ImpactEditor } from '../components/PageContentEditors/ImpactEditor';
 import { ResourcesEditor } from '../components/PageContentEditors/ResourcesEditor';
 import { WhatWeDoEditor } from '../components/PageContentEditors/WhatWeDoEditor';
@@ -329,9 +329,9 @@ export const SectionEditorPage: React.FC = () => {
             />
           );
         }
-        if (slug === 'who-we-are') {
+        if (slug === 'about') {
           return (
-            <WhoWeAreEditor
+            <AboutPageEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />

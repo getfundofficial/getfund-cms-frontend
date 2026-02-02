@@ -46,13 +46,6 @@ interface ImpactStat {
   description?: string;
 }
 
-interface VideoSection {
-  url: string;
-  provider: 'youtube' | 'vimeo' | 'upload';
-  title?: string;
-  subtitle?: string;
-}
-
 interface HomePageContent {
   heroSlides: HeroSlide[];
   aboutHeading?: string;
@@ -77,7 +70,6 @@ interface HomePageContent {
   impactStats?: ImpactStat[];
   newsTitle?: string;
   newsSubtitle?: string;
-  videoSection?: VideoSection;
 }
 
 interface HomePageEditorProps {
@@ -86,7 +78,7 @@ interface HomePageEditorProps {
 }
 
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
-  const [activeTab, setActiveTab] = useState<'hero' | 'video' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
   const [expandedSlides, setExpandedSlides] = useState<Set<number>>(new Set());
   const [expandedSections, setExpandedSections] = useState<Record<number, Set<string>>>({});
 
@@ -226,7 +218,6 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
         <nav className="-mb-px flex space-x-8">
           {[
             { key: 'hero', label: 'Hero Slides' },
-            { key: 'video', label: 'Impact Video' },
             { key: 'who-we-are', label: 'Who We Are' },
             { key: 'about-getfund', label: 'About GETFund' },
             { key: 'news', label: 'News & Updates' },
@@ -674,106 +665,6 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
               </Button>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Video Tab */}
-      {activeTab === 'video' && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">See Our Impact Video</h3>
-          <p className="text-sm text-gray-600">
-            This video appears in the "See Our Impact" section on the homepage.
-          </p>
-
-          <div className="border border-gray-300 rounded-lg p-4 space-y-4 bg-gray-50">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Video URL <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={content.videoSection?.url || ''}
-                onChange={(e) => {
-                  const url = e.target.value;
-                  // Auto-detect provider
-                  let provider: 'youtube' | 'vimeo' | 'upload' = 'upload';
-                  if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                    provider = 'youtube';
-                  } else if (url.includes('vimeo.com')) {
-                    provider = 'vimeo';
-                  }
-                  updateContent({
-                    videoSection: {
-                      ...content.videoSection,
-                      url,
-                      provider,
-                      title: content.videoSection?.title || 'See Our Impact in Action',
-                      subtitle: content.videoSection?.subtitle || ''
-                    }
-                  });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
-              />
-              {content.videoSection?.url && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Detected provider: <span className="font-medium capitalize">{content.videoSection?.provider || 'unknown'}</span>
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Video Title
-              </label>
-              <input
-                type="text"
-                value={content.videoSection?.title || ''}
-                onChange={(e) => updateContent({
-                  videoSection: {
-                    ...content.videoSection,
-                    url: content.videoSection?.url || '',
-                    provider: content.videoSection?.provider || 'youtube',
-                    title: e.target.value
-                  }
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="See Our Impact in Action"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Video Subtitle
-              </label>
-              <input
-                type="text"
-                value={content.videoSection?.subtitle || ''}
-                onChange={(e) => updateContent({
-                  videoSection: {
-                    ...content.videoSection,
-                    url: content.videoSection?.url || '',
-                    provider: content.videoSection?.provider || 'youtube',
-                    title: content.videoSection?.title || '',
-                    subtitle: e.target.value
-                  }
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Watch how GETFund is transforming education across Ghana"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Supported formats:</strong>
-            </p>
-            <ul className="text-sm text-blue-700 mt-2 list-disc list-inside">
-              <li>YouTube: https://www.youtube.com/watch?v=VIDEO_ID</li>
-              <li>YouTube (short): https://youtu.be/VIDEO_ID</li>
-              <li>Vimeo: https://vimeo.com/VIDEO_ID</li>
-            </ul>
-          </div>
         </div>
       )}
 

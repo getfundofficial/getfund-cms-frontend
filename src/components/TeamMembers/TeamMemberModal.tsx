@@ -277,6 +277,8 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
               <option value="board_chairman">Board Chairman</option>
               <option value="board_member">Board Member</option>
               <option value="management">Management</option>
+              <option value="deputy_administrator">Deputy Administrator</option>
+              <option value="financial_controller">Financial Controller</option>
               <option value="historical_admin">Historical Administrator</option>
             </select>
           </div>

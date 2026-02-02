@@ -7,6 +7,7 @@ interface MediaPickerModalProps {
   onClose: () => void;
   onSelect: (media: Media) => void;
   allowUpload?: boolean;
+  mediaType?: 'image' | 'video' | 'all';
 }
 
 const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
@@ -14,6 +15,7 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   onClose,
   onSelect,
   allowUpload = true,
+  mediaType = 'image',
 }) => {
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,9 +86,26 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
     }
   };
 
-  const filteredMedia = media.filter((m) =>
-    m.original_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMedia = media.filter((m) => {
+    // Filter by search term
+    const matchesSearch = m.original_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Filter by media type
+    let matchesType = true;
+    if (mediaType === 'image') {
+      matchesType = m.mime_type.startsWith('image/');
+    } else if (mediaType === 'video') {
+      matchesType = m.mime_type.startsWith('video/');
+    }
+
+    return matchesSearch && matchesType;
+  });
+
+  const mediaTypeLabel = mediaType === 'video' ? 'Video' : mediaType === 'all' ? 'Media' : 'Image';
+  const uploaderAccept = mediaType === 'video'
+    ? 'video/mp4,video/webm,video/quicktime,video/x-msvideo'
+    : 'image/jpeg,image/jpg,image/png,image/gif,image/webp';
+  const uploaderMaxSize = mediaType === 'video' ? 100 : 5;
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return bytes + ' B';
@@ -113,7 +132,7 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-2xl font-bold text-gray-900">
-              {showUploader ? 'Upload Image' : 'Select Image'}
+              {showUploader ? `Upload ${mediaTypeLabel}` : `Select ${mediaTypeLabel}`}
             </h2>
             <button
               onClick={onClose}
@@ -143,7 +162,7 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                 <div className="flex-1">
                   <input
                     type="text"
-                    placeholder="Search images..."
+                    placeholder={`Search ${mediaTypeLabel.toLowerCase()}s...`}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -169,6 +188,8 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                 <ImageUploader
                   onUploadSuccess={handleUploadSuccess}
                   onUploadError={(error) => alert(error)}
+                  accept={uploaderAccept}
+                  maxSizeMB={uploaderMaxSize}
                 />
                 <button
                   onClick={() => setShowUploader(false)}
@@ -202,22 +223,31 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
+                  {mediaType === 'video' ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  )}
                 </svg>
                 <p className="mt-4 text-gray-600">
-                  {searchTerm ? 'No images found' : 'No images uploaded yet'}
+                  {searchTerm ? `No ${mediaTypeLabel.toLowerCase()}s found` : `No ${mediaTypeLabel.toLowerCase()}s uploaded yet`}
                 </p>
                 {allowUpload && !searchTerm && (
                   <button
                     onClick={() => setShowUploader(true)}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
-                    Upload First Image
+                    Upload First {mediaTypeLabel}
                   </button>
                 )}
               </div>
@@ -234,13 +264,25 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     }`}
                     onClick={() => handleSelect(mediaItem)}
                   >
-                    {/* Image */}
+                    {/* Media Preview */}
                     <div className="aspect-square bg-gray-100">
-                      <img
-                        src={mediaService.getFullUrl(mediaItem.url)}
-                        alt={mediaItem.alt_text || mediaItem.original_name}
-                        className="w-full h-full object-cover"
-                      />
+                      {mediaItem.mime_type.startsWith('video/') ? (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-800 relative">
+                          <svg className="w-12 h-12 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="absolute bottom-2 left-2 text-xs text-white bg-black bg-opacity-50 px-1 rounded">
+                            Video
+                          </span>
+                        </div>
+                      ) : (
+                        <img
+                          src={mediaService.getFullUrl(mediaItem.url)}
+                          alt={mediaItem.alt_text || mediaItem.original_name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
 
                     {/* Overlay on Hover */}
@@ -310,7 +352,7 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     <span>{formatFileSize(selectedMedia.size_bytes)}</span>
                   </>
                 ) : (
-                  `${filteredMedia.length} image${
+                  `${filteredMedia.length} ${mediaTypeLabel.toLowerCase()}${
                     filteredMedia.length !== 1 ? 's' : ''
                   }`
                 )}
@@ -331,7 +373,7 @@ const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                 >
-                  Select Image
+                  Select {mediaTypeLabel}
                 </button>
               </div>
             </div>

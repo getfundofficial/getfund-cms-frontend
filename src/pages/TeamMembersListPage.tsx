@@ -113,23 +113,27 @@ export const TeamMembersListPage: React.FC = () => {
   };
 
   const getRoleBadge = (role: TeamMember['role']) => {
-    const styles = {
+    const styles: Record<string, string> = {
       board_chairman: 'bg-purple-100 text-purple-800',
       board_member: 'bg-blue-100 text-blue-800',
       management: 'bg-green-100 text-green-800',
+      deputy_administrator: 'bg-indigo-100 text-indigo-800',
+      financial_controller: 'bg-emerald-100 text-emerald-800',
       historical_admin: 'bg-gray-100 text-gray-800',
     };
 
-    const labels = {
+    const labels: Record<string, string> = {
       board_chairman: 'Board Chairman',
       board_member: 'Board Member',
       management: 'Management',
+      deputy_administrator: 'Deputy Admin',
+      financial_controller: 'Financial Controller',
       historical_admin: 'Historical',
     };
 
     return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[role]}`}>
-        {labels[role]}
+      <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[role] || 'bg-gray-100 text-gray-800'}`}>
+        {labels[role] || role}
       </span>
     );
   };
@@ -188,6 +192,8 @@ export const TeamMembersListPage: React.FC = () => {
               <option value="board_chairman">Board Chairman</option>
               <option value="board_member">Board Member</option>
               <option value="management">Management</option>
+              <option value="deputy_administrator">Deputy Administrator</option>
+              <option value="financial_controller">Financial Controller</option>
               <option value="historical_admin">Historical Administrator</option>
             </select>
           </div>
