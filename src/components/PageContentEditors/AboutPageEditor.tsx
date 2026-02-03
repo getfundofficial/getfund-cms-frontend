@@ -2,19 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-
-interface BannerBackground {
-  imageUrl?: string | null;
-  tintColor?: string;
-  tintOpacity?: number;
-}
 
 interface AboutPageContent {
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
-  bannerBackground?: BannerBackground;
 
   // About GETFund Section
   mainImage?: string;
@@ -139,31 +131,39 @@ export const AboutPageEditor: React.FC<AboutPageEditorProps> = ({ content, onCha
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold mb-4">Hero Section</h3>
+            <h3 className="text-lg font-semibold mb-4">Page Header</h3>
+            <p className="text-sm text-gray-500">Configure the title and description that appears at the top of the About page</p>
+
+            {/* Live Preview */}
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <h4 className="text-sm font-medium text-gray-500 mb-4">Preview</h4>
+              <div className="bg-white p-6 rounded-lg">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {content.heroTitle || 'About Us'}
+                </h2>
+                <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+                <p className="text-gray-600">
+                  {content.heroSubtitle || 'Supporting the delivery of quality education to Ghanaians from basic to tertiary level'}
+                </p>
+              </div>
+            </div>
+
             <Input
-              label="Hero Title"
+              label="Page Title"
               value={content.heroTitle || ''}
               onChange={(e) => updateContent({ heroTitle: e.target.value })}
               placeholder="About Us"
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Page Subtitle</label>
               <textarea
                 value={content.heroSubtitle || ''}
                 onChange={(e) => updateContent({ heroSubtitle: e.target.value })}
-                placeholder="Supporting the delivery of quality education..."
+                placeholder="Supporting the delivery of quality education to Ghanaians from basic to tertiary level"
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
-            {/* Banner Background Editor */}
-            <BannerBackgroundEditor
-              value={content.bannerBackground || {}}
-              onChange={(bannerBackground) => updateContent({ bannerBackground })}
-              previewTitle={content.heroTitle || 'About Us'}
-              previewSubtitle={content.heroSubtitle || 'Supporting the delivery of quality education to Ghanaians from basic to tertiary level'}
-            />
           </div>
         )}
 

@@ -1,10 +1,7 @@
 import React from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface NewsUpdatesContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -77,15 +74,24 @@ export const NewsUpdatesEditor: React.FC<NewsUpdatesEditorProps> = ({
 
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-6">
-          <BannerBackgroundEditor
-            value={content.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-            previewTitle={content.hero?.title || 'News & Updates'}
-            previewSubtitle={content.hero?.subtitle || 'Transforming Ghana\'s educational landscape through strategic investments and partnerships'}
-          />
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Header</h3>
+        <p className="text-sm text-gray-500 mb-4">Configure the title and description that appears at the top of the News & Updates page</p>
 
+        {/* Live Preview */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-6">
+          <h4 className="text-sm font-medium text-gray-500 mb-3">Preview</h4>
+          <div className="bg-white p-6 rounded-lg">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              {content.hero?.title || 'News & Updates'}
+            </h2>
+            <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+            <p className="text-gray-600">
+              {content.hero?.subtitle || "Transforming Ghana's educational landscape through strategic investments and partnerships"}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
           <Input
             type="text"
             label="Hero Title"

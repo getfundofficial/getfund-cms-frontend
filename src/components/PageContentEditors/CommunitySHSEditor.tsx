@@ -1,13 +1,6 @@
 import React from 'react';
 import { Input } from '../Common/Input';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
 import { Plus, Trash2 } from 'lucide-react';
-
-interface BannerBackground {
-  imageUrl?: string | null;
-  tintColor?: string;
-  tintOpacity?: number;
-}
 
 interface Section {
   heading: string;
@@ -20,7 +13,6 @@ interface ListSection {
 }
 
 interface CommunitySHSContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -141,17 +133,33 @@ export const CommunitySHSEditor: React.FC<CommunitySHSEditorProps> = ({
 
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Header</h3>
+        <p className="text-sm text-gray-500 mb-4">Configure the title and description that appears at the top of the page</p>
+
+        {/* Live Preview */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4">
+          <h4 className="text-sm font-medium text-gray-500 mb-3">Preview</h4>
+          <div className="bg-white p-6 rounded-lg">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              {mergedContent.hero?.title || 'Free SHS Intervention Project'}
+            </h2>
+            <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+            <p className="text-gray-600">
+              {mergedContent.hero?.subtitle || "Supporting Ghana's Free and Quality Education Agenda through infrastructure and materials."}
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <Input
             type="text"
-            label="Hero Title"
+            label="Page Title"
             placeholder="Free SHS Intervention Project"
             value={mergedContent.hero?.title || ''}
             onChange={(e) => handleChange('hero', 'title', e.target.value)}
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Page Subtitle</label>
             <textarea
               placeholder="Supporting Ghana's Free and Quality Education Agenda..."
               value={mergedContent.hero?.subtitle || ''}
@@ -160,12 +168,6 @@ export const CommunitySHSEditor: React.FC<CommunitySHSEditorProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <BannerBackgroundEditor
-            value={mergedContent.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...mergedContent, bannerBackground })}
-            previewTitle={mergedContent.hero?.title || 'Free SHS Intervention Project'}
-            previewSubtitle={mergedContent.hero?.subtitle || ''}
-          />
         </div>
       </div>
 

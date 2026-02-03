@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
 import { VideoInput, VideoProvider } from '../Common/VideoInput';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface StatItem {
   number: string;
@@ -64,8 +62,6 @@ interface VideoSection {
 }
 
 interface ImpactContent {
-  bannerBackground?: BannerBackground;
-
   // Hero Section
   heroTitle?: string;
   heroSubtitle?: string;
@@ -405,24 +401,32 @@ export const ImpactEditor: React.FC<ImpactEditorProps> = ({ content, onChange })
         {/* Hero Section Tab */}
         {activeTab === 'hero' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Hero Section</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Page Header</h3>
+            <p className="text-sm text-gray-500">Configure the title and description that appears at the top of the Impact page</p>
 
-            <BannerBackgroundEditor
-              value={content.bannerBackground || {}}
-              onChange={(bannerBackground) => updateContent({ bannerBackground })}
-              previewTitle={content.heroTitle || 'Our Impact'}
-              previewSubtitle={content.heroSubtitle || 'Transforming lives and communities through quality education across Ghana'}
-            />
+            {/* Live Preview */}
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <h4 className="text-sm font-medium text-gray-500 mb-4">Preview</h4>
+              <div className="bg-white p-6 rounded-lg">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {content.heroTitle || 'Our Work & Impact'}
+                </h2>
+                <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+                <p className="text-gray-600">
+                  {content.heroSubtitle || 'Transforming lives and communities through quality education across Ghana'}
+                </p>
+              </div>
+            </div>
 
             <Input
-              label="Hero Title"
+              label="Page Title"
               value={content.heroTitle || ''}
               onChange={(e) => updateContent({ heroTitle: e.target.value })}
-              placeholder="Our Impact"
+              placeholder="Our Work & Impact"
             />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hero Subtitle
+                Page Subtitle
               </label>
               <textarea
                 value={content.heroSubtitle || ''}

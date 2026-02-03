@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../Common/Button';
 import { AlertCircle, CheckCircle } from 'lucide-react';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
 
 interface GenericPageContentEditorProps {
   content: Record<string, any>;
@@ -49,18 +48,24 @@ export const GenericPageContentEditor: React.FC<GenericPageContentEditorProps> =
 
   return (
     <div className="space-y-6">
-      {/* Banner Background Editor */}
-      <BannerBackgroundEditor
-        value={content.bannerBackground || {}}
-        onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-        previewTitle={content.hero?.title || content.heroTitle || content.title || 'Page Title'}
-        previewSubtitle={content.hero?.subtitle || content.heroSubtitle || content.subtitle || 'Page subtitle or description'}
-      />
+      {/* Preview Section */}
+      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <h4 className="text-sm font-medium text-gray-500 mb-3">Page Header Preview</h4>
+        <div className="bg-white p-6 rounded-lg">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {content.hero?.title || content.heroTitle || content.title || 'Page Title'}
+          </h2>
+          <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+          <p className="text-gray-600">
+            {content.hero?.subtitle || content.heroSubtitle || content.subtitle || 'Page subtitle or description'}
+          </p>
+        </div>
+      </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-blue-900 mb-2">Advanced: JSON Editor</h3>
         <p className="text-sm text-blue-700">
-          Edit the page content as JSON for advanced customization. The banner background settings above are also stored in this JSON.
+          Edit the page content as JSON for advanced customization.
         </p>
       </div>
 

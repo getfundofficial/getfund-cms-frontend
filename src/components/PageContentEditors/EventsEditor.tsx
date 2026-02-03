@@ -1,8 +1,6 @@
 import React from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface Event {
   id: number;
@@ -13,7 +11,6 @@ interface Event {
 }
 
 interface EventsContent {
-  bannerBackground?: BannerBackground;
   meta: {
     title: string;
     description: string;
@@ -104,18 +101,25 @@ export const EventsEditor: React.FC<EventsEditorProps> = ({
 
       {/* Hero Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Section</h3>
-        <div className="space-y-6">
-          <BannerBackgroundEditor
-            value={content.bannerBackground || {}}
-            onChange={(bannerBackground) => onChange({ ...content, bannerBackground })}
-            previewTitle={content.hero?.title || 'Events'}
-            previewSubtitle="Upcoming GETFund events and fundraising activities"
-          />
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Header</h3>
+        <p className="text-sm text-gray-500 mb-4">Configure the title that appears at the top of the Events page</p>
 
+        {/* Live Preview */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4">
+          <h4 className="text-sm font-medium text-gray-500 mb-3">Preview</h4>
+          <div className="bg-white p-6 rounded-lg">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              {content.hero?.title || 'Events'}
+            </h2>
+            <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+            <p className="text-gray-600">Upcoming GETFund events and fundraising activities</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
           <Input
             type="text"
-            label="Hero Title"
+            label="Page Title"
             placeholder="Events"
             value={content.hero?.title || ''}
             onChange={(e) => handleChange('hero', 'title', e.target.value)}
