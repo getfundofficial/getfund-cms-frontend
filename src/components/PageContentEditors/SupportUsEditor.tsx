@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
 import { Plus, Trash2, Heart } from 'lucide-react';
-import { BannerBackgroundEditor } from './BannerBackgroundEditor';
-import { BannerBackground } from '../../types/bannerBackground';
 
 interface Stat {
   number: string;
@@ -36,7 +34,6 @@ export const SupportUsEditor: React.FC<SupportUsEditorProps> = ({ initialData, o
     heroSubtitle: initialData?.heroSubtitle || '',
     heroCtaText: initialData?.heroCtaText || '',
     heroCtaLink: initialData?.heroCtaLink || '',
-    bannerBackground: initialData?.bannerBackground || {} as BannerBackground,
 
     // Impact Stats
     impactTitle: initialData?.impactTitle || '',
@@ -158,6 +155,25 @@ export const SupportUsEditor: React.FC<SupportUsEditorProps> = ({ initialData, o
               placeholder="Join us in transforming lives through education..."
             />
           </div>
+          {/* Live Preview */}
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4">
+            <h4 className="text-sm font-medium text-gray-500 mb-3">Preview</h4>
+            <div className="bg-white p-6 rounded-lg">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {content.heroTitle || "Support Ghana's Educational Future"}
+              </h2>
+              <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+              <p className="text-gray-600 mb-4">
+                {content.heroSubtitle || 'Join us in transforming lives through education'}
+              </p>
+              {content.heroCtaText && (
+                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded text-sm">
+                  {content.heroCtaText}
+                </span>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="CTA Button Text"
@@ -170,16 +186,6 @@ export const SupportUsEditor: React.FC<SupportUsEditorProps> = ({ initialData, o
               value={content.heroCtaLink}
               onChange={(e) => updateField('heroCtaLink', e.target.value)}
               placeholder="https://donate.getfund.gov.gh/"
-            />
-          </div>
-
-          {/* Banner Background Settings */}
-          <div className="mt-6">
-            <BannerBackgroundEditor
-              value={content.bannerBackground}
-              onChange={(value) => updateField('bannerBackground', value)}
-              previewTitle={content.heroTitle || 'Support Ghana\'s Educational Future'}
-              previewSubtitle={content.heroSubtitle || 'Join us in transforming lives through education'}
             />
           </div>
         </div>

@@ -32,6 +32,8 @@ interface HeroSlide {
   subtitleFontSize?: FontSize;
   overlay?: SlideOverlay;
   blueBox?: BlueBoxSettings;
+  mediaType?: 'image' | 'video';
+  videoUrl?: string;
 }
 
 interface Service {
@@ -44,6 +46,18 @@ interface ImpactStat {
   number: string;
   label: string;
   description?: string;
+}
+
+interface AchievementCircle {
+  title: string;
+  value: string;
+}
+
+interface AchievementCategory {
+  title: string;
+  description: string;
+  image: string;
+  link?: string;
 }
 
 interface HomePageContent {
@@ -70,6 +84,11 @@ interface HomePageContent {
   impactStats?: ImpactStat[];
   newsTitle?: string;
   newsSubtitle?: string;
+  // Achievements Section
+  achievementsTitle?: string;
+  achievementsSubtitle?: string;
+  achievementCircles?: AchievementCircle[];
+  achievementCategories?: AchievementCategory[];
 }
 
 interface HomePageEditorProps {
@@ -78,7 +97,7 @@ interface HomePageEditorProps {
 }
 
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
-  const [activeTab, setActiveTab] = useState<'hero' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'achievements' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
   const [expandedSlides, setExpandedSlides] = useState<Set<number>>(new Set());
   const [expandedSections, setExpandedSections] = useState<Record<number, Set<string>>>({});
 
@@ -218,6 +237,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
         <nav className="-mb-px flex space-x-8">
           {[
             { key: 'hero', label: 'Hero Slides' },
+            { key: 'achievements', label: 'Achievements' },
             { key: 'who-we-are', label: 'Who We Are' },
             { key: 'about-getfund', label: 'About GETFund' },
             { key: 'news', label: 'News & Updates' },
@@ -310,13 +330,83 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
               {/* Slide Content - Collapsible */}
               {expandedSlides.has(index) && (
                 <div className="p-4 space-y-4 border-t border-gray-200">
-                  {/* Essential Fields */}
-                  <ImageInput
-                    label="Background Image"
-                    value={slide.image}
-                    onChange={(value) => updateHeroSlide(index, { ...slide, image: value })}
-                    placeholder="/images/hero/slide.jpg"
-                  />
+                  {/* Media Type Selection */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => toggleSection(index, 'mediaSettings')}
+                      className="w-full flex justify-between items-center p-3 bg-blue-50 hover:bg-blue-100 transition-colors"
+                    >
+                      <span className="font-medium text-sm text-blue-700">Media Settings (Image or Video)</span>
+                      {isSectionExpanded(index, 'mediaSettings') ? (
+                        <ChevronDown className="w-4 h-4 text-blue-500" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-blue-500" />
+                      )}
+                    </button>
+                    {isSectionExpanded(index, 'mediaSettings') && (
+                      <div className="p-3 space-y-3 bg-white">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Media Type</label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`mediaType-${index}`}
+                                value="image"
+                                checked={slide.mediaType !== 'video'}
+                                onChange={() => updateHeroSlide(index, { ...slide, mediaType: 'image' })}
+                                className="w-4 h-4 text-blue-600"
+                              />
+                              <span className="text-sm text-gray-700">Image</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`mediaType-${index}`}
+                                value="video"
+                                checked={slide.mediaType === 'video'}
+                                onChange={() => updateHeroSlide(index, { ...slide, mediaType: 'video' })}
+                                className="w-4 h-4 text-blue-600"
+                              />
+                              <span className="text-sm text-gray-700">Video</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {slide.mediaType === 'video' && (
+                          <div>
+                            <Input
+                              label="Video URL"
+                              value={slide.videoUrl || ''}
+                              onChange={(e) => updateHeroSlide(index, { ...slide, videoUrl: e.target.value })}
+                              placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Supports YouTube, Vimeo, or direct video files (.mp4, .webm)
+                            </p>
+                          </div>
+                        )}
+
+                        <ImageInput
+                          label={slide.mediaType === 'video' ? "Fallback Image (shown while video loads)" : "Background Image"}
+                          value={slide.image}
+                          onChange={(value) => updateHeroSlide(index, { ...slide, image: value })}
+                          placeholder="/images/hero/slide.jpg"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Image Input (when media settings collapsed) */}
+                  {!isSectionExpanded(index, 'mediaSettings') && (
+                    <ImageInput
+                      label="Background Image"
+                      value={slide.image}
+                      onChange={(value) => updateHeroSlide(index, { ...slide, image: value })}
+                      placeholder="/images/hero/slide.jpg"
+                    />
+                  )}
 
                   <Input
                     label="Headline"
@@ -604,13 +694,31 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
 
                   {/* Live Preview */}
                   <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Live Preview</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">
+                      Live Preview {slide.mediaType === 'video' && <span className="text-blue-600">(Video Slide)</span>}
+                    </label>
                     <div
                       className="relative rounded-md overflow-hidden"
                       style={{ minHeight: '120px' }}
                     >
-                      {/* Background Image */}
-                      {slide.image && (
+                      {/* Video indicator or Background Image */}
+                      {slide.mediaType === 'video' && slide.videoUrl ? (
+                        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                          <div className="text-center text-white">
+                            <svg className="w-12 h-12 mx-auto mb-2 opacity-70" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <p className="text-xs opacity-70">Video will play here</p>
+                          </div>
+                          {slide.image && (
+                            <img
+                              src={slide.image}
+                              alt="Preview"
+                              className="absolute inset-0 w-full h-full object-cover opacity-30"
+                            />
+                          )}
+                        </div>
+                      ) : slide.image && (
                         <img
                           src={slide.image}
                           alt="Preview"
@@ -665,6 +773,201 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
               </Button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Achievements Tab */}
+      {activeTab === 'achievements' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold">Achievements Section</h3>
+            <p className="text-sm text-gray-500">Edit the "What GETFund Has Done" section with green circles and category images</p>
+          </div>
+
+          {/* Section Title & Subtitle */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Section Title"
+              value={content.achievementsTitle || ''}
+              onChange={(e) => updateContent({ achievementsTitle: e.target.value })}
+              placeholder="What GETFund Has Done"
+            />
+            <Input
+              label="Section Subtitle"
+              value={content.achievementsSubtitle || ''}
+              onChange={(e) => updateContent({ achievementsSubtitle: e.target.value })}
+              placeholder="Transforming education across Ghana since 2000"
+            />
+          </div>
+
+          {/* Green Circles */}
+          <div className="border border-gray-300 rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h4 className="font-semibold">Green Circles (Stats)</h4>
+                <p className="text-sm text-gray-500">5 circles displayed at the top with numbers and labels</p>
+              </div>
+              <Button
+                onClick={() => {
+                  const circles = content.achievementCircles || [];
+                  if (circles.length < 5) {
+                    updateContent({
+                      achievementCircles: [...circles, { title: '', value: '' }]
+                    });
+                  }
+                }}
+                variant="secondary"
+                size="sm"
+                disabled={(content.achievementCircles?.length || 0) >= 5}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Circle
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {(content.achievementCircles || []).map((circle, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-500">Circle {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const circles = content.achievementCircles?.filter((_, i) => i !== index) || [];
+                        updateContent({ achievementCircles: circles });
+                      }}
+                      className="p-1 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <Input
+                    label="Value"
+                    value={circle.value}
+                    onChange={(e) => {
+                      const circles = [...(content.achievementCircles || [])];
+                      circles[index] = { ...circle, value: e.target.value };
+                      updateContent({ achievementCircles: circles });
+                    }}
+                    placeholder="5,000+"
+                  />
+                  <Input
+                    label="Label"
+                    value={circle.title}
+                    onChange={(e) => {
+                      const circles = [...(content.achievementCircles || [])];
+                      circles[index] = { ...circle, title: e.target.value };
+                      updateContent({ achievementCircles: circles });
+                    }}
+                    placeholder="Scholarships"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {(!content.achievementCircles || content.achievementCircles.length === 0) && (
+              <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-300 rounded-lg">
+                No circles added yet. Click "Add Circle" to add up to 5 stat circles.
+              </div>
+            )}
+          </div>
+
+          {/* Category Cards */}
+          <div className="border border-gray-300 rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h4 className="font-semibold">Category Cards (Images)</h4>
+                <p className="text-sm text-gray-500">Circular images with titles and descriptions</p>
+              </div>
+              <Button
+                onClick={() => {
+                  const categories = content.achievementCategories || [];
+                  updateContent({
+                    achievementCategories: [...categories, { title: '', description: '', image: '', link: '' }]
+                  });
+                }}
+                variant="secondary"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Category
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(content.achievementCategories || []).map((category, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">Category {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const categories = content.achievementCategories?.filter((_, i) => i !== index) || [];
+                        updateContent({ achievementCategories: categories });
+                      }}
+                      className="p-1 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <ImageInput
+                    label="Image"
+                    value={category.image}
+                    onChange={(value) => {
+                      const categories = [...(content.achievementCategories || [])];
+                      categories[index] = { ...category, image: value };
+                      updateContent({ achievementCategories: categories });
+                    }}
+                    placeholder="/images/category.jpg"
+                  />
+
+                  <Input
+                    label="Title"
+                    value={category.title}
+                    onChange={(e) => {
+                      const categories = [...(content.achievementCategories || [])];
+                      categories[index] = { ...category, title: e.target.value };
+                      updateContent({ achievementCategories: categories });
+                    }}
+                    placeholder="Scholarships"
+                  />
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea
+                      value={category.description}
+                      onChange={(e) => {
+                        const categories = [...(content.achievementCategories || [])];
+                        categories[index] = { ...category, description: e.target.value };
+                        updateContent({ achievementCategories: categories });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      rows={2}
+                      placeholder="Brief description..."
+                    />
+                  </div>
+
+                  <LinkInput
+                    label="Link (Optional)"
+                    value={category.link || ''}
+                    onChange={(value) => {
+                      const categories = [...(content.achievementCategories || [])];
+                      categories[index] = { ...category, link: value };
+                      updateContent({ achievementCategories: categories });
+                    }}
+                    placeholder="/scholarship"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {(!content.achievementCategories || content.achievementCategories.length === 0) && (
+              <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-300 rounded-lg">
+                No categories added yet. Click "Add Category" to add image cards.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
