@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Input } from '../Common/Input';
-import mediaService, { Media } from '../../services/mediaService';
+import mediaService from '../../services/mediaService';
 
 interface FocusArea {
   title: string;
