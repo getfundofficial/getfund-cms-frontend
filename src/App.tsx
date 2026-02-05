@@ -28,6 +28,7 @@ import { CampaignEditorPage } from './pages/CampaignEditorPage';
 import { LotteryConfigPage } from './pages/LotteryConfigPage';
 import { LotteryEntriesPage } from './pages/LotteryEntriesPage';
 import { PledgesPage } from './pages/PledgesPage';
+import { ImpactDonationsPage } from './pages/ImpactDonationsPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -405,6 +406,18 @@ function App() {
               <ProtectedRoute requiredRoles={['admin']}>
                 <AdminLayout>
                   <PledgesPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Impact Donations Route */}
+          <Route
+            path="/admin/impact-donations"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <ImpactDonationsPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
