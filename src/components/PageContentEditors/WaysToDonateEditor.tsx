@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
+import mediaService from '../../services/mediaService';
 
 interface PresetAmount {
   value: number;
@@ -11,6 +12,7 @@ interface DonationOption {
   title: string;
   description: string;
   buttonText: string;
+  image?: string;
   presetAmounts?: PresetAmount[];
 }
 
@@ -49,6 +51,106 @@ interface WaysToDonateEditorProps {
   content: WaysToDonateContent;
   onChange: (content: WaysToDonateContent) => void;
 }
+
+// Image Upload Component
+const ImageUpload: React.FC<{
+  value: string;
+  onChange: (url: string) => void;
+  label: string;
+}> = ({ value, onChange, label }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Please upload JPEG, PNG, GIF, or WebP images.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => (prev >= 90 ? 90 : prev + 10));
+      }, 100);
+
+      const media = await mediaService.upload(file);
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      setTimeout(() => {
+        onChange(mediaService.getFullUrl(media.url));
+        setIsUploading(false);
+        setUploadProgress(0);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }, 300);
+    } catch (error: any) {
+      setIsUploading(false);
+      setUploadProgress(0);
+      alert(error.response?.data?.error || 'Failed to upload image');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+
+      {value && (
+        <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-200">
+          <img src={value} alt="Preview" className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {isUploading ? (
+        <div className="space-y-2">
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+          <p className="text-sm text-gray-600">Uploading... {uploadProgress}%</p>
+        </div>
+      ) : (
+        <div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm"
+          >
+            {value ? 'Change Image' : 'Upload Image'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+            onChange={handleFileSelect}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
   content,
@@ -121,6 +223,7 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
       title: '',
       description: '',
       buttonText: '',
+      image: '',
       presetAmounts: [
         { value: 50, label: 'Small contribution' },
         { value: 100, label: 'Medium contribution' },
@@ -128,6 +231,12 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
       ],
     };
     onChange({ ...content, donationOptions: [...options, newOption] });
+  };
+
+  const handleDonationImageChange = (index: number, imageUrl: string) => {
+    const newOptions = [...(content.donationOptions || [])];
+    newOptions[index] = { ...newOptions[index], image: imageUrl };
+    onChange({ ...content, donationOptions: newOptions });
   };
 
   const removeDonationOption = (index: number) => {
@@ -296,6 +405,16 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
                   Remove
                 </button>
               </div>
+
+              {/* Slide Image */}
+              <ImageUpload
+                value={option.image || ''}
+                onChange={(url) => handleDonationImageChange(index, url)}
+                label="Slide Image"
+              />
+              <p className="text-xs text-gray-500 -mt-1">
+                This image will be displayed as a full-width slide background
+              </p>
 
               <Input
                 type="text"
