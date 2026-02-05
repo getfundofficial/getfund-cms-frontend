@@ -22,8 +22,8 @@ interface KeyInitiative {
 
 interface WhatWeDoContent {
   // Page Header
-  pageTitle?: string;
-  pageSubtitle?: string;
+  servicesTitle?: string;
+  servicesSubtitle?: string;
 
   // Focus Areas (Navy Blue Circles)
   focusAreas?: FocusArea[];
@@ -301,20 +301,21 @@ export const WhatWeDoEditor: React.FC<WhatWeDoEditorProps> = ({ content, onChang
             {/* Live Preview */}
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <h4 className="text-sm font-medium text-gray-500 mb-4">Preview</h4>
-              <div className="text-center py-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  {content.pageTitle || 'What We Do'}
+              <div className="bg-white p-6 rounded-lg">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {content.servicesTitle || 'What We Do'}
                 </h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                  {content.pageSubtitle || 'GETFund is committed to transforming education in Ghana through strategic investments and key initiatives.'}
+                <div className="w-16 h-1 mb-3" style={{ backgroundColor: '#2a3f75' }} />
+                <p className="text-gray-600">
+                  {content.servicesSubtitle || 'GETFund is committed to transforming education in Ghana through strategic investments and key initiatives.'}
                 </p>
               </div>
             </div>
 
             <Input
               label="Page Title"
-              value={content.pageTitle || ''}
-              onChange={(e) => updateContent({ pageTitle: e.target.value })}
+              value={content.servicesTitle || ''}
+              onChange={(e) => updateContent({ servicesTitle: e.target.value })}
               placeholder="What We Do"
             />
             <div>
@@ -322,8 +323,8 @@ export const WhatWeDoEditor: React.FC<WhatWeDoEditorProps> = ({ content, onChang
                 Page Subtitle
               </label>
               <textarea
-                value={content.pageSubtitle || ''}
-                onChange={(e) => updateContent({ pageSubtitle: e.target.value })}
+                value={content.servicesSubtitle || ''}
+                onChange={(e) => updateContent({ servicesSubtitle: e.target.value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="GETFund is committed to transforming education in Ghana through strategic investments and key initiatives."
