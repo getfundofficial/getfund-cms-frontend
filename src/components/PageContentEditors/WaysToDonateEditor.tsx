@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Input } from '../Common/Input';
 import { Button } from '../Common/Button';
-import mediaService from '../../services/mediaService';
+import MediaPickerModal from '../Media/MediaPickerModal';
+import mediaService, { Media } from '../../services/mediaService';
 
 interface PresetAmount {
   value: number;
@@ -52,55 +53,22 @@ interface WaysToDonateEditorProps {
   onChange: (content: WaysToDonateContent) => void;
 }
 
-// Image Upload Component
-const ImageUpload: React.FC<{
+// Media Image Picker Component - Uses the site gallery
+const MediaImagePicker: React.FC<{
   value: string;
   onChange: (url: string) => void;
   label: string;
 }> = ({ value, onChange, label }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      alert('Invalid file type. Please upload JPEG, PNG, GIF, or WebP images.');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File too large. Maximum size is 5MB.');
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => (prev >= 90 ? 90 : prev + 10));
-      }, 100);
-
-      const media = await mediaService.upload(file);
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      setTimeout(() => {
-        onChange(mediaService.getFullUrl(media.url));
-        setIsUploading(false);
-        setUploadProgress(0);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      }, 300);
-    } catch (error: any) {
-      setIsUploading(false);
-      setUploadProgress(0);
-      alert(error.response?.data?.error || 'Failed to upload image');
-    }
+  const handleMediaSelect = (media: Media) => {
+    const fullUrl = mediaService.getFullUrl(media.url);
+    console.log('[MediaImagePicker] Media selected:', {
+      mediaId: media.id,
+      originalUrl: media.url,
+      fullUrl
+    });
+    onChange(fullUrl);
   };
 
   return (
@@ -120,34 +88,26 @@ const ImageUpload: React.FC<{
         </div>
       )}
 
-      {isUploading ? (
-        <div className="space-y-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            />
-          </div>
-          <p className="text-sm text-gray-600">Uploading... {uploadProgress}%</p>
-        </div>
-      ) : (
-        <div>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm"
-          >
-            {value ? 'Change Image' : 'Upload Image'}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-            onChange={handleFileSelect}
-          />
-        </div>
-      )}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setIsPickerOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          {value ? 'Change from Gallery' : 'Select from Gallery'}
+        </button>
+      </div>
+
+      <MediaPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelect={handleMediaSelect}
+        allowUpload={true}
+        mediaType="image"
+      />
     </div>
   );
 };
@@ -234,8 +194,11 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
   };
 
   const handleDonationImageChange = (index: number, imageUrl: string) => {
+    console.log('[WaysToDonateEditor] handleDonationImageChange called:', { index, imageUrl });
     const newOptions = [...(content.donationOptions || [])];
     newOptions[index] = { ...newOptions[index], image: imageUrl };
+    console.log('[WaysToDonateEditor] Updated option:', newOptions[index]);
+    console.log('[WaysToDonateEditor] All options:', newOptions);
     onChange({ ...content, donationOptions: newOptions });
   };
 
@@ -407,13 +370,13 @@ export const WaysToDonateEditor: React.FC<WaysToDonateEditorProps> = ({
               </div>
 
               {/* Slide Image */}
-              <ImageUpload
+              <MediaImagePicker
                 value={option.image || ''}
                 onChange={(url) => handleDonationImageChange(index, url)}
                 label="Slide Image"
               />
               <p className="text-xs text-gray-500 -mt-1">
-                This image will be displayed as a full-width slide background
+                Select from the media gallery. This image will be displayed as a full-width slide background.
               </p>
 
               <Input
