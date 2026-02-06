@@ -117,8 +117,14 @@ export const LotteryConfigPage: React.FC = () => {
 
     if (!formData.next_draw_date) {
       newErrors.next_draw_date = 'Next draw date is required';
-    } else if (new Date(formData.next_draw_date) <= new Date()) {
-      newErrors.next_draw_date = 'Next draw date must be in the future';
+    } else {
+      // Compare just dates (ignore time) - allow today or future dates
+      const drawDate = new Date(formData.next_draw_date + 'T23:59:59');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (drawDate < today) {
+        newErrors.next_draw_date = 'Next draw date must be today or in the future';
+      }
     }
 
     if (!/^#[0-9A-Fa-f]{6}$/.test(formData.banner_color)) {
@@ -142,23 +148,30 @@ export const LotteryConfigPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveMessage(null);
 
     if (!validate()) {
-      alert('Please fix the validation errors');
+      setSaveMessage({ type: 'error', text: 'Please fix the validation errors highlighted below' });
       return;
     }
 
     try {
       setIsSaving(true);
+      console.log('[LotteryConfig] Saving configuration...', formData);
 
       const dataToSubmit = {
         ...formData,
-        next_draw_date: new Date(formData.next_draw_date).toISOString(),
+        next_draw_date: new Date(formData.next_draw_date + 'T12:00:00').toISOString(), // Use noon to avoid timezone issues
       };
 
+      console.log('[LotteryConfig] Data to submit:', dataToSubmit);
+
       const updatedConfig = await lotteryService.updateConfig(dataToSubmit);
+      console.log('[LotteryConfig] Response:', updatedConfig);
 
       if (!updatedConfig || !updatedConfig.id) {
         throw new Error('Invalid response from server - no config returned');
@@ -180,11 +193,12 @@ export const LotteryConfigPage: React.FC = () => {
         share_hashtags: updatedConfig.share_hashtags || '',
       });
 
-      alert('Lottery configuration saved successfully!');
+      setSaveMessage({ type: 'success', text: 'Lottery configuration saved successfully!' });
     } catch (error: unknown) {
+      console.error('[LotteryConfig] Save error:', error);
       const err = error as { response?: { data?: { error?: string } }; message?: string };
       const errorMessage = err.response?.data?.error || err.message || 'Failed to update lottery configuration';
-      alert(`Error: ${errorMessage}`);
+      setSaveMessage({ type: 'error', text: errorMessage });
     } finally {
       setIsSaving(false);
     }
@@ -226,6 +240,28 @@ export const LotteryConfigPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Save Message Banner */}
+          {saveMessage && (
+            <div className={`p-4 rounded-lg ${
+              saveMessage.type === 'success'
+                ? 'bg-green-50 border border-green-200 text-green-800'
+                : 'bg-red-50 border border-red-200 text-red-800'
+            }`}>
+              <div className="flex items-center gap-2">
+                {saveMessage.type === 'success' ? (
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                <span className="font-medium">{saveMessage.text}</span>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h2>
 
@@ -288,16 +324,34 @@ export const LotteryConfigPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label className="ml-2 block text-sm text-gray-700">
-                  Lottery is active (visible on website)
-                </label>
+              {/* Lottery Active Toggle - Prominent */}
+              <div className={`p-4 rounded-lg border-2 ${formData.is_active ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${formData.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <span className={`font-semibold ${formData.is_active ? 'text-green-800' : 'text-red-800'}`}>
+                        {formData.is_active ? 'Lottery is OPEN' : 'Lottery is CLOSED'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {formData.is_active
+                        ? 'Users can enter the lottery by donating. "Participate Now" button is visible.'
+                        : 'Entry is closed. "Participate Now" button is hidden and shows "Lottery Closed" message.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                      formData.is_active
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    {formData.is_active ? 'End Lottery' : 'Open Lottery'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
