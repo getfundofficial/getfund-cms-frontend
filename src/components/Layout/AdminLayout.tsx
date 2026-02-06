@@ -154,8 +154,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: 'Lottery',
       show: hasAdminPermission('lotteryConfig') || hasAdminPermission('lotteryEntries'),
       children: [
-        { path: '/admin/lottery', label: 'Lottery Config' },
-        { path: '/admin/lottery-entries', label: 'Lottery Entries' },
+        { path: '/admin/lottery/config', label: 'Lottery Config' },
+        { path: '/admin/lottery/entries', label: 'Lottery Entries' },
       ],
     },
     {

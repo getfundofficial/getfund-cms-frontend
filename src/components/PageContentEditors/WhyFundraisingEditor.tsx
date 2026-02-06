@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '../Common/Input';
 import { api } from '../../services/api';
+import MediaPickerModal from '../Media/MediaPickerModal';
+import mediaService, { Media } from '../../services/mediaService';
 
 interface WhyFundraisingContent {
   meta: {
@@ -50,6 +52,7 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
   const [contactLoading, setContactLoading] = useState(true);
   const [contactSaving, setContactSaving] = useState(false);
   const [contactMessage, setContactMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   useEffect(() => {
     const loadContact = async () => {
@@ -110,6 +113,24 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
     });
   };
 
+  const handleMediaSelect = (media: Media) => {
+    onChange({
+      ...content,
+      featuredImage: {
+        url: mediaService.getFullUrl(media.url),
+        alt: media.alt_text || media.original_name,
+        caption: content.featuredImage?.caption || '',
+      },
+    });
+  };
+
+  const handleRemoveImage = () => {
+    onChange({
+      ...content,
+      featuredImage: undefined,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Meta Information */}
@@ -152,49 +173,92 @@ export const WhyFundraisingEditor: React.FC<WhyFundraisingEditorProps> = ({
 
       {/* Featured Image Section */}
       <div className="border border-gray-200 rounded-lg p-5">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Featured Image (Optional)</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hero Image (Optional)</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Add an optional featured image to display below the page title.
+          Add an optional image to display on the right side of the hero section text.
         </p>
         <div className="space-y-4">
-          <Input
-            type="text"
-            label="Image URL"
-            placeholder="https://example.com/image.jpg or /uploads/why-fundraising.jpg"
-            value={content.featuredImage?.url || ''}
-            onChange={(e) => handleFeaturedImageChange('url', e.target.value)}
-          />
-          <Input
-            type="text"
-            label="Alt Text"
-            placeholder="Description of the image for accessibility"
-            value={content.featuredImage?.alt || ''}
-            onChange={(e) => handleFeaturedImageChange('alt', e.target.value)}
-          />
-          <Input
-            type="text"
-            label="Caption (Optional)"
-            placeholder="Image caption displayed below the image"
-            value={content.featuredImage?.caption || ''}
-            onChange={(e) => handleFeaturedImageChange('caption', e.target.value)}
-          />
-          {content.featuredImage?.url && (
-            <div className="mt-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-              <div className="rounded-lg overflow-hidden border border-gray-200 max-w-md">
+          {content.featuredImage?.url ? (
+            /* Image Preview with Edit/Remove Options */
+            <div className="space-y-4">
+              <div className="relative rounded-lg overflow-hidden border border-gray-200 max-w-md">
                 <img
                   src={content.featuredImage.url}
                   alt={content.featuredImage.alt || 'Featured image preview'}
                   className="w-full h-auto"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%23f3f4f6"><rect width="100%" height="100%"/><text x="50%" y="50%" font-family="sans-serif" font-size="14" fill="%239ca3af" text-anchor="middle" dy=".3em">Image failed to load</text></svg>';
                   }}
                 />
               </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Change Image
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+                >
+                  Remove Image
+                </button>
+              </div>
+              <Input
+                type="text"
+                label="Alt Text"
+                placeholder="Description of the image for accessibility"
+                value={content.featuredImage?.alt || ''}
+                onChange={(e) => handleFeaturedImageChange('alt', e.target.value)}
+              />
+              <Input
+                type="text"
+                label="Caption (Optional)"
+                placeholder="Image caption displayed below the image"
+                value={content.featuredImage?.caption || ''}
+                onChange={(e) => handleFeaturedImageChange('caption', e.target.value)}
+              />
+            </div>
+          ) : (
+            /* No Image - Show Upload Button */
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-gray-600 mb-4">No featured image selected</p>
+              <button
+                type="button"
+                onClick={() => setShowMediaPicker(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Select from Gallery
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleMediaSelect}
+        mediaType="image"
+        allowUpload={true}
+      />
 
       {/* Main Content */}
       <div className="border border-gray-200 rounded-lg p-5">

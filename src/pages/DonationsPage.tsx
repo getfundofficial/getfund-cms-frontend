@@ -136,20 +136,6 @@ export const DonationsPage: React.FC = () => {
     ) : null;
   };
 
-  const getDonorTypeBadge = (donorType: string) => {
-    const colors: { [key: string]: string } = {
-      'Individual': 'bg-blue-100 text-blue-800',
-      'Corporate': 'bg-purple-100 text-purple-800',
-      'GETFund Beneficiary': 'bg-green-100 text-green-800',
-      'Anonymous': 'bg-gray-100 text-gray-500',
-    };
-    return (
-      <span className={`px-2 py-1 text-xs font-medium rounded ${colors[donorType] || 'bg-gray-100 text-gray-800'}`}>
-        {donorType}
-      </span>
-    );
-  };
-
   const handleEdit = (donation: Donation) => {
     setEditingDonation(donation);
     setEditForm({
@@ -172,6 +158,67 @@ export const DonationsPage: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleExportCSV = () => {
+    // Create CSV content from donations data
+    const headers = [
+      'Date',
+      'Donor Name',
+      'Email',
+      'Phone',
+      'Donor Type',
+      'Amount',
+      'Currency',
+      'Category',
+      'Description',
+      'Frequency',
+      'Payment Method',
+      'Reference',
+      'Status',
+      'Paid At'
+    ];
+
+    const rows = donations.map(donation => [
+      formatDate(donation.created_at),
+      donation.donor_name || 'N/A',
+      donation.donor_email || 'N/A',
+      donation.donor_phone || 'N/A',
+      donation.donor_type,
+      donation.amount.toString(),
+      donation.currency,
+      donation.donation_category || 'General Donation',
+      donation.donation_description || '',
+      donation.donation_frequency,
+      donation.payment_method || 'N/A',
+      donation.payment_reference || 'N/A',
+      donation.payment_status,
+      donation.paid_at ? formatDate(donation.paid_at) : 'Not paid'
+    ]);
+
+    // Escape CSV values
+    const escapeCSV = (value: string) => {
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    };
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `donations_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   if (isLoading && donations.length === 0) {
@@ -199,8 +246,19 @@ export const DonationsPage: React.FC = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Donations Management</h1>
-        <div className="text-sm text-gray-600">
-          Total: <span className="font-semibold">{totalDonations}</span>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600">
+            Total: <span className="font-semibold">{totalDonations}</span>
+          </div>
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -403,7 +461,7 @@ export const DonationsPage: React.FC = () => {
                   Amount
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Donor Type
+                  Payment
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -465,7 +523,14 @@ export const DonationsPage: React.FC = () => {
                       <div className="text-xs text-gray-500">{donation.donation_frequency}</div>
                     </td>
                     <td className="px-6 py-4">
-                      {getDonorTypeBadge(donation.donor_type)}
+                      <div className="text-sm text-gray-900">
+                        {donation.payment_method || 'N/A'}
+                      </div>
+                      {donation.payment_reference && (
+                        <div className="text-xs text-gray-500 font-mono truncate max-w-[120px]" title={donation.payment_reference}>
+                          {donation.payment_reference}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(donation.payment_status)}
@@ -543,6 +608,14 @@ export const DonationsPage: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Donor Type:</span>
                   <span className="text-sm font-medium">{editingDonation.donor_type}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Payment Method:</span>
+                  <span className="text-sm font-medium">{editingDonation.payment_method || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Reference:</span>
+                  <span className="text-sm font-medium font-mono">{editingDonation.payment_reference || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Created:</span>
