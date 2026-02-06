@@ -117,6 +117,17 @@ export default {
         'xs': '475px',
         '3xl': '1920px',
       },
+      fontSize: {
+        // Consistent typography scale across all GETFund projects
+        'xxs': ['0.625rem', { lineHeight: '1rem' }],        // 10px - tiny labels
+        'xs': ['0.75rem', { lineHeight: '1.125rem' }],      // 12px - captions, badges, table headers
+        'sm': ['0.875rem', { lineHeight: '1.375rem' }],     // 14px - form labels, secondary text
+        'base': ['1rem', { lineHeight: '1.625rem' }],       // 16px - body text
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],      // 18px - section titles
+        'xl': ['1.25rem', { lineHeight: '1.875rem' }],      // 20px - card titles
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],          // 24px - page titles
+        '3xl': ['1.875rem', { lineHeight: '2.375rem' }],    // 30px - large headings
+      },
       minHeight: {
         'touch': '44px',
       },

@@ -104,6 +104,8 @@ export const SectionEditorPage: React.FC = () => {
 
     try {
       if (isEditMode) {
+        console.log('[SectionEditorPage] Saving section with content:', JSON.stringify(formData.content, null, 2));
+        console.log('[SectionEditorPage] Donation options:', (formData.content as any)?.donationOptions);
         await pageService.updateSection(slug!, sectionKey!, {
           title: formData.title,
           content: formData.content,
