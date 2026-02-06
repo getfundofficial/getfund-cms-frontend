@@ -29,6 +29,7 @@ import { LotteryConfigPage } from './pages/LotteryConfigPage';
 import { LotteryEntriesPage } from './pages/LotteryEntriesPage';
 import { PledgesPage } from './pages/PledgesPage';
 import { ImpactDonationsPage } from './pages/ImpactDonationsPage';
+import { DonationsPage } from './pages/DonationsPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 
@@ -411,13 +412,25 @@ function App() {
             }
           />
 
-          {/* Impact Donations Route */}
+          {/* Impact Donations Route (Legacy - redirects to new unified page) */}
           <Route
             path="/admin/impact-donations"
             element={
               <ProtectedRoute requiredRoles={['admin']}>
                 <AdminLayout>
                   <ImpactDonationsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Unified Donations Route (with tabs for Impact and General) */}
+          <Route
+            path="/admin/donations"
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminLayout>
+                  <DonationsPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
