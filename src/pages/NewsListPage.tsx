@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const NewsListPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, hasActionPermission } = useAuth();
   const navigate = useNavigate();
   const [content, setContent] = useState<Content[]>([]);
   const [filteredContent, setFilteredContent] = useState<Content[]>([]);
@@ -119,7 +119,8 @@ export const NewsListPage: React.FC = () => {
   };
 
   const canToggleVisibility = (item: Content) => {
-    if (user?.role !== 'admin') return false;
+    // Only admins with publish permission can toggle visibility
+    if (user?.role !== 'admin' || !hasActionPermission('canPublish')) return false;
     return item.status === 'published' || item.status === 'approved';
   };
 
@@ -156,8 +157,18 @@ export const NewsListPage: React.FC = () => {
   };
 
   const canDelete = (item: Content) => {
+    // Check if user has delete permission
+    if (!hasActionPermission('canDelete')) {
+      // Creators can delete their own drafts even without explicit permission
+      if (user?.role === 'creator' && item.created_by === user?.id && item.status === 'draft') {
+        return true;
+      }
+      return false;
+    }
+
+    // Users with delete permission can delete based on ownership and status
     if (user?.role === 'admin') return true;
-    if (user?.role === 'creator' && item.created_by === user?.id) {
+    if (item.created_by === user?.id) {
       return item.status === 'draft';
     }
     return false;
@@ -169,12 +180,15 @@ export const NewsListPage: React.FC = () => {
   };
 
   const canPublish = (item: Content) => {
-    if (user?.role !== 'approver' && user?.role !== 'admin') return false;
+    // Check if user has publish permission
+    if (!hasActionPermission('canPublish')) return false;
+    // Can only publish content that's been approved
     return item.status === 'approved';
   };
 
   const canUnpublish = (item: Content) => {
-    if (user?.role !== 'admin') return false;
+    // Only admins with publish permission can unpublish
+    if (user?.role !== 'admin' || !hasActionPermission('canPublish')) return false;
     return item.status === 'published';
   };
 

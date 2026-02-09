@@ -1,18 +1,22 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types/auth.types';
+import { UserRole, UserPermissions } from '../../types/auth.types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRoles?: UserRole[];
+  requiredNavPermission?: keyof UserPermissions['navigation'];
+  requiredAdminPermission?: keyof UserPermissions['admin'];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredRoles,
+  requiredNavPermission,
+  requiredAdminPermission,
 }) => {
-  const { isAuthenticated, isLoading, hasRole } = useAuth();
+  const { isAuthenticated, isLoading, hasRole, hasNavPermission, hasAdminPermission } = useAuth();
 
   if (isLoading) {
     return (
@@ -30,6 +34,30 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requiredRoles && !hasRole(requiredRoles)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check navigation permission
+  if (requiredNavPermission && !hasNavPermission(requiredNavPermission)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check admin permission
+  if (requiredAdminPermission && !hasAdminPermission(requiredAdminPermission)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

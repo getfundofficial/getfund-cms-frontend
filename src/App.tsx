@@ -46,7 +46,7 @@ function App() {
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="dashboard">
                 <AdminLayout>
                   <DashboardPage />
                 </AdminLayout>
@@ -58,7 +58,7 @@ function App() {
           <Route
             path="/admin/news"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="news">
                 <AdminLayout>
                   <NewsListPage />
                 </AdminLayout>
@@ -69,7 +69,7 @@ function App() {
           <Route
             path="/admin/news/new"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="news">
                 <AdminLayout>
                   <NewsEditorPage />
                 </AdminLayout>
@@ -80,7 +80,7 @@ function App() {
           <Route
             path="/admin/news/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="news">
                 <AdminLayout>
                   <NewsViewPage />
                 </AdminLayout>
@@ -91,7 +91,7 @@ function App() {
           <Route
             path="/admin/news/:id/edit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="news">
                 <AdminLayout>
                   <NewsEditorPage />
                 </AdminLayout>
@@ -103,7 +103,7 @@ function App() {
           <Route
             path="/admin/hero-slides"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="heroSlides">
                 <AdminLayout>
                   <HeroSlidesListPage />
                 </AdminLayout>
@@ -114,7 +114,7 @@ function App() {
           <Route
             path="/admin/hero-slides/new"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="heroSlides">
                 <AdminLayout>
                   <HeroSlideEditorPage />
                 </AdminLayout>
@@ -125,7 +125,7 @@ function App() {
           <Route
             path="/admin/hero-slides/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="heroSlides">
                 <AdminLayout>
                   <HeroSlideViewPage />
                 </AdminLayout>
@@ -136,7 +136,7 @@ function App() {
           <Route
             path="/admin/hero-slides/:id/edit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="heroSlides">
                 <AdminLayout>
                   <HeroSlideEditorPage />
                 </AdminLayout>
@@ -148,7 +148,7 @@ function App() {
           <Route
             path="/admin/review"
             element={
-              <ProtectedRoute requiredRoles={['reviewer', 'admin']}>
+              <ProtectedRoute requiredRoles={['reviewer', 'admin']} requiredNavPermission="reviewQueue">
                 <AdminLayout>
                   <ReviewQueuePage />
                 </AdminLayout>
@@ -160,7 +160,7 @@ function App() {
           <Route
             path="/admin/approval"
             element={
-              <ProtectedRoute requiredRoles={['approver', 'admin']}>
+              <ProtectedRoute requiredRoles={['approver', 'admin']} requiredNavPermission="approvalQueue">
                 <AdminLayout>
                   <ApprovalQueuePage />
                 </AdminLayout>
@@ -172,7 +172,7 @@ function App() {
           <Route
             path="/admin/audit-logs"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="auditLogs">
                 <AdminLayout>
                   <AuditLogsPage />
                 </AdminLayout>
@@ -184,7 +184,7 @@ function App() {
           <Route
             path="/admin/media"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="mediaLibrary">
                 <AdminLayout>
                   <MediaLibraryPage />
                 </AdminLayout>
@@ -196,7 +196,7 @@ function App() {
           <Route
             path="/admin/users"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="users">
                 <AdminLayout>
                   <UsersListPage />
                 </AdminLayout>
@@ -208,7 +208,7 @@ function App() {
           <Route
             path="/admin/menu"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="menuConfig">
                 <AdminLayout>
                   <MenuManagementPage />
                 </AdminLayout>
@@ -220,7 +220,7 @@ function App() {
           <Route
             path="/admin/team-members"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="teamMembers">
                 <AdminLayout>
                   <TeamMembersListPage />
                 </AdminLayout>
@@ -232,7 +232,7 @@ function App() {
           <Route
             path="/admin/partners"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="partners">
                 <AdminLayout>
                   <PartnersListPage />
                 </AdminLayout>
@@ -244,7 +244,7 @@ function App() {
           <Route
             path="/admin/impact-stats"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="impactStats">
                 <AdminLayout>
                   <ImpactStatsManager />
                 </AdminLayout>
@@ -256,7 +256,7 @@ function App() {
           <Route
             path="/admin/footer-settings"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="footerSettings">
                 <AdminLayout>
                   <FooterConfigEditor />
                 </AdminLayout>
@@ -268,7 +268,7 @@ function App() {
           <Route
             path="/admin/pages"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="pages">
                 <AdminLayout>
                   <PagesListPage />
                 </AdminLayout>
@@ -301,7 +301,7 @@ function App() {
           <Route
             path="/admin/pages/:slug"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="pages">
                 <AdminLayout>
                   <PageEditorPage />
                 </AdminLayout>
@@ -312,7 +312,7 @@ function App() {
           <Route
             path="/admin/pages/:slug/sections/new"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="pages">
                 <AdminLayout>
                   <SectionEditorPage />
                 </AdminLayout>
@@ -323,7 +323,7 @@ function App() {
           <Route
             path="/admin/pages/:slug/sections/:sectionKey"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="pages">
                 <AdminLayout>
                   <SectionEditorPage />
                 </AdminLayout>
@@ -335,7 +335,7 @@ function App() {
           <Route
             path="/admin/campaigns"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="campaigns">
                 <AdminLayout>
                   <CampaignsListPage />
                 </AdminLayout>
@@ -346,7 +346,7 @@ function App() {
           <Route
             path="/admin/campaigns/new"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredNavPermission="campaigns">
                 <AdminLayout>
                   <CampaignEditorPage />
                 </AdminLayout>
@@ -357,7 +357,7 @@ function App() {
           <Route
             path="/admin/campaigns/:slug"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredNavPermission="campaigns">
                 <AdminLayout>
                   <CampaignEditorPage />
                 </AdminLayout>
@@ -368,7 +368,7 @@ function App() {
           <Route
             path="/admin/campaigns/:slug/edit"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredNavPermission="campaigns">
                 <AdminLayout>
                   <CampaignEditorPage />
                 </AdminLayout>
@@ -380,7 +380,7 @@ function App() {
           <Route
             path="/admin/lottery/config"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="lotteryConfig">
                 <AdminLayout>
                   <LotteryConfigPage />
                 </AdminLayout>
@@ -391,7 +391,7 @@ function App() {
           <Route
             path="/admin/lottery/entries"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="lotteryEntries">
                 <AdminLayout>
                   <LotteryEntriesPage />
                 </AdminLayout>
@@ -404,7 +404,7 @@ function App() {
           <Route
             path="/admin/pledges"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="pledges">
                 <AdminLayout>
                   <PledgesPage />
                 </AdminLayout>
@@ -416,7 +416,7 @@ function App() {
           <Route
             path="/admin/impact-donations"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="donations">
                 <AdminLayout>
                   <ImpactDonationsPage />
                 </AdminLayout>
@@ -428,7 +428,7 @@ function App() {
           <Route
             path="/admin/donations"
             element={
-              <ProtectedRoute requiredRoles={['admin']}>
+              <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="donations">
                 <AdminLayout>
                   <DonationsPage />
                 </AdminLayout>

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const HeroSlidesListPage: React.FC = () => {
-  const { user, hasNavPermission } = useAuth();
+  const { user, hasNavPermission, hasActionPermission } = useAuth();
   const navigate = useNavigate();
   const [content, setContent] = useState<Content[]>([]);
   const [filteredContent, setFilteredContent] = useState<Content[]>([]);
@@ -81,13 +81,25 @@ export const HeroSlidesListPage: React.FC = () => {
   };
 
   const canEdit = (item: Content) => {
+    // Admins can edit anything
     if (user?.role === 'admin') return true;
+    // Creators can edit their own content
     return user?.role === 'creator' && item.created_by === user?.id;
   };
 
   const canDelete = (item: Content) => {
+    // Check if user has delete permission
+    if (!hasActionPermission('canDelete')) {
+      // Creators can delete their own content even without explicit permission
+      if (user?.role === 'creator' && item.created_by === user?.id) {
+        return true;
+      }
+      return false;
+    }
+
+    // Users with delete permission can delete based on ownership
     if (user?.role === 'admin') return true;
-    return user?.role === 'creator' && item.created_by === user?.id;
+    return item.created_by === user?.id;
   };
 
   if (isLoading) {
