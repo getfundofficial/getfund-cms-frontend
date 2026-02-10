@@ -43,9 +43,18 @@ interface Service {
 }
 
 interface ImpactStat {
-  number: string;
+  number: number;
+  suffix?: string;
   label: string;
   description?: string;
+}
+
+interface Testimonial {
+  quote: string;
+  authorName: string;
+  authorRole: string;
+  location?: string;
+  authorImage?: string;
 }
 
 interface AchievementCircle {
@@ -89,6 +98,15 @@ interface HomePageContent {
   achievementsSubtitle?: string;
   achievementCircles?: AchievementCircle[];
   achievementCategories?: AchievementCategory[];
+  // Stats Section (Empowering Ghana)
+  statsTitle?: string;
+  statsDescription?: string;
+  statsBackgroundImage?: string;
+  impactStats?: ImpactStat[];
+  // Testimonials Section
+  testimonialsTitle?: string;
+  testimonialsSubtitle?: string;
+  testimonials?: Testimonial[];
 }
 
 interface HomePageEditorProps {
@@ -97,7 +115,7 @@ interface HomePageEditorProps {
 }
 
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
-  const [activeTab, setActiveTab] = useState<'hero' | 'achievements' | 'who-we-are' | 'about-getfund' | 'news'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'achievements' | 'stats' | 'testimonials' | 'news'>('hero');
   const [expandedSlides, setExpandedSlides] = useState<Set<number>>(new Set());
   const [expandedSections, setExpandedSections] = useState<Record<number, Set<string>>>({});
 
@@ -198,38 +216,6 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
     updateContent({ heroSlides: slides });
   };
 
-  // About GETFund Content Methods
-  const addAboutParagraph = () => {
-    updateContent({ aboutGETFundContent: [...(content.aboutGETFundContent || []), ''] });
-  };
-
-  const updateAboutParagraph = (index: number, text: string) => {
-    const paragraphs = [...(content.aboutGETFundContent || [])];
-    paragraphs[index] = text;
-    updateContent({ aboutGETFundContent: paragraphs });
-  };
-
-  const removeAboutParagraph = (index: number) => {
-    const paragraphs = content.aboutGETFundContent?.filter((_, i) => i !== index) || [];
-    updateContent({ aboutGETFundContent: paragraphs });
-  };
-
-  // Relevant Factors Methods
-  const addRelevantFactor = () => {
-    updateContent({ relevantFactors: [...(content.relevantFactors || []), ''] });
-  };
-
-  const updateRelevantFactor = (index: number, text: string) => {
-    const factors = [...(content.relevantFactors || [])];
-    factors[index] = text;
-    updateContent({ relevantFactors: factors });
-  };
-
-  const removeRelevantFactor = (index: number) => {
-    const factors = content.relevantFactors?.filter((_, i) => i !== index) || [];
-    updateContent({ relevantFactors: factors });
-  };
-
   return (
     <div className="space-y-6">
       {/* Tabs */}
@@ -238,8 +224,8 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
           {[
             { key: 'hero', label: 'Hero Slides' },
             { key: 'achievements', label: 'Achievements' },
-            { key: 'who-we-are', label: 'Who We Are' },
-            { key: 'about-getfund', label: 'About GETFund' },
+            { key: 'stats', label: 'Stats Section' },
+            { key: 'testimonials', label: 'Testimonials' },
             { key: 'news', label: 'News & Updates' },
           ].map((tab) => (
             <button
@@ -971,192 +957,270 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
         </div>
       )}
 
-      {/* Who We Are Tab */}
-      {activeTab === 'who-we-are' && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Who We Are Section</h3>
-
-          <Input
-            label="Section Heading"
-            value={content.aboutHeading || ''}
-            onChange={(e) => updateContent({ aboutHeading: e.target.value })}
-            placeholder="Who We Are"
-          />
-
+      {/* Stats Section Tab */}
+      {activeTab === 'stats' && (
+        <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Section Subtitle
-            </label>
-            <textarea
-              value={content.aboutSubheading || ''}
-              onChange={(e) => updateContent({ aboutSubheading: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows={2}
-              placeholder="The Ghana Education Trust Fund is a statutory body..."
+            <h3 className="text-lg font-semibold">Stats Section</h3>
+            <p className="text-sm text-gray-500">Edit the "Empowering Ghana Through Education" section with stats counters</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Section Title"
+              value={content.statsTitle || ''}
+              onChange={(e) => updateContent({ statsTitle: e.target.value })}
+              placeholder="Empowering Ghana Through Education"
+            />
+            <ImageInput
+              label="Background Image"
+              value={content.statsBackgroundImage || ''}
+              onChange={(value) => updateContent({ statsBackgroundImage: value })}
+              placeholder="/images/hero/main-slider-1.jpg"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            {/* Mission */}
-            <div className="border border-gray-300 rounded-lg p-4 space-y-3">
-              <h4 className="font-semibold">Mission</h4>
-              <Input
-                label="Title"
-                value={content.mission?.title || ''}
-                onChange={(e) => updateContent({
-                  mission: { ...content.mission, title: e.target.value, description: content.mission?.description || '' }
-                })}
-                placeholder="Our Mission"
-              />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Section Description</label>
+            <textarea
+              value={content.statsDescription || ''}
+              onChange={(e) => updateContent({ statsDescription: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows={3}
+              placeholder="The Ghana Education Trust Fund (GETFund) is a statutory body..."
+            />
+          </div>
+
+          {/* Stats */}
+          <div className="border border-gray-300 rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-center">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={content.mission?.description || ''}
-                  onChange={(e) => updateContent({
-                    mission: { title: content.mission?.title || '', description: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  rows={3}
-                />
+                <h4 className="font-semibold">Impact Stats</h4>
+                <p className="text-sm text-gray-500">Add up to 4 stat counters</p>
               </div>
+              <Button
+                onClick={() => {
+                  const stats = content.impactStats || [];
+                  if (stats.length < 4) {
+                    updateContent({
+                      impactStats: [...stats, { number: 0, suffix: '+', label: '', description: '' }]
+                    });
+                  }
+                }}
+                variant="secondary"
+                size="sm"
+                disabled={(content.impactStats?.length || 0) >= 4}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Stat
+              </Button>
             </div>
 
-            {/* Vision */}
-            <div className="border border-gray-300 rounded-lg p-4 space-y-3">
-              <h4 className="font-semibold">Vision</h4>
-              <Input
-                label="Title"
-                value={content.vision?.title || ''}
-                onChange={(e) => updateContent({
-                  vision: { ...content.vision, title: e.target.value, description: content.vision?.description || '' }
-                })}
-                placeholder="Our Vision"
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={content.vision?.description || ''}
-                  onChange={(e) => updateContent({
-                    vision: { title: content.vision?.title || '', description: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  rows={3}
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {(content.impactStats || []).map((stat, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-500">Stat {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const stats = content.impactStats?.filter((_, i) => i !== index) || [];
+                        updateContent({ impactStats: stats });
+                      }}
+                      className="p-1 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      label="Number"
+                      type="number"
+                      value={stat.number?.toString() || '0'}
+                      onChange={(e) => {
+                        const stats = [...(content.impactStats || [])];
+                        stats[index] = { ...stat, number: parseInt(e.target.value) || 0 };
+                        updateContent({ impactStats: stats });
+                      }}
+                      placeholder="5000"
+                    />
+                    <Input
+                      label="Suffix"
+                      value={stat.suffix || ''}
+                      onChange={(e) => {
+                        const stats = [...(content.impactStats || [])];
+                        stats[index] = { ...stat, suffix: e.target.value };
+                        updateContent({ impactStats: stats });
+                      }}
+                      placeholder="+"
+                    />
+                  </div>
+                  <Input
+                    label="Label"
+                    value={stat.label}
+                    onChange={(e) => {
+                      const stats = [...(content.impactStats || [])];
+                      stats[index] = { ...stat, label: e.target.value };
+                      updateContent({ impactStats: stats });
+                    }}
+                    placeholder="Scholarships Awarded"
+                  />
+                  <Input
+                    label="Description"
+                    value={stat.description || ''}
+                    onChange={(e) => {
+                      const stats = [...(content.impactStats || [])];
+                      stats[index] = { ...stat, description: e.target.value };
+                      updateContent({ impactStats: stats });
+                    }}
+                    placeholder="Supporting talented students"
+                  />
+                </div>
+              ))}
             </div>
 
-            {/* Core Values */}
-            <div className="border border-gray-300 rounded-lg p-4 space-y-3">
-              <h4 className="font-semibold">Core Values</h4>
-              <Input
-                label="Title"
-                value={content.coreValues?.title || ''}
-                onChange={(e) => updateContent({
-                  coreValues: { ...content.coreValues, title: e.target.value, description: content.coreValues?.description || '' }
-                })}
-                placeholder="Core Values"
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={content.coreValues?.description || ''}
-                  onChange={(e) => updateContent({
-                    coreValues: { title: content.coreValues?.title || '', description: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  rows={3}
-                />
+            {(!content.impactStats || content.impactStats.length === 0) && (
+              <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-300 rounded-lg">
+                No stats added yet. Click "Add Stat" to add counter stats.
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* About GETFund Tab */}
-      {activeTab === 'about-getfund' && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">About GETFund Section</h3>
-
-          <Input
-            label="Section Heading"
-            value={content.aboutGETFundHeading || ''}
-            onChange={(e) => updateContent({ aboutGETFundHeading: e.target.value })}
-            placeholder="About GETFund"
-          />
-
-          {/* Content Paragraphs */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-gray-700">Content Paragraphs</label>
-              <Button onClick={addAboutParagraph} variant="secondary" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Paragraph
-              </Button>
-            </div>
-
-            {content.aboutGETFundContent?.map((paragraph, index) => (
-              <div key={index} className="border border-gray-300 rounded-lg p-4 space-y-3 bg-gray-50">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-semibold">Paragraph {index + 1}</h4>
-                  <button
-                    type="button"
-                    onClick={() => removeAboutParagraph(index)}
-                    className="p-1 text-red-600 hover:text-red-900"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <textarea
-                  value={paragraph}
-                  onChange={(e) => updateAboutParagraph(index, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  rows={4}
-                  placeholder="Since its establishment in the year 2000..."
-                />
-              </div>
-            ))}
-
-            {(!content.aboutGETFundContent || content.aboutGETFundContent.length === 0) && (
-              <div className="text-center py-4 text-gray-500 text-sm">
-                No paragraphs added yet. Click "Add Paragraph" to add content.
-              </div>
-            )}
+      {/* Testimonials Tab */}
+      {activeTab === 'testimonials' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold">Testimonials Section</h3>
+            <p className="text-sm text-gray-500">Edit the "What Our Beneficiaries Say" section</p>
           </div>
 
-          {/* Relevant Factors */}
-          <div className="space-y-3 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Section Title"
+              value={content.testimonialsTitle || ''}
+              onChange={(e) => updateContent({ testimonialsTitle: e.target.value })}
+              placeholder="What Our Beneficiaries Say"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section Subtitle</label>
+              <textarea
+                value={content.testimonialsSubtitle || ''}
+                onChange={(e) => updateContent({ testimonialsSubtitle: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                rows={2}
+                placeholder="Hear from students and communities..."
+              />
+            </div>
+          </div>
+
+          {/* Testimonials List */}
+          <div className="border border-gray-300 rounded-lg p-4 space-y-4">
             <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-gray-700">Relevant Factors</label>
-              <Button onClick={addRelevantFactor} variant="secondary" size="sm">
+              <div>
+                <h4 className="font-semibold">Testimonials</h4>
+                <p className="text-sm text-gray-500">Add testimonials from beneficiaries</p>
+              </div>
+              <Button
+                onClick={() => {
+                  const testimonials = content.testimonials || [];
+                  updateContent({
+                    testimonials: [...testimonials, { quote: '', authorName: '', authorRole: '', location: '', authorImage: '' }]
+                  });
+                }}
+                variant="secondary"
+                size="sm"
+              >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Factor
+                Add Testimonial
               </Button>
             </div>
 
-            {content.relevantFactors?.map((factor, index) => (
-              <div key={index} className="border border-gray-300 rounded-lg p-3 bg-gray-50 flex items-start gap-2">
-                <span className="text-gray-500 mt-2">•</span>
-                <textarea
-                  value={factor}
-                  onChange={(e) => updateRelevantFactor(index, e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
-                  rows={2}
-                  placeholder="Promotion of the study of Mathematics, Science and Technology"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeRelevantFactor(index)}
-                  className="p-1 text-red-600 hover:text-red-900"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+            <div className="space-y-4">
+              {(content.testimonials || []).map((testimonial, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">Testimonial {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const testimonials = content.testimonials?.filter((_, i) => i !== index) || [];
+                        updateContent({ testimonials });
+                      }}
+                      className="p-1 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
 
-            {(!content.relevantFactors || content.relevantFactors.length === 0) && (
-              <div className="text-center py-4 text-gray-500 text-sm">
-                No factors added yet. Click "Add Factor" to add a bullet point.
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quote</label>
+                    <textarea
+                      value={testimonial.quote}
+                      onChange={(e) => {
+                        const testimonials = [...(content.testimonials || [])];
+                        testimonials[index] = { ...testimonial, quote: e.target.value };
+                        updateContent({ testimonials });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      rows={3}
+                      placeholder="GETFund scholarship changed my life..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Input
+                      label="Author Name"
+                      value={testimonial.authorName}
+                      onChange={(e) => {
+                        const testimonials = [...(content.testimonials || [])];
+                        testimonials[index] = { ...testimonial, authorName: e.target.value };
+                        updateContent({ testimonials });
+                      }}
+                      placeholder="Dr. Ama Mensah"
+                    />
+                    <Input
+                      label="Author Role"
+                      value={testimonial.authorRole}
+                      onChange={(e) => {
+                        const testimonials = [...(content.testimonials || [])];
+                        testimonials[index] = { ...testimonial, authorRole: e.target.value };
+                        updateContent({ testimonials });
+                      }}
+                      placeholder="GETFund Scholarship Beneficiary"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Input
+                      label="Location"
+                      value={testimonial.location || ''}
+                      onChange={(e) => {
+                        const testimonials = [...(content.testimonials || [])];
+                        testimonials[index] = { ...testimonial, location: e.target.value };
+                        updateContent({ testimonials });
+                      }}
+                      placeholder="Kumasi, Ghana"
+                    />
+                    <ImageInput
+                      label="Author Image"
+                      value={testimonial.authorImage || ''}
+                      onChange={(value) => {
+                        const testimonials = [...(content.testimonials || [])];
+                        testimonials[index] = { ...testimonial, authorImage: value };
+                        updateContent({ testimonials });
+                      }}
+                      placeholder="/images/testimonials/author.jpg"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {(!content.testimonials || content.testimonials.length === 0) && (
+              <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-300 rounded-lg">
+                No testimonials added yet. Click "Add Testimonial" to add beneficiary quotes.
               </div>
             )}
           </div>

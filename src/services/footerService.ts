@@ -21,6 +21,7 @@ export interface FooterConfig {
   quick_links: Array<{
     name: string;
     href: string;
+    visible?: boolean;
   }>;
   is_active: boolean;
   updated_at: string;
@@ -46,6 +47,7 @@ export interface UpdateFooterConfigInput {
   quick_links?: Array<{
     name: string;
     href: string;
+    visible?: boolean;
   }>;
 }
 
