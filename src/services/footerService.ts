@@ -18,10 +18,11 @@ export interface FooterConfig {
     youtube?: string;
     whatsapp?: string;
   };
+  // Quick links with visibility toggle support
   quick_links: Array<{
     name: string;
     href: string;
-    visible?: boolean;
+    visible?: boolean; // Controls whether link appears in footer
   }>;
   is_active: boolean;
   updated_at: string;
