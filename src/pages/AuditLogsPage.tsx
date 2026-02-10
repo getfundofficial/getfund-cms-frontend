@@ -40,13 +40,14 @@ export const AuditLogsPage: React.FC = () => {
     entity_type: '',
     user_id: '',
   });
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // Default: latest to oldest
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
   const logsPerPage = 50;
 
   useEffect(() => {
     loadAuditLogs();
-  }, [filter, currentPage]);
+  }, [filter, currentPage, sortOrder]);
 
   const loadAuditLogs = async () => {
     try {
@@ -57,6 +58,7 @@ export const AuditLogsPage: React.FC = () => {
       const params: any = {
         limit: logsPerPage,
         offset,
+        sort: sortOrder,
       };
 
       if (filter.action) params.action = filter.action;
@@ -120,17 +122,36 @@ export const AuditLogsPage: React.FC = () => {
 
   const getActionBadge = (action: string) => {
     const styles: Record<string, string> = {
-      create: 'bg-green-100 text-green-800',
-      update: 'bg-blue-100 text-blue-800',
-      delete: 'bg-red-100 text-red-800',
-      publish: 'bg-purple-100 text-purple-800',
       approve: 'bg-yellow-100 text-yellow-800',
+      config_update: 'bg-indigo-100 text-indigo-800',
+      create: 'bg-green-100 text-green-800',
+      delete: 'bg-red-100 text-red-800',
+      failed_login: 'bg-red-100 text-red-800',
       login: 'bg-gray-100 text-gray-800',
+      logout: 'bg-gray-100 text-gray-800',
+      password_change: 'bg-orange-100 text-orange-800',
+      permission_change: 'bg-pink-100 text-pink-800',
+      publish: 'bg-purple-100 text-purple-800',
+      reorder: 'bg-cyan-100 text-cyan-800',
+      role_change: 'bg-pink-100 text-pink-800',
+      status_change: 'bg-amber-100 text-amber-800',
+      unpublish: 'bg-slate-100 text-slate-800',
+      update: 'bg-blue-100 text-blue-800',
+      upload: 'bg-teal-100 text-teal-800',
+    };
+
+    const labels: Record<string, string> = {
+      config_update: 'CONFIG UPDATE',
+      failed_login: 'FAILED LOGIN',
+      password_change: 'PASSWORD CHANGE',
+      permission_change: 'PERMISSION CHANGE',
+      role_change: 'ROLE CHANGE',
+      status_change: 'STATUS CHANGE',
     };
 
     return (
       <span className={`px-2 py-1 text-xs font-semibold rounded ${styles[action] || 'bg-gray-100 text-gray-800'}`}>
-        {action.toUpperCase()}
+        {labels[action] || action.toUpperCase()}
       </span>
     );
   };
@@ -200,12 +221,22 @@ export const AuditLogsPage: React.FC = () => {
               className="w-full border border-gray-300 rounded-md px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-touch"
             >
               <option value="">All Actions</option>
-              <option value="create">Create</option>
-              <option value="update">Update</option>
-              <option value="delete">Delete</option>
-              <option value="publish">Publish</option>
               <option value="approve">Approve</option>
+              <option value="config_update">Config Update</option>
+              <option value="create">Create</option>
+              <option value="delete">Delete</option>
+              <option value="failed_login">Failed Login</option>
               <option value="login">Login</option>
+              <option value="logout">Logout</option>
+              <option value="password_change">Password Change</option>
+              <option value="permission_change">Permission Change</option>
+              <option value="publish">Publish</option>
+              <option value="reorder">Reorder</option>
+              <option value="role_change">Role Change</option>
+              <option value="status_change">Status Change</option>
+              <option value="unpublish">Unpublish</option>
+              <option value="update">Update</option>
+              <option value="upload">Upload</option>
             </select>
           </div>
 
@@ -220,9 +251,20 @@ export const AuditLogsPage: React.FC = () => {
               className="w-full border border-gray-300 rounded-md px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-touch"
             >
               <option value="">All Types</option>
+              <option value="auth">Authentication</option>
+              <option value="campaign">Campaign</option>
               <option value="content">Content</option>
-              <option value="user">User</option>
+              <option value="donation">Donation</option>
+              <option value="impact_stat">Impact Stat</option>
+              <option value="lottery_config">Lottery Config</option>
+              <option value="lottery_entry">Lottery Entry</option>
+              <option value="media">Media</option>
               <option value="page">Page</option>
+              <option value="page_section">Page Section</option>
+              <option value="partner">Partner</option>
+              <option value="pledge">Pledge</option>
+              <option value="team_member">Team Member</option>
+              <option value="user">User</option>
             </select>
           </div>
 
@@ -254,7 +296,21 @@ export const AuditLogsPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date & Time
+                      <button
+                        onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                        className="flex items-center gap-1 hover:text-gray-700 transition-colors"
+                      >
+                        Date & Time
+                        {sortOrder === 'desc' ? (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        )}
+                      </button>
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       User

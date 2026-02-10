@@ -90,7 +90,6 @@ interface HomePageContent {
   relevantFactors?: string[];
   servicesTitle?: string;
   services?: Service[];
-  impactStats?: ImpactStat[];
   newsTitle?: string;
   newsSubtitle?: string;
   // Achievements Section
