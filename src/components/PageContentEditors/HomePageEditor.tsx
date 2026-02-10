@@ -97,12 +97,12 @@ interface HomePageContent {
   achievementsSubtitle?: string;
   achievementCircles?: AchievementCircle[];
   achievementCategories?: AchievementCategory[];
-  // Stats Section (Empowering Ghana)
+  // Stats Section (Empowering Ghana) - Parallax background with animated counters
   statsTitle?: string;
   statsDescription?: string;
   statsBackgroundImage?: string;
   impactStats?: ImpactStat[];
-  // Testimonials Section
+  // Testimonials Section - Beneficiary quotes with author details
   testimonialsTitle?: string;
   testimonialsSubtitle?: string;
   testimonials?: Testimonial[];

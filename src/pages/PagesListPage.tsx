@@ -281,6 +281,7 @@ export const PagesListPage: React.FC = () => {
     setHasFooterChanges(true);
   };
 
+  // Toggle visibility of footer link (show/hide in website footer)
   const toggleFooterLinkVisibility = (index: number) => {
     const newLinks = [...footerLinks];
     newLinks[index] = { ...newLinks[index], visible: newLinks[index].visible === false ? true : false };
