@@ -23,7 +23,11 @@ import {
   XCircle,
   Layers,
   Link2,
-  Save
+  Save,
+  ChevronDown,
+  ChevronRight,
+  FolderTree,
+  CornerDownRight
 } from 'lucide-react';
 
 interface QuickLink {
@@ -54,6 +58,11 @@ export const PagesListPage: React.FC = () => {
   const [editingFooterLink, setEditingFooterLink] = useState<number | null>(null);
   const [showAddFooterLink, setShowAddFooterLink] = useState(false);
   const [newFooterLink, setNewFooterLink] = useState<QuickLink>({ name: '', href: '', visible: true });
+
+  // Submenu hierarchy state
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
+  const [showParentSelector, setShowParentSelector] = useState<string | null>(null);
+  const [draggedChildIndex, setDraggedChildIndex] = useState<{ parentId: string; index: number } | null>(null);
 
   useEffect(() => {
     loadPages();
@@ -230,6 +239,77 @@ export const PagesListPage: React.FC = () => {
     } catch (error: any) {
       console.error('Failed to update menu label:', error);
     }
+  };
+
+  // Submenu hierarchy handlers
+  const toggleParentExpanded = (parentId: string) => {
+    setExpandedParents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(parentId)) {
+        newSet.delete(parentId);
+      } else {
+        newSet.add(parentId);
+      }
+      return newSet;
+    });
+  };
+
+  const setParentPage = async (slug: string, parentPageId: string | null) => {
+    try {
+      await pageService.updateMenuConfig(slug, { parent_page_id: parentPageId });
+      setShowParentSelector(null);
+      await loadPages();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to set parent page');
+    }
+  };
+
+  // Get parent menu items (pages that can have children)
+  const getParentMenuItems = () => {
+    return pages.filter(p => p.show_in_menu && !p.is_cta_button && !p.parent_page_id);
+  };
+
+  // Get child pages for a parent
+  const getChildPages = (parentId: string) => {
+    return pages
+      .filter(p => p.parent_page_id === parentId && p.show_in_menu)
+      .sort((a, b) => (a.menu_order || 0) - (b.menu_order || 0));
+  };
+
+  // Handle child item drag
+  const handleChildDragStart = (parentId: string, index: number) => {
+    setDraggedChildIndex({ parentId, index });
+  };
+
+  const handleChildDrop = async (e: React.DragEvent, parentId: string, targetIndex: number) => {
+    e.preventDefault();
+    if (!draggedChildIndex || draggedChildIndex.parentId !== parentId || draggedChildIndex.index === targetIndex) {
+      setDraggedChildIndex(null);
+      return;
+    }
+
+    const children = getChildPages(parentId);
+    const newChildren = [...children];
+    const draggedPage = newChildren[draggedChildIndex.index];
+
+    newChildren.splice(draggedChildIndex.index, 1);
+    newChildren.splice(targetIndex, 0, draggedPage);
+
+    // Update menu_order for all children
+    try {
+      for (let i = 0; i < newChildren.length; i++) {
+        await pageService.updateMenuConfig(newChildren[i].slug, { menu_order: i + 1 });
+      }
+      await loadPages();
+    } catch (error: any) {
+      alert('Failed to reorder submenu items');
+    }
+
+    setDraggedChildIndex(null);
+  };
+
+  const handleChildDragEnd = () => {
+    setDraggedChildIndex(null);
   };
 
   const handlePublish = async (slug: string) => {
@@ -544,7 +624,7 @@ export const PagesListPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Menu Items List */}
+              {/* Hierarchical Menu Items List with Submenu Support */}
               <div className="divide-y divide-gray-100">
                 {menuItems.length === 0 ? (
                   <div className="py-12 text-center">
@@ -553,92 +633,316 @@ export const PagesListPage: React.FC = () => {
                     <p className="text-sm text-gray-400 mt-1">Add pages to the menu from the "All Pages" tab</p>
                   </div>
                 ) : (
-                  menuItems.map((page, index) => (
-                    <div
-                      key={page.id}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, index)}
-                      onDragEnd={handleDragEnd}
-                      className={`group px-4 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-move ${
-                        draggedIndex === index ? 'opacity-50 bg-blue-50' : ''
-                      }`}
-                    >
-                      {/* Drag Handle */}
-                      <div className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors">
-                        <GripVertical className="w-4 h-4 text-gray-400" />
-                      </div>
-
-                      {/* Order Number */}
-                      <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-sm font-semibold text-gray-600">{index + 1}</span>
-                      </div>
-
-                      {/* Page Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={page.menu_label || page.title}
-                            onChange={(e) => {
-                              const newPages = [...pages];
-                              const pageIndex = newPages.findIndex(p => p.id === page.id);
-                              newPages[pageIndex].menu_label = e.target.value;
-                              setPages(newPages);
-                            }}
-                            onBlur={(e) => updateMenuLabel(page.slug, e.target.value)}
-                            className="font-medium text-gray-900 bg-transparent border-0 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-0 px-0 py-0.5 transition-colors"
-                          />
-                          {page.is_active ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              Live
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                              Draft
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-500 truncate">/{page.slug}</p>
-                      </div>
-
-                      {/* Sections Count */}
-                      <div className="hidden md:flex items-center gap-1 text-sm text-gray-500">
-                        <FileText className="w-4 h-4" />
-                        <span>{page.section_count || 0}</span>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => navigate(`/admin/pages/${page.slug}`)}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit page"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => toggleShowInMenu(page.slug, true)}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Remove from menu"
-                        >
-                          <EyeOff className="w-4 h-4" />
-                        </button>
-                        {user?.role === 'admin' && (
-                          <button
-                            onClick={() => handleDelete(page.slug)}
-                            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete page"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                  <>
+                    {/* Info banner about submenu support */}
+                    <div className="px-4 py-2 bg-blue-50 border-b border-blue-100">
+                      <div className="flex items-center gap-2 text-sm text-blue-700">
+                        <FolderTree className="w-4 h-4" />
+                        <span>Drag to reorder. Click the folder icon to manage submenus.</span>
                       </div>
                     </div>
-                  ))
+
+                    {/* Parent menu items (top-level) */}
+                    {getParentMenuItems().map((page, index) => {
+                      const children = getChildPages(page.id);
+                      const hasChildren = children.length > 0;
+                      const isExpanded = expandedParents.has(page.id);
+
+                      return (
+                        <div key={page.id}>
+                          {/* Parent item */}
+                          <div
+                            draggable
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, index)}
+                            onDragEnd={handleDragEnd}
+                            className={`group px-4 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-move ${
+                              draggedIndex === index ? 'opacity-50 bg-blue-50' : ''
+                            }`}
+                          >
+                            {/* Drag Handle */}
+                            <div className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors">
+                              <GripVertical className="w-4 h-4 text-gray-400" />
+                            </div>
+
+                            {/* Expand/Collapse for items with children */}
+                            <button
+                              onClick={() => hasChildren && toggleParentExpanded(page.id)}
+                              className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded transition-colors ${
+                                hasChildren ? 'hover:bg-gray-200 cursor-pointer' : 'cursor-default'
+                              }`}
+                            >
+                              {hasChildren ? (
+                                isExpanded ? (
+                                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                                )
+                              ) : (
+                                <span className="w-4 h-4" />
+                              )}
+                            </button>
+
+                            {/* Order Number */}
+                            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <span className="text-sm font-semibold text-gray-600">{index + 1}</span>
+                            </div>
+
+                            {/* Page Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={page.menu_label || page.title}
+                                  onChange={(e) => {
+                                    const newPages = [...pages];
+                                    const pageIndex = newPages.findIndex(p => p.id === page.id);
+                                    newPages[pageIndex].menu_label = e.target.value;
+                                    setPages(newPages);
+                                  }}
+                                  onBlur={(e) => updateMenuLabel(page.slug, e.target.value)}
+                                  className="font-medium text-gray-900 bg-transparent border-0 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-0 px-0 py-0.5 transition-colors"
+                                />
+                                {hasChildren && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                    {children.length} submenu{children.length > 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {page.is_active ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Live
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                    Draft
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-500 truncate">/{page.slug}</p>
+                            </div>
+
+                            {/* Sections Count */}
+                            <div className="hidden md:flex items-center gap-1 text-sm text-gray-500">
+                              <FileText className="w-4 h-4" />
+                              <span>{page.section_count || 0}</span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => navigate(`/admin/pages/${page.slug}`)}
+                                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Edit page"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => toggleShowInMenu(page.slug, true)}
+                                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Remove from menu"
+                              >
+                                <EyeOff className="w-4 h-4" />
+                              </button>
+                              {user?.role === 'admin' && (
+                                <button
+                                  onClick={() => handleDelete(page.slug)}
+                                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Delete page"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Child items (submenu) - shown when expanded */}
+                          {hasChildren && isExpanded && (
+                            <div className="bg-gray-50 border-l-4 border-purple-200">
+                              {children.map((child, childIndex) => (
+                                <div
+                                  key={child.id}
+                                  draggable
+                                  onDragStart={() => handleChildDragStart(page.id, childIndex)}
+                                  onDragOver={handleDragOver}
+                                  onDrop={(e) => handleChildDrop(e, page.id, childIndex)}
+                                  onDragEnd={handleChildDragEnd}
+                                  className={`group pl-12 pr-4 py-2 flex items-center gap-4 hover:bg-gray-100 transition-colors cursor-move ${
+                                    draggedChildIndex?.parentId === page.id && draggedChildIndex?.index === childIndex
+                                      ? 'opacity-50 bg-purple-50'
+                                      : ''
+                                  }`}
+                                >
+                                  {/* Drag Handle */}
+                                  <div className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors">
+                                    <GripVertical className="w-4 h-4 text-gray-400" />
+                                  </div>
+
+                                  {/* Submenu indicator */}
+                                  <CornerDownRight className="w-4 h-4 text-purple-400 flex-shrink-0" />
+
+                                  {/* Order Number */}
+                                  <div className="flex-shrink-0 w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                                    <span className="text-xs font-semibold text-purple-600">{childIndex + 1}</span>
+                                  </div>
+
+                                  {/* Child Page Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="text"
+                                        value={child.menu_label || child.title}
+                                        onChange={(e) => {
+                                          const newPages = [...pages];
+                                          const pageIndex = newPages.findIndex(p => p.id === child.id);
+                                          newPages[pageIndex].menu_label = e.target.value;
+                                          setPages(newPages);
+                                        }}
+                                        onBlur={(e) => updateMenuLabel(child.slug, e.target.value)}
+                                        className="text-sm font-medium text-gray-700 bg-transparent border-0 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-0 px-0 py-0.5 transition-colors"
+                                      />
+                                      {child.is_active ? (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                          Live
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                          Draft
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-gray-400 truncate">/{child.slug}</p>
+                                  </div>
+
+                                  {/* Child Actions */}
+                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                      onClick={() => setParentPage(child.slug, null)}
+                                      className="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                                      title="Remove from submenu (make top-level)"
+                                    >
+                                      <XCircle className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => navigate(`/admin/pages/${child.slug}`)}
+                                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                      title="Edit page"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Child pages without parents (pages with parent_page_id that are shown in menu but parent not in menu) */}
+                    {pages
+                      .filter(p => p.show_in_menu && !p.is_cta_button && p.parent_page_id && !getParentMenuItems().some(parent => parent.id === p.parent_page_id))
+                      .map((orphanChild) => (
+                        <div
+                          key={orphanChild.id}
+                          className="group px-4 py-3 flex items-center gap-4 bg-amber-50 border-l-4 border-amber-300"
+                        >
+                          <div className="flex-shrink-0 p-1">
+                            <CornerDownRight className="w-4 h-4 text-amber-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-900">{orphanChild.menu_label || orphanChild.title}</span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                Orphan submenu
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500">Parent page not in menu. Assign a new parent or make top-level.</p>
+                          </div>
+                          <button
+                            onClick={() => setParentPage(orphanChild.slug, null)}
+                            className="px-3 py-1 text-sm bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition-colors"
+                          >
+                            Make Top-Level
+                          </button>
+                        </div>
+                      ))
+                    }
+                  </>
                 )}
               </div>
+
+              {/* Add submenu section - for assigning pages to parent menus */}
+              {getParentMenuItems().length > 0 && (
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <FolderTree className="w-4 h-4" />
+                      Add Pages to Submenus
+                    </h4>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Select a page to add as a submenu item under a parent menu.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {pages
+                      .filter(p => p.show_in_menu && !p.is_cta_button && !p.parent_page_id)
+                      .map((parentPage) => (
+                        <div key={parentPage.id} className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowParentSelector(showParentSelector === parentPage.id ? null : parentPage.id);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add to {parentPage.menu_label || parentPage.title}
+                          </button>
+
+                          {/* Dropdown for selecting child page */}
+                          {showParentSelector === parentPage.id && (
+                            <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20 max-h-60 overflow-y-auto">
+                              <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+                                Select page to add under "{parentPage.menu_label || parentPage.title}"
+                              </div>
+                              {pages
+                                .filter(p =>
+                                  p.show_in_menu &&
+                                  !p.is_cta_button &&
+                                  p.id !== parentPage.id &&
+                                  !p.parent_page_id &&
+                                  !getChildPages(p.id).length // Don't allow pages with children to become children
+                                )
+                                .map((childCandidate) => (
+                                  <button
+                                    key={childCandidate.id}
+                                    onClick={() => setParentPage(childCandidate.slug, parentPage.id)}
+                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                                  >
+                                    {childCandidate.menu_label || childCandidate.title}
+                                  </button>
+                                ))
+                              }
+                              {pages.filter(p =>
+                                p.show_in_menu &&
+                                !p.is_cta_button &&
+                                p.id !== parentPage.id &&
+                                !p.parent_page_id &&
+                                !getChildPages(p.id).length
+                              ).length === 0 && (
+                                <div className="px-3 py-2 text-sm text-gray-400 italic">
+                                  No available pages
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
