@@ -16,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredNavPermission,
   requiredAdminPermission,
 }) => {
-  const { isAuthenticated, isLoading, hasRole, hasNavPermission, hasAdminPermission } = useAuth();
+  const { isAuthenticated, isLoading, hasRole, hasNavPermission, hasAdminPermission, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -31,6 +31,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Admin role has unrestricted access to all pages
+  if (user?.role === 'admin') {
+    return <>{children}</>;
   }
 
   if (requiredRoles && !hasRole(requiredRoles)) {

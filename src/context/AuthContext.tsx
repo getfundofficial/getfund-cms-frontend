@@ -67,16 +67,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const hasNavPermission = (key: keyof UserPermissions['navigation']): boolean => {
+    if (user?.role === 'admin') return true;
     const perms = getEffectivePermissions();
     return perms.navigation?.[key] === true;
   };
 
   const hasAdminPermission = (key: keyof UserPermissions['admin']): boolean => {
+    if (user?.role === 'admin') return true;
     const perms = getEffectivePermissions();
     return perms.admin?.[key] === true;
   };
 
   const hasActionPermission = (key: keyof UserPermissions['actions']): boolean => {
+    if (user?.role === 'admin') return true;
     const perms = getEffectivePermissions();
     return perms.actions?.[key] === true;
   };
