@@ -1,3 +1,21 @@
+/**
+ * PagesListPage.tsx
+ *
+ * CMS admin page for managing website pages, navigation menu, and footer links.
+ *
+ * Features:
+ * - View all pages with status (published/draft)
+ * - Drag-and-drop menu ordering
+ * - Hierarchical submenu support
+ * - CTA button management (single slot)
+ * - Footer quick links management with visibility toggle
+ *
+ * Tabs:
+ * - Menu Items: Pages shown in the main navigation
+ * - All Pages: Complete list of all pages
+ * - Footer Links: Quick links displayed in the website footer
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
