@@ -180,6 +180,43 @@ export const AuditLogsPage: React.FC = () => {
     );
   };
 
+  const renderDetails = (log: AuditLog) => {
+    // Show changes if present
+    if (log.changes && typeof log.changes === 'object' && Object.keys(log.changes).length > 0) {
+      return (
+        <div className="max-w-md space-y-0.5">
+          {Object.entries(log.changes as Record<string, any>).map(([key, value]) => {
+            if (value === null || value === undefined || value === '') return null;
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+            return (
+              <div key={key} className="truncate">
+                <span className="font-medium">{label}:</span> {displayValue}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // Provide contextual details based on action + entity type
+    if (log.action === 'login' || log.action === 'logout') {
+      return <span className="text-gray-400">Session {log.action}</span>;
+    }
+    if (log.action === 'failed_login') {
+      return <span className="text-red-500">Failed authentication attempt</span>;
+    }
+    if (log.entity_type && log.entity_id) {
+      return (
+        <span className="text-gray-400">
+          {log.action.replace(/_/g, ' ')} on {log.entity_type.replace(/_/g, ' ')} #{log.entity_id.slice(0, 8)}
+        </span>
+      );
+    }
+
+    return <span className="text-gray-400">-</span>;
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -355,25 +392,7 @@ export const AuditLogsPage: React.FC = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {log.changes && (
-                            <div className="max-w-md">
-                              {log.changes.title && (
-                                <div className="truncate">
-                                  <span className="font-medium">Title:</span> {log.changes.title}
-                                </div>
-                              )}
-                              {log.changes.type && (
-                                <div>
-                                  <span className="font-medium">Type:</span> {log.changes.type}
-                                </div>
-                              )}
-                              {log.changes.status && (
-                                <div>
-                                  <span className="font-medium">Status:</span> {log.changes.status}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {renderDetails(log)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {log.entity_type === 'content' && content ? (
@@ -428,21 +447,10 @@ export const AuditLogsPage: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Changes */}
-                    {log.changes && (
-                      <div className="mb-2 text-xs text-gray-500">
-                        {log.changes.title && (
-                          <div className="truncate">
-                            <span className="font-medium">Title:</span> {log.changes.title}
-                          </div>
-                        )}
-                        {log.changes.status && (
-                          <div>
-                            <span className="font-medium">Status:</span> {log.changes.status}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {/* Details */}
+                    <div className="mb-2 text-xs text-gray-500">
+                      {renderDetails(log)}
+                    </div>
 
                     {/* Approval Status */}
                     {log.entity_type === 'content' && content && (

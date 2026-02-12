@@ -66,6 +66,22 @@ const UsersListPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (user: User) => {
+    if (!confirm(`Permanently delete user "${user.full_name}"? This action cannot be undone.`)) {
+      return;
+    }
+    if (!confirm(`Are you sure? This will permanently remove "${user.email}" and all their data.`)) {
+      return;
+    }
+
+    try {
+      await userService.permanentDelete(user.id);
+      await loadUsers();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to delete user');
+    }
+  };
+
   const handleModalSuccess = () => {
     loadUsers();
   };
@@ -304,21 +320,29 @@ const UsersListPage: React.FC = () => {
                             Edit
                           </button>
                           {currentUser?.id !== user.id && (
-                            user.is_active ? (
+                            <>
+                              {user.is_active ? (
+                                <button
+                                  onClick={() => handleDeactivate(user)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Deactivate
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleReactivate(user)}
+                                  className="text-green-600 hover:text-green-900"
+                                >
+                                  Reactivate
+                                </button>
+                              )}
                               <button
-                                onClick={() => handleDeactivate(user)}
-                                className="text-red-600 hover:text-red-900"
+                                onClick={() => handleDelete(user)}
+                                className="text-red-800 hover:text-red-950 font-semibold"
                               >
-                                Deactivate
+                                Delete
                               </button>
-                            ) : (
-                              <button
-                                onClick={() => handleReactivate(user)}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                Reactivate
-                              </button>
-                            )
+                            </>
                           )}
                         </div>
                       </td>
@@ -379,21 +403,29 @@ const UsersListPage: React.FC = () => {
                       Edit
                     </button>
                     {currentUser?.id !== user.id && (
-                      user.is_active ? (
+                      <>
+                        {user.is_active ? (
+                          <button
+                            onClick={() => handleDeactivate(user)}
+                            className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100 min-h-touch"
+                          >
+                            Deactivate
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleReactivate(user)}
+                            className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 min-h-touch"
+                          >
+                            Reactivate
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleDeactivate(user)}
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100 min-h-touch"
+                          onClick={() => handleDelete(user)}
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-red-900 bg-red-100 rounded-md hover:bg-red-200 min-h-touch"
                         >
-                          Deactivate
+                          Delete
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => handleReactivate(user)}
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 min-h-touch"
-                        >
-                          Reactivate
-                        </button>
-                      )
+                      </>
                     )}
                   </div>
                 </div>

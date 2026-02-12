@@ -74,6 +74,11 @@ const userService = {
     await api.delete(`/users/${id}`);
   },
 
+  // Permanently delete user (admin only)
+  permanentDelete: async (id: string): Promise<void> => {
+    await api.delete(`/users/${id}`, { params: { permanent: true } });
+  },
+
   // Reactivate user (admin only)
   reactivate: async (id: string): Promise<User> => {
     const response = await api.put<{ user: User }>(`/users/${id}`, {
