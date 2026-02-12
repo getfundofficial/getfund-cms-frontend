@@ -83,6 +83,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const hasAdminPermission = (key: keyof UserPermissions['admin']): boolean => {
     if (user?.role === 'admin') return true;
+    // Only full admins can manage users, regardless of stored permissions
+    if (key === 'users' && user?.role !== 'admin') return false;
     const perms = getEffectivePermissions();
     return perms.admin?.[key] === true;
   };

@@ -8,7 +8,7 @@ import LoadingScreen from '../components/Common/LoadingScreen';
 import { CalendarWidget } from '../components/Dashboard/CalendarWidget';
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, hasAdminPermission } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -241,7 +241,7 @@ export const DashboardPage: React.FC = () => {
                 </button>
               )}
 
-              {isAdminRole(user?.role) && (
+              {hasAdminPermission('users') && (
                 <button
                   onClick={() => navigate('/admin/users')}
                   className="flex items-center p-3 sm:p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left"
