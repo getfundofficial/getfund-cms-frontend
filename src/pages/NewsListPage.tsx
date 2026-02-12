@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { Content, WorkflowStatus } from '../types/content.types';
+import { isAdminRole } from '../types/auth.types';
 import { Button } from '../components/Common/Button';
 import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
@@ -120,7 +121,7 @@ export const NewsListPage: React.FC = () => {
 
   const canToggleVisibility = (item: Content) => {
     // Only admins with publish permission can toggle visibility
-    if (user?.role !== 'admin' || !hasActionPermission('canPublish')) return false;
+    if (!isAdminRole(user?.role) || !hasActionPermission('canPublish')) return false;
     return item.status === 'published' || item.status === 'approved';
   };
 
@@ -149,7 +150,7 @@ export const NewsListPage: React.FC = () => {
   };
 
   const canEdit = (item: Content) => {
-    if (user?.role === 'admin') return true;
+    if (isAdminRole(user?.role)) return true;
     if (user?.role === 'creator' && item.created_by === user?.id) {
       return ['draft', 'changes_requested'].includes(item.status);
     }
@@ -167,7 +168,7 @@ export const NewsListPage: React.FC = () => {
     }
 
     // Users with delete permission can delete based on ownership and status
-    if (user?.role === 'admin') return true;
+    if (isAdminRole(user?.role)) return true;
     if (item.created_by === user?.id) {
       return item.status === 'draft';
     }
@@ -175,7 +176,7 @@ export const NewsListPage: React.FC = () => {
   };
 
   const canSubmit = (item: Content) => {
-    if (user?.role !== 'creator' && user?.role !== 'admin') return false;
+    if (user?.role !== 'creator' && !isAdminRole(user?.role)) return false;
     return item.status === 'draft' || item.status === 'changes_requested';
   };
 
@@ -188,7 +189,7 @@ export const NewsListPage: React.FC = () => {
 
   const canUnpublish = (item: Content) => {
     // Only admins with publish permission can unpublish
-    if (user?.role !== 'admin' || !hasActionPermission('canPublish')) return false;
+    if (!isAdminRole(user?.role) || !hasActionPermission('canPublish')) return false;
     return item.status === 'published';
   };
 
@@ -208,7 +209,7 @@ export const NewsListPage: React.FC = () => {
             Manage news articles and blog posts
           </p>
         </div>
-        {(user?.role === 'admin' || user?.role === 'creator') && (
+        {(isAdminRole(user?.role) || user?.role === 'creator') && (
           <Button
             variant="primary"
             onClick={() => navigate('/admin/news/new')}

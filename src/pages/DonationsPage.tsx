@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
+import { isAdminRole } from '../types/auth.types';
 import { donationsService, Donation, DonationsStats, UpdateDonationDto } from '../services/donationsService';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
@@ -225,7 +226,7 @@ export const DonationsPage: React.FC = () => {
     return <LoadingScreen />;
   }
 
-  if (user?.role !== 'admin') {
+  if (!isAdminRole(user?.role)) {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">

@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
 import mediaService, { Media } from '../services/mediaService';
 import MediaPickerModal from '../components/Media/MediaPickerModal';
+import { isAdminRole } from '../types/auth.types';
 
 export const CampaignEditorPage: React.FC = () => {
   const { user } = useAuth();
@@ -182,7 +183,7 @@ export const CampaignEditorPage: React.FC = () => {
     return <LoadingScreen />;
   }
 
-  if (user?.role !== 'admin') {
+  if (!isAdminRole(user?.role)) {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">

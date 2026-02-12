@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { Content, WorkflowStatus } from '../types/content.types';
+import { isAdminRole } from '../types/auth.types';
 import { Button } from '../components/Common/Button';
 import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
@@ -82,7 +83,7 @@ export const HeroSlidesListPage: React.FC = () => {
 
   const canEdit = (item: Content) => {
     // Admins can edit anything
-    if (user?.role === 'admin') return true;
+    if (isAdminRole(user?.role)) return true;
     // Creators can edit their own content
     return user?.role === 'creator' && item.created_by === user?.id;
   };
@@ -98,7 +99,7 @@ export const HeroSlidesListPage: React.FC = () => {
     }
 
     // Users with delete permission can delete based on ownership
-    if (user?.role === 'admin') return true;
+    if (isAdminRole(user?.role)) return true;
     return item.created_by === user?.id;
   };
 

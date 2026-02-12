@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { Content } from '../types/content.types';
+import { isAdminRole } from '../types/auth.types';
 import { Button } from '../components/Common/Button';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
@@ -59,7 +60,7 @@ export const NewsViewPage: React.FC = () => {
 
   const canEdit = () => {
     if (!content) return false;
-    if (user?.role === 'admin') return true;
+    if (isAdminRole(user?.role)) return true;
     if (user?.role === 'creator' && content.created_by === user?.id) {
       return ['draft', 'changes_requested'].includes(content.status);
     }

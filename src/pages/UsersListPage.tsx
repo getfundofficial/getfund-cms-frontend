@@ -90,6 +90,8 @@ const UsersListPage: React.FC = () => {
     switch (role) {
       case 'admin':
         return 'bg-purple-100 text-purple-800';
+      case 'restricted_admin':
+        return 'bg-indigo-100 text-indigo-800';
       case 'creator':
         return 'bg-blue-100 text-blue-800';
       case 'reviewer':
@@ -168,6 +170,7 @@ const UsersListPage: React.FC = () => {
             >
               <option value="all">All Roles</option>
               <option value="admin">Admin</option>
+              <option value="restricted_admin">Restricted Admin</option>
               <option value="creator">Creator</option>
               <option value="reviewer">Reviewer</option>
               <option value="approver">Approver</option>
@@ -294,7 +297,7 @@ const UsersListPage: React.FC = () => {
                             user.role
                           )}`}
                         >
-                          {user.role}
+                          {user.role === 'restricted_admin' ? 'Restricted Admin' : user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

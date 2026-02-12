@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { eventService, CompanyEvent, Holiday } from '../../services/eventService';
 import { useAuth } from '../../context/AuthContext';
+import { isAdminRole } from '../../types/auth.types';
 import { EventModal } from './EventModal';
 
 interface CalendarDay {
@@ -21,7 +22,7 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
 
 export const CalendarWidget: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = isAdminRole(user?.role);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CompanyEvent[]>([]);

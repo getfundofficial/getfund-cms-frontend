@@ -6,6 +6,7 @@ import { Button } from '../components/Common/Button';
 import { pageService, PagePermission } from '../services/pageService';
 import { api } from '../services/api';
 import LoadingScreen from '../components/Common/LoadingScreen';
+import { isAdminRole } from '../types/auth.types';
 
 interface User {
   id: string;
@@ -31,7 +32,7 @@ export const PagePermissionsPage: React.FC = () => {
   const [permissionType, setPermissionType] = useState<'view' | 'edit' | 'publish'>('edit');
 
   useEffect(() => {
-    if (user?.role !== 'admin') {
+    if (!isAdminRole(user?.role)) {
       navigate('/admin/pages');
       return;
     }

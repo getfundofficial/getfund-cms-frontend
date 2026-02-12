@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { pageService, PageSection } from '../services/pageService';
+import { isAdminRole } from '../types/auth.types';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 import LoadingScreen from '../components/Common/LoadingScreen';
@@ -234,7 +235,7 @@ export const PageEditorPage: React.FC = () => {
                     >
                       Edit
                     </button>
-                    {user?.role === 'admin' && (
+                    {isAdminRole(user?.role) && (
                       <button
                         onClick={() => handleDeleteSection(section.section_key)}
                         className="px-3 py-1 text-sm text-red-600 hover:text-red-900"

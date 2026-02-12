@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
+import { isAdminRole } from '../types/auth.types';
 import mediaService, { Media } from '../services/mediaService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
@@ -89,7 +90,7 @@ export const HeroSlideEditorPage: React.FC = () => {
       const data = await contentService.getById(contentId);
 
       // Check if user can edit this content
-      if (user?.role !== 'admin' && data.created_by !== user?.id) {
+      if (!isAdminRole(user?.role) && data.created_by !== user?.id) {
         setError('You do not have permission to edit this content');
         return;
       }

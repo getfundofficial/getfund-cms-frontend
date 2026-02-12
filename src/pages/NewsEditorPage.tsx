@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
+import { isAdminRole } from '../types/auth.types';
 import mediaService, { Media } from '../services/mediaService';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
@@ -105,13 +106,13 @@ export const NewsEditorPage: React.FC = () => {
       const data = await contentService.getById(contentId);
 
       // Check if user can edit this content
-      if (user?.role !== 'admin' && data.created_by !== user?.id) {
+      if (!isAdminRole(user?.role) && data.created_by !== user?.id) {
         setError('You do not have permission to edit this content');
         return;
       }
 
       // Allow admins to edit any content, others can only edit draft or changes_requested
-      if (user?.role !== 'admin' && !['draft', 'changes_requested'].includes(data.status)) {
+      if (!isAdminRole(user?.role) && !['draft', 'changes_requested'].includes(data.status)) {
         setError('You can only edit content in draft or changes_requested status');
         return;
       }

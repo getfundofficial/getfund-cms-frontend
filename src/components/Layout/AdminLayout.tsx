@@ -47,6 +47,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     switch (user?.role) {
       case 'admin':
         return 'bg-gradient-to-r from-primary-600 to-primary-500';
+      case 'restricted_admin':
+        return 'bg-gradient-to-r from-indigo-600 to-indigo-500';
       case 'creator':
         return 'bg-gradient-to-r from-accent-600 to-accent-500';
       case 'reviewer':
@@ -166,7 +168,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'Footer Settings',
-      show: user?.role === 'admin',
+      show: hasAdminPermission('footerSettings'),
     },
     {
       path: '/admin/pledges',
@@ -186,7 +188,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </svg>
       ),
       label: 'All Donations',
-      show: user?.role === 'admin',
+      show: hasAdminPermission('donations'),
     },
     {
       path: '/admin/team-members',

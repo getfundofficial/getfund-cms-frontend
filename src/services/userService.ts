@@ -1,7 +1,7 @@
 import { api } from './api';
 import { UserPermissions } from '../types/auth.types';
 
-export type UserRole = 'admin' | 'creator' | 'reviewer' | 'approver';
+export type UserRole = 'admin' | 'restricted_admin' | 'creator' | 'reviewer' | 'approver';
 
 export interface User {
   id: string;

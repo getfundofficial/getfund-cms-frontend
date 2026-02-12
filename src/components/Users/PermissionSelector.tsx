@@ -165,7 +165,7 @@ export const PermissionSelector: React.FC<PermissionSelectorProps> = ({
             Role Template
           </label>
           <div className="flex flex-wrap gap-2">
-            {(['admin', 'creator', 'reviewer', 'approver'] as UserRole[]).map((role) => (
+            {(['admin', 'restricted_admin', 'creator', 'reviewer', 'approver'] as UserRole[]).map((role) => (
               <button
                 key={role}
                 type="button"
@@ -177,7 +177,7 @@ export const PermissionSelector: React.FC<PermissionSelectorProps> = ({
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {role.charAt(0).toUpperCase() + role.slice(1)}
+                {role === 'restricted_admin' ? 'Restricted Admin' : role.charAt(0).toUpperCase() + role.slice(1)}
               </button>
             ))}
           </div>

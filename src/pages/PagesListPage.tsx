@@ -23,6 +23,7 @@ import { pageService, Page } from '../services/pageService';
 import { footerService, FooterConfig } from '../services/footerService';
 import { Button } from '../components/Common/Button';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
+import { isAdminRole } from '../types/auth.types';
 import {
   GripVertical,
   Eye,
@@ -762,7 +763,7 @@ export const PagesListPage: React.FC = () => {
                               >
                                 <EyeOff className="w-4 h-4" />
                               </button>
-                              {user?.role === 'admin' && (
+                              {isAdminRole(user?.role) && (
                                 <button
                                   onClick={() => handleDelete(page.slug)}
                                   className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -1116,7 +1117,7 @@ export const PagesListPage: React.FC = () => {
                                 View Live
                               </a>
                             )}
-                            {(user?.role === 'admin' || user?.role === 'approver') && (
+                            {(isAdminRole(user?.role) || user?.role === 'approver') && (
                               <>
                                 {page.is_active ? (
                                   <button
@@ -1143,7 +1144,7 @@ export const PagesListPage: React.FC = () => {
                                 )}
                               </>
                             )}
-                            {user?.role === 'admin' && (
+                            {isAdminRole(user?.role) && (
                               <button
                                 onClick={() => {
                                   handleDelete(page.slug);

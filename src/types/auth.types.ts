@@ -1,5 +1,10 @@
-export type UserRole = 'admin' | 'creator' | 'reviewer' | 'approver';
+export type UserRole = 'admin' | 'restricted_admin' | 'creator' | 'reviewer' | 'approver';
 export type ContentType = 'news' | 'hero_slide';
+
+/** Checks if a role has admin-level access (both full admin and restricted admin) */
+export function isAdminRole(role: string | undefined): boolean {
+  return role === 'admin' || role === 'restricted_admin';
+}
 
 // Granular permissions structure
 export interface UserPermissions {
@@ -36,6 +41,18 @@ export interface UserPermissions {
 // Default permissions by role
 export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
   admin: {
+    navigation: {
+      dashboard: true, news: true, pages: true, heroSlides: true,
+      mediaLibrary: true, impactStats: true, campaigns: true, teamMembers: true,
+      partners: true, reviewQueue: true, approvalQueue: true
+    },
+    admin: {
+      users: true, menuConfig: true, footerSettings: true, auditLogs: true,
+      lotteryConfig: true, lotteryEntries: true, pledges: true, donations: true
+    },
+    actions: { canPublish: true, canReview: true, canDelete: true }
+  },
+  restricted_admin: {
     navigation: {
       dashboard: true, news: true, pages: true, heroSlides: true,
       mediaLibrary: true, impactStats: true, campaigns: true, teamMembers: true,

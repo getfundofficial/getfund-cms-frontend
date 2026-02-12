@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { contentService } from '../services/contentService';
 import { DashboardStats } from '../types/content.types';
+import { isAdminRole } from '../types/auth.types';
 import LoadingScreen from '../components/Common/LoadingScreen';
 import { CalendarWidget } from '../components/Dashboard/CalendarWidget';
 
@@ -157,7 +158,7 @@ export const DashboardPage: React.FC = () => {
               Quick Actions
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(user?.role === 'admin' || user?.role === 'creator') && (
+              {(isAdminRole(user?.role) || user?.role === 'creator') && (
                 <button
                   onClick={() => navigate('/admin/news/new')}
                   className="group flex items-center p-4 border-2 border-accent-200 rounded-xl hover:border-accent-400 hover:bg-accent-50 transition-all hover:shadow-md text-left"
@@ -174,7 +175,7 @@ export const DashboardPage: React.FC = () => {
                 </button>
               )}
 
-              {(user?.role === 'admin' || user?.role === 'creator') && (
+              {(isAdminRole(user?.role) || user?.role === 'creator') && (
                 <button
                   onClick={() => navigate('/admin/pages')}
                   className="group flex items-center p-4 border-2 border-primary-200 rounded-xl hover:border-primary-400 hover:bg-primary-50 transition-all hover:shadow-md text-left"
@@ -206,7 +207,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </button>
 
-              {(user?.role === 'reviewer' || user?.role === 'admin') && (
+              {(user?.role === 'reviewer' || isAdminRole(user?.role)) && (
                 <button
                   onClick={() => navigate('/admin/review')}
                   className="flex items-center p-3 sm:p-4 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition text-left"
@@ -223,7 +224,7 @@ export const DashboardPage: React.FC = () => {
                 </button>
               )}
 
-              {(user?.role === 'approver' || user?.role === 'admin') && (
+              {(user?.role === 'approver' || isAdminRole(user?.role)) && (
                 <button
                   onClick={() => navigate('/admin/approval')}
                   className="flex items-center p-3 sm:p-4 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left"
@@ -240,7 +241,7 @@ export const DashboardPage: React.FC = () => {
                 </button>
               )}
 
-              {user?.role === 'admin' && (
+              {isAdminRole(user?.role) && (
                 <button
                   onClick={() => navigate('/admin/users')}
                   className="flex items-center p-3 sm:p-4 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left"

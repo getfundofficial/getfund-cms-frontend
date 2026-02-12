@@ -52,7 +52,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return false;
 
     const roleArray = Array.isArray(roles) ? roles : [roles];
-    return roleArray.includes(user.role);
+    if (roleArray.includes(user.role)) return true;
+    // restricted_admin satisfies admin role requirements for route access
+    if (user.role === 'restricted_admin' && roleArray.includes('admin')) return true;
+    return false;
   };
 
   // Get the effective permissions (user's custom permissions or role defaults)

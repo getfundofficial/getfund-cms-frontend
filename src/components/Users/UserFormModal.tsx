@@ -267,12 +267,14 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                     <option value="creator">Creator</option>
                     <option value="reviewer">Reviewer</option>
                     <option value="approver">Approver</option>
+                    <option value="restricted_admin">Restricted Admin</option>
                     <option value="admin">Admin</option>
                   </select>
                   <p className="mt-1 text-xs text-gray-500">
                     {formData.role === 'creator' && 'Can create and edit drafts'}
                     {formData.role === 'reviewer' && 'Can review and approve content'}
                     {formData.role === 'approver' && 'Can publish approved content'}
+                    {formData.role === 'restricted_admin' && 'Admin access with configurable permissions'}
                     {formData.role === 'admin' && 'Full system access'}
                   </p>
                 </div>

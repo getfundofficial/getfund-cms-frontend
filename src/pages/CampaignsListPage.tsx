@@ -5,6 +5,7 @@ import { campaignsService, Campaign } from '../services/campaignsService';
 import { Button } from '../components/Common/Button';
 import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../components/Common/LoadingScreen';
+import { isAdminRole } from '../types/auth.types';
 
 export const CampaignsListPage: React.FC = () => {
   const { user } = useAuth();
@@ -122,7 +123,7 @@ export const CampaignsListPage: React.FC = () => {
         />
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Fundraising Campaigns</h1>
-          {user?.role === 'admin' && (
+          {isAdminRole(user?.role) && (
             <Button onClick={() => navigate('/admin/campaigns/new')}>
               Create Campaign
             </Button>
@@ -150,7 +151,7 @@ export const CampaignsListPage: React.FC = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Fundraising Campaigns</h1>
-        {user?.role === 'admin' && (
+        {isAdminRole(user?.role) && (
           <Button onClick={() => navigate('/admin/campaigns/new')}>
             Create Campaign
           </Button>
@@ -277,7 +278,7 @@ export const CampaignsListPage: React.FC = () => {
                       >
                         View
                       </button>
-                      {user?.role === 'admin' && (
+                      {isAdminRole(user?.role) && (
                         <>
                           <button
                             onClick={() => navigate(`/admin/campaigns/${campaign.slug}/edit`)}
