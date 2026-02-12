@@ -267,51 +267,6 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-      {/* Coming Soon Notice */}
-      <div className="bg-gradient-to-r from-accent-50 to-primary-50 border-2 border-accent-200 rounded-xl p-6 shadow-soft">
-        <div className="flex items-start gap-3">
-          <div className="bg-accent-500 rounded-lg p-2 flex-shrink-0">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Content Management Interface
-            </h3>
-            <p className="text-gray-700 mb-3">
-              The full content management interface is being built. You can currently:
-            </p>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                View your role and permissions
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                See content statistics
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Navigate between pages using the sidebar
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Access the backend API directly at <code className="bg-white px-2 py-1 rounded border border-accent-300 text-xs">http://localhost:5000</code>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
