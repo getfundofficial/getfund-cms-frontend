@@ -19,6 +19,7 @@ const PERMISSION_LABELS = {
     impactStats: 'Impact Stats',
     campaigns: 'Campaigns',
     teamMembers: 'Team Members',
+    partners: 'Partners',
     reviewQueue: 'Review Queue',
     approvalQueue: 'Approval Queue',
   },
@@ -30,6 +31,7 @@ const PERMISSION_LABELS = {
     lotteryConfig: 'Lottery Config',
     lotteryEntries: 'Lottery Entries',
     pledges: 'Pledges',
+    donations: 'Donations',
   },
   actions: {
     canPublish: 'Can Publish',

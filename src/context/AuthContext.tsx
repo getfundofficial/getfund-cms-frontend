@@ -58,8 +58,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Get the effective permissions (user's custom permissions or role defaults)
   const getEffectivePermissions = (): UserPermissions => {
     if (!user) return DEFAULT_PERMISSIONS.creator;
-    // Handle null/undefined permissions - fall back to role defaults
-    if (user.permissions && typeof user.permissions === 'object' && user.permissions.navigation) {
+    // Validate permissions is a proper object (not null, not an array) with navigation property
+    if (
+      user.permissions &&
+      typeof user.permissions === 'object' &&
+      !Array.isArray(user.permissions) &&
+      user.permissions.navigation &&
+      typeof user.permissions.navigation === 'object'
+    ) {
       return user.permissions;
     }
     // Fall back to role-based defaults, or creator as ultimate fallback
