@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../Common/Button';
+import NotificationBell from './NotificationBell';
+import { useNotificationCount } from '../../hooks/useNotificationCount';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -17,6 +19,7 @@ interface NavItem {
   icon: React.ReactNode;
   label: string;
   show: boolean;
+  badge?: number;
   children?: NavChildItem[];
 }
 
@@ -27,6 +30,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const { counts, totalCount } = useNotificationCount({
+    enabled: hasAdminPermission('users'),
+  });
 
   const toggleMenu = (path: string) => {
     setExpandedMenus(prev =>
@@ -219,6 +225,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       ),
       label: 'Users',
       show: hasAdminPermission('users'),
+      badge: counts.passwordResetRequests,
     },
     {
       path: '/admin/audit-logs',
@@ -383,8 +390,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <span className={isActive(item.path) ? 'scale-110' : ''}>
                       {item.icon}
                     </span>
-                    <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
-                    {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
+                    <span className={`text-sm font-medium lg:hidden flex-1`}>{item.label}</span>
+                    {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium flex-1">{item.label}</span>}
+                    {item.badge && item.badge > 0 ? (
+                      <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full ${
+                        isActive(item.path) ? 'bg-white/30 text-white' : 'bg-red-500 text-white'
+                      }`}>
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </span>
+                    ) : null}
                   </Link>
                 )}
               </div>
@@ -492,6 +506,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
+                {hasAdminPermission('users') && (
+                  <NotificationBell
+                    count={totalCount}
+                    to="/admin/users"
+                    ariaLabel="Password reset requests"
+                  />
+                )}
                 <a
                   href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund-website.vercel.app"}
                   target="_blank"
