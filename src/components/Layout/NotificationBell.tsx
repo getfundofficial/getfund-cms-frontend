@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { NotificationCounts } from '../../services/notificationService';
 
@@ -8,6 +9,7 @@ interface NotificationBellProps {
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ counts }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -16,7 +18,11 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ counts }) => {
   // Close dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        buttonRef.current && !buttonRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -26,14 +32,38 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ counts }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  // Close on Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   const handleItemClick = (path: string) => {
     setIsOpen(false);
     navigate(path);
   };
 
+  // Calculate dropdown position from the button
+  const getDropdownStyle = (): React.CSSProperties => {
+    if (!buttonRef.current) return { display: 'none' };
+    const rect = buttonRef.current.getBoundingClientRect();
+    return {
+      position: 'fixed',
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right,
+      zIndex: 9999,
+    };
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="relative inline-flex items-center justify-center p-2 rounded-xl hover:bg-primary-50 transition-all hover:scale-105 group"
         aria-label={`Notifications${totalCount > 0 ? `, ${totalCount} pending` : ''}`}
@@ -64,8 +94,12 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ counts }) => {
         )}
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          style={getDropdownStyle()}
+          className="w-80 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+        >
           <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
             <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
           </div>
@@ -103,7 +137,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ counts }) => {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

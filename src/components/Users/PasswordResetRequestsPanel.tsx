@@ -35,6 +35,7 @@ const PasswordResetRequestsPanel: React.FC<PasswordResetRequestsPanelProps> = ({
       await userService.approvePasswordResetRequest(id);
       setRequests((prev) => prev.filter((r) => r.id !== id));
       onResetComplete();
+      window.dispatchEvent(new Event('notification-refresh'));
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to approve reset request');
     } finally {

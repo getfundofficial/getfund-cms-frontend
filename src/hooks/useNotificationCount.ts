@@ -70,12 +70,17 @@ export function useNotificationCount({
       }
     };
 
+    // Listen for manual refresh events (e.g. after approving a reset request)
+    const handleRefreshEvent = () => fetchCounts();
+
     startPolling();
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('notification-refresh', handleRefreshEvent);
 
     return () => {
       stopPolling();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('notification-refresh', handleRefreshEvent);
     };
   }, [enabled, pollInterval, fetchCounts]);
 
