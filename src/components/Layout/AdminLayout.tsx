@@ -30,7 +30,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const { counts, totalCount } = useNotificationCount({
+  const { counts } = useNotificationCount({
     enabled: hasAdminPermission('users'),
   });
 
