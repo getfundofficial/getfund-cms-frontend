@@ -83,6 +83,20 @@ const UsersListPage: React.FC = () => {
     }
   };
 
+  const handleResetPassword = async (user: User) => {
+    if (!confirm(`Reset password for "${user.full_name}" to the default (Password@1)? They will be required to change it on next login.`)) {
+      return;
+    }
+
+    try {
+      await userService.resetPassword(user.id, 'Password@1');
+      alert(`Password for ${user.full_name} has been reset. Their new password is Password@1`);
+      await loadUsers();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to reset password');
+    }
+  };
+
   const handleModalSuccess = () => {
     loadUsers();
   };
@@ -328,6 +342,12 @@ const UsersListPage: React.FC = () => {
                           </button>
                           {currentUser?.id !== user.id && (
                             <>
+                              <button
+                                onClick={() => handleResetPassword(user)}
+                                className="text-amber-600 hover:text-amber-900"
+                              >
+                                Reset Password
+                              </button>
                               {user.is_active ? (
                                 <button
                                   onClick={() => handleDeactivate(user)}
@@ -411,6 +431,12 @@ const UsersListPage: React.FC = () => {
                     </button>
                     {currentUser?.id !== user.id && (
                       <>
+                        <button
+                          onClick={() => handleResetPassword(user)}
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 rounded-md hover:bg-amber-100 min-h-touch"
+                        >
+                          Reset Password
+                        </button>
                         {user.is_active ? (
                           <button
                             onClick={() => handleDeactivate(user)}
