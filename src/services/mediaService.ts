@@ -60,6 +60,11 @@ const mediaService = {
     await api.delete(`/media/${id}`);
   },
 
+  // Bulk delete multiple media files
+  bulkDelete: async (ids: string[]): Promise<void> => {
+    await api.post('/media/bulk-delete', { ids });
+  },
+
   // Get full URL for media
   getFullUrl: (url: string): string => {
     // If URL is already absolute (Blob storage URLs), return as-is
@@ -67,9 +72,18 @@ const mediaService = {
       return url;
     }
 
-    // For relative URLs (local development), prepend base URL
+    // For static website assets (/images/...), use website URL in production
+    // In dev, return as-is so the Vite proxy routes to website frontend
+    if (url.startsWith('/images/')) {
+      if (import.meta.env.PROD) {
+        const websiteUrl = import.meta.env.VITE_WEBSITE_URL || '';
+        if (websiteUrl) return `${websiteUrl}${url}`;
+      }
+      return url;
+    }
+
+    // For relative URLs (/uploads/...), prepend base URL
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    // Remove /api from base URL if present
     const apiBase = baseUrl.replace('/api', '');
     return `${apiBase}${url}`;
   },
