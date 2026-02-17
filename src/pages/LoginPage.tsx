@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login({ email, password });
-      navigate('/admin/dashboard');
+      // Navigation handled by useEffect watching isAuthenticated & mustChangePassword
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
     } finally {
