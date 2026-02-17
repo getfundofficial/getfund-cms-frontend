@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Common/Button';
 import { Input } from '../components/Common/Input';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, mustChangePassword } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,9 +16,13 @@ export const LoginPage: React.FC = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate('/admin/dashboard');
+      if (mustChangePassword) {
+        navigate('/change-password');
+      } else {
+        navigate('/admin/dashboard');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, mustChangePassword, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +111,12 @@ export const LoginPage: React.FC = () => {
               Sign In
             </Button>
           </form>
+
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-accent-600 hover:text-accent-700 font-medium">
+              Forgot your password?
+            </Link>
+          </div>
         </div>
 
         {/* Footer */}

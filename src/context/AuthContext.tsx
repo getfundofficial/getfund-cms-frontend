@@ -15,6 +15,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
     const savedToken = authService.getToken();
@@ -23,6 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (savedToken && savedUser) {
       setAccessToken(savedToken);
       setUser(savedUser);
+      setMustChangePassword(savedUser.must_change_password === true);
     }
 
     setIsLoading(false);
@@ -34,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       setUser(response.user);
       setAccessToken(response.accessToken);
+      setMustChangePassword(response.user.must_change_password === true);
 
       authService.setToken(response.accessToken);
       authService.setUser(response.user);
@@ -46,6 +49,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     authService.logout();
     setUser(null);
     setAccessToken(null);
+    setMustChangePassword(false);
+  };
+
+  const clearMustChangePassword = () => {
+    setMustChangePassword(false);
+    if (user) {
+      const updatedUser = { ...user, must_change_password: false };
+      setUser(updatedUser);
+      authService.setUser(updatedUser);
+    }
   };
 
   const hasRole = (roles: UserRole | UserRole[]): boolean => {
@@ -100,8 +113,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     accessToken,
     isAuthenticated: !!user && !!accessToken,
     isLoading,
+    mustChangePassword,
     login,
     logout,
+    clearMustChangePassword,
     hasRole,
     hasNavPermission,
     hasAdminPermission,

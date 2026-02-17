@@ -18,7 +18,6 @@ export interface CreateUserData {
   email: string;
   full_name: string;
   role: UserRole;
-  password?: string; // Optional - will be auto-generated if not provided
   permissions?: UserPermissions;
 }
 
@@ -33,7 +32,17 @@ export interface UpdateUserData {
 export interface CreateUserResponse {
   message: string;
   user: User;
-  generatedPassword?: string; // Only present if password was auto-generated
+}
+
+export interface PasswordResetRequest {
+  id: string;
+  user_id: string;
+  user_email?: string;
+  user_full_name?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requested_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
 }
 
 export interface UserPagePermission {
@@ -106,6 +115,18 @@ const userService = {
   // Sync page permissions for a user (admin only)
   syncUserPagePermissions: async (userId: string, pageIds: string[]): Promise<void> => {
     await api.put(`/users/${userId}/page-permissions`, { page_ids: pageIds });
+  },
+
+  // Get pending password reset requests (admin only)
+  getPasswordResetRequests: async (): Promise<PasswordResetRequest[]> => {
+    const response = await api.get<{ requests: PasswordResetRequest[] }>('/password-reset-requests');
+    return response.data.requests;
+  },
+
+  // Approve a password reset request (admin only)
+  approvePasswordResetRequest: async (id: string): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(`/password-reset-requests/${id}/approve`);
+    return response.data;
   },
 };
 

@@ -109,6 +109,7 @@ export interface User {
   role: UserRole;
   permissions?: UserPermissions;
   is_active?: boolean;
+  must_change_password?: boolean;
   created_at?: string;
 }
 
@@ -127,8 +128,10 @@ export interface AuthContextType {
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  mustChangePassword: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
+  clearMustChangePassword: () => void;
   hasRole: (roles: UserRole | UserRole[]) => boolean;
   hasNavPermission: (key: keyof UserPermissions['navigation']) => boolean;
   hasAdminPermission: (key: keyof UserPermissions['admin']) => boolean;

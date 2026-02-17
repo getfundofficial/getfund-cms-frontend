@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { useAuth } from '../context/AuthContext';
 import userService, { User } from '../services/userService';
 import UserFormModal from '../components/Users/UserFormModal';
+import PasswordResetRequestsPanel from '../components/Users/PasswordResetRequestsPanel';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 const UsersListPage: React.FC = () => {
@@ -150,6 +151,9 @@ const UsersListPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Password Reset Requests */}
+        <PasswordResetRequestsPanel onResetComplete={loadUsers} />
+
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">

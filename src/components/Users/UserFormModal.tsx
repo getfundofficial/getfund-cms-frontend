@@ -33,7 +33,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
   const [editablePageIds, setEditablePageIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
   const [showPagePermissions, setShowPagePermissions] = useState(false);
 
@@ -61,7 +61,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
       setEditablePageIds([]);
     }
     setError(null);
-    setGeneratedPassword(null);
+    setShowSuccess(false);
     setShowPermissions(false);
     setShowPagePermissions(false);
   }, [user, isOpen]);
@@ -110,7 +110,6 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           full_name: formData.full_name,
           role: formData.role,
           permissions,
-          ...(formData.password ? { password: formData.password } : {}),
         };
 
         const response = await userService.create(createData);
@@ -121,10 +120,8 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           await userService.syncUserPagePermissions(userId, editablePageIds);
         }
 
-        if (response.generatedPassword) {
-          setGeneratedPassword(response.generatedPassword);
-          return;
-        }
+        setShowSuccess(true);
+        return;
       }
 
       onSuccess();
@@ -136,15 +133,8 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     }
   };
 
-  const handleCopyPassword = () => {
-    if (generatedPassword) {
-      navigator.clipboard.writeText(generatedPassword);
-      alert('Password copied to clipboard!');
-    }
-  };
-
-  const handleCloseWithPassword = () => {
-    setGeneratedPassword(null);
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
     onSuccess();
     onClose();
   };
@@ -155,7 +145,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={generatedPassword ? undefined : onClose}
+        onClick={showSuccess ? undefined : onClose}
       />
 
       <div className="flex min-h-full items-center justify-center p-4">
@@ -165,7 +155,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          {generatedPassword ? (
+          {showSuccess ? (
             <div className="p-6">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,40 +165,25 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
 
               <h3 className="text-lg font-semibold text-center mb-2">User Created Successfully!</h3>
               <p className="text-sm text-gray-600 text-center mb-4">
-                A temporary password has been generated. Please copy it and share it with the user securely.
+                The user has been created with the default password. Share the following login details with them:
               </p>
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-                <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Generated Password
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={generatedPassword}
-                    readOnly
-                    className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded font-mono text-sm"
-                  />
-                  <button
-                    onClick={handleCopyPassword}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
-                  >
-                    Copy
-                  </button>
-                </div>
+                <p className="text-sm text-gray-700 mb-1"><strong>Email:</strong> {formData.email}</p>
+                <p className="text-sm text-gray-700"><strong>Password:</strong> Password@1</p>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                <p className="text-xs text-yellow-800">
-                  <strong>Important:</strong> This password will not be shown again. Make sure to copy it before closing this window.
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-amber-800">
+                  The user will be required to change their password on first login.
                 </p>
               </div>
 
               <button
-                onClick={handleCloseWithPassword}
+                onClick={handleCloseSuccess}
                 className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
               >
-                I've Copied the Password
+                Done
               </button>
             </div>
           ) : (
@@ -294,18 +269,16 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                   </div>
                 )}
 
-                <Input
-                  type="password"
-                  label={isEditMode ? "New Password (optional)" : "Password (optional)"}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder={isEditMode ? "Leave blank to keep current" : "Leave blank to auto-generate"}
-                  helperText={
-                    isEditMode
-                      ? "Only enter if you want to change the password"
-                      : "If left blank, a secure password will be generated automatically"
-                  }
-                />
+                {isEditMode && (
+                  <Input
+                    type="password"
+                    label="New Password (optional)"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Leave blank to keep current"
+                    helperText="Only enter if you want to change the password. User will be required to change it on next login."
+                  />
+                )}
 
                 {/* Permissions Toggle */}
                 <div className="border-t pt-4">

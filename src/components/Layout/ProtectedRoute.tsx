@@ -16,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredNavPermission,
   requiredAdminPermission,
 }) => {
-  const { isAuthenticated, isLoading, hasRole, hasNavPermission, hasAdminPermission, user } = useAuth();
+  const { isAuthenticated, isLoading, hasRole, hasNavPermission, hasAdminPermission, user, mustChangePassword } = useAuth();
 
   if (isLoading) {
     return (
@@ -31,6 +31,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Force password change before accessing any protected page
+  if (mustChangePassword) {
+    return <Navigate to="/change-password" replace />;
   }
 
   // Admin role has unrestricted access to all pages

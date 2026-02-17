@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ForcePasswordChangePage } from './pages/ForcePasswordChangePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NewsListPage } from './pages/NewsListPage';
 import { NewsEditorPage } from './pages/NewsEditorPage';
@@ -41,6 +43,8 @@ function App() {
           <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/change-password" element={<ForcePasswordChangePage />} />
 
           {/* Protected Admin Routes */}
           <Route
