@@ -507,11 +507,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
                 {hasAdminPermission('users') && (
-                  <NotificationBell
-                    count={totalCount}
-                    to="/admin/users"
-                    ariaLabel="Password reset requests"
-                  />
+                  <NotificationBell counts={counts} />
                 )}
                 <a
                   href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund-website.vercel.app"}
