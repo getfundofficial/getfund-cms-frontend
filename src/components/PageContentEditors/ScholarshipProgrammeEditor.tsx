@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from '../Common/Input';
-import ImageUploader from '../Media/ImageUploader';
-import { Media } from '../../services/mediaService';
+import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface ScholarshipProgrammeContent {
@@ -100,7 +99,6 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
   onChange,
 }) => {
   const mergedContent = { ...defaultContent, ...content };
-  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
 
   const handleChange = (section: keyof ScholarshipProgrammeContent, field: string, value: any) => {
     onChange({
@@ -129,11 +127,6 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
     const sectionData = mergedContent[section] as any;
     const newItems = sectionData[field].filter((_: any, i: number) => i !== index);
     handleChange(section, field, newItems);
-  };
-
-  const handleHeroImageUpload = (media: Media) => {
-    handleChange('hero', 'heroImage', media.url);
-    setIsUploadingHeroImage(false);
   };
 
   return (
@@ -194,70 +187,19 @@ export const ScholarshipProgrammeEditor: React.FC<ScholarshipProgrammeEditorProp
           This section displays as two columns: intro text on the left, image on the right.
         </p>
         <div className="space-y-4">
-          {/* Hero Image */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Section Image (Right Column)
-            </label>
-            {mergedContent.hero?.heroImage ? (
-              <div className="relative">
-                <img
-                  src={mergedContent.hero.heroImage}
-                  alt="Scholarship Programme"
-                  className="w-full h-48 object-cover rounded-lg border border-gray-200"
-                />
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsUploadingHeroImage(true)}
-                    className="bg-white text-gray-700 px-3 py-1 rounded text-sm font-medium shadow hover:bg-gray-50"
-                  >
-                    Change
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleChange('hero', 'heroImage', '')}
-                    className="bg-red-500 text-white px-3 py-1 rounded text-sm font-medium shadow hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div
-                onClick={() => setIsUploadingHeroImage(true)}
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
-              >
-                <div className="text-gray-400 mb-2">
-                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="text-gray-600 font-medium">Click to upload image</p>
-                <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger</p>
-              </div>
-            )}
-            {isUploadingHeroImage && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg font-semibold">Upload Section Image</h4>
-                    <button
-                      type="button"
-                      onClick={() => setIsUploadingHeroImage(false)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <ImageUploader
-                    onUploadSuccess={handleHeroImageUpload}
-                    onUploadError={(error) => console.error('Upload error:', error)}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <ImageInput
+            label="Section Image (Right Column)"
+            value={mergedContent.hero?.heroImage || ''}
+            onChange={(value: string) => handleChange('hero', 'heroImage', value)}
+            placeholder="/images/scholarship/scholarship-programme-hero.jpg"
+          />
+          {mergedContent.hero?.heroImage && (
+            <img
+              src={mergedContent.hero.heroImage}
+              alt="Scholarship Programme"
+              className="w-full h-48 object-cover rounded-lg border border-gray-200"
+            />
+          )}
         </div>
       </div>
 
