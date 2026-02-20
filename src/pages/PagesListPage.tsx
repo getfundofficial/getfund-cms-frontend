@@ -144,19 +144,22 @@ export const PagesListPage: React.FC = () => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === targetIndex) return;
 
-    const menuItems = pages.filter(p => p.show_in_menu && !p.is_cta_button);
-    const newMenuItems = [...menuItems];
-    const draggedPage = newMenuItems[draggedIndex];
+    // Use only top-level parent items (matches what getParentMenuItems() renders)
+    const parentItems = pages.filter(p => p.show_in_menu && !p.is_cta_button && !p.parent_page_id);
+    const newParentItems = [...parentItems];
+    const draggedPage = newParentItems[draggedIndex];
 
-    newMenuItems.splice(draggedIndex, 1);
-    newMenuItems.splice(targetIndex, 0, draggedPage);
+    newParentItems.splice(draggedIndex, 1);
+    newParentItems.splice(targetIndex, 0, draggedPage);
 
-    newMenuItems.forEach((page, idx) => {
+    newParentItems.forEach((page, idx) => {
       page.menu_order = idx + 1;
     });
 
+    // Recombine: reordered parents + child menu items (unchanged) + non-menu pages
+    const childMenuPages = pages.filter(p => p.show_in_menu && !p.is_cta_button && p.parent_page_id);
     const nonMenuPages = pages.filter(p => !p.show_in_menu || p.is_cta_button);
-    const allPages = [...newMenuItems, ...nonMenuPages];
+    const allPages = [...newParentItems, ...childMenuPages, ...nonMenuPages];
 
     setPages(allPages);
     setDraggedIndex(null);
