@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Input } from '../Common/Input';
-import ImageUploader from '../Media/ImageUploader';
-import { Media } from '../../services/mediaService';
+import { ImageInput } from '../Common/ImageInput';
 import { Plus, Trash2, Search, Settings, BookOpen, FileText, Users, Upload } from 'lucide-react';
 
 interface ScholarRecord {
@@ -73,7 +72,6 @@ function EditableList({ items, path, addLabel, onUpdate, onAdd, onRemove }: {
 
 export const ScholarshipsEditor: React.FC<ScholarshipsEditorProps> = ({ content, onChange }) => {
   const c = content || {} as ScholarshipsContent;
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [editorTab, setEditorTab] = useState<'general' | 'overview' | 'apply' | 'scholars'>('general');
   const [scholarsPage, setScholarsPage] = useState(1);
   const [scholarsSearch, setScholarsSearch] = useState('');
@@ -267,30 +265,14 @@ export const ScholarshipsEditor: React.FC<ScholarshipsEditorProps> = ({ content,
                 <Input type="text" label="Subtitle" value={get('hero.subtitle')} onChange={(e) => update('hero.subtitle', e.target.value)} />
               </div>
               <div>
-                <label className={labelClass}>Hero Image</label>
-                {get('hero.heroImage') ? (
-                  <div className="relative">
-                    <img src={get('hero.heroImage')} alt="Hero" className="w-full h-40 object-cover rounded-lg border" />
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <button type="button" onClick={() => setIsUploadingImage(true)} className="bg-white text-gray-700 px-3 py-1 rounded text-sm shadow hover:bg-gray-50">Change</button>
-                      <button type="button" onClick={() => update('hero.heroImage', '')} className="bg-red-500 text-white px-3 py-1 rounded text-sm shadow hover:bg-red-600">Remove</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div onClick={() => setIsUploadingImage(true)} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
-                    <p className="text-gray-500 text-sm">Click to upload image</p>
-                  </div>
-                )}
-                {isUploadingImage && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold">Upload Hero Image</h4>
-                        <button type="button" onClick={() => setIsUploadingImage(false)} className="text-gray-500 hover:text-gray-700">&#10005;</button>
-                      </div>
-                      <ImageUploader onUploadSuccess={(media: Media) => { update('hero.heroImage', media.url); setIsUploadingImage(false); }} onUploadError={(err) => console.error(err)} />
-                    </div>
-                  </div>
+                <ImageInput
+                  label="Hero Image"
+                  value={get('hero.heroImage') || ''}
+                  onChange={(value: string) => update('hero.heroImage', value)}
+                  placeholder="/images/scholarship/scholarship-programme-hero.jpg"
+                />
+                {get('hero.heroImage') && (
+                  <img src={get('hero.heroImage')} alt="Hero" className="w-full h-40 object-cover rounded-lg border mt-2" />
                 )}
               </div>
             </div>

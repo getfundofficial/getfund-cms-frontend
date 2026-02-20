@@ -1,5 +1,6 @@
 import React from 'react';
 import { Input } from '../Common/Input';
+import { ImageInput } from '../Common/ImageInput';
 import { Button } from '../Common/Button';
 
 interface ScholarshipApplyContent {
@@ -10,6 +11,7 @@ interface ScholarshipApplyContent {
   hero: {
     title: string;
     subtitle?: string;
+    heroImage?: string;
   };
   requiredDocuments: {
     heading: string;
@@ -142,6 +144,12 @@ export const ScholarshipApplyEditor: React.FC<ScholarshipApplyEditorProps> = ({
             placeholder="Please review the eligibility criteria and guidelines..."
             value={content.hero?.subtitle || ''}
             onChange={(e) => handleChange('hero', 'subtitle', e.target.value)}
+          />
+          <ImageInput
+            label="Hero Banner Image"
+            value={content.hero?.heroImage || ''}
+            onChange={(value: string) => handleChange('hero', 'heroImage', value)}
+            placeholder="/images/scholarship/scholarship-cover.jpg"
           />
         </div>
       </div>
