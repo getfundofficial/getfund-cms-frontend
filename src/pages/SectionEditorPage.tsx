@@ -29,6 +29,7 @@ import { FundraisingCampaignsEditor } from '../components/PageContentEditors/Fun
 import { LotteryEditor } from '../components/PageContentEditors/LotteryEditor';
 import { FAQEditor } from '../components/PageContentEditors/FAQEditor';
 import { ScholarshipApplyEditor } from '../components/PageContentEditors/ScholarshipApplyEditor';
+import { ScholarshipsEditor } from '../components/PageContentEditors/ScholarshipsEditor';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 export const SectionEditorPage: React.FC = () => {
@@ -424,6 +425,14 @@ export const SectionEditorPage: React.FC = () => {
         if (slug === 'scholarship-programme') {
           return (
             <ScholarshipProgrammeEditor
+              content={formData.content}
+              onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
+            />
+          );
+        }
+        if (slug === 'scholarships') {
+          return (
+            <ScholarshipsEditor
               content={formData.content}
               onChange={(data) => setFormData(prev => ({ ...prev, content: data }))}
             />
