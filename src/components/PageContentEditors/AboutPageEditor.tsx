@@ -36,7 +36,10 @@ interface AboutPageContent {
   leadershipSubtitle?: string;
   boardImage?: string;
   boardTitle?: string;
-  boardDescription?: string;
+  boardMembers?: Array<{
+    name: string;
+    organization: string;
+  }>;
   boardCommitments?: Array<{
     title: string;
     description: string;
