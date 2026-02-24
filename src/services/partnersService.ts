@@ -8,6 +8,7 @@ export interface Partner {
   logo_url: string;
   website_url?: string;
   description?: string;
+  category?: string;
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -19,6 +20,7 @@ export interface CreatePartnerInput {
   logo_url: string;
   website_url?: string;
   description?: string;
+  category?: string;
   display_order?: number;
   is_active?: boolean;
 }
@@ -28,6 +30,7 @@ export interface UpdatePartnerInput {
   logo_url?: string;
   website_url?: string;
   description?: string;
+  category?: string;
   display_order?: number;
   is_active?: boolean;
 }
