@@ -36,6 +36,11 @@ interface AboutPageContent {
   leadershipSubtitle?: string;
   boardImage?: string;
   boardTitle?: string;
+  boardIntro?: string;
+  boardOrgStructureHeading?: string;
+  boardOrgStructureText?: string;
+  boardResponsibilitiesHeading?: string;
+  boardResponsibilities?: string[];
   boardMembers?: Array<{
     name: string;
     organization: string;
@@ -77,6 +82,22 @@ export const AboutPageEditor: React.FC<AboutPageEditorProps> = ({ content, onCha
   const removeRelevantFactor = (index: number) => {
     const factors = content.relevantFactors?.filter((_, i) => i !== index) || [];
     updateContent({ relevantFactors: factors });
+  };
+
+  // Board Responsibilities Methods
+  const addBoardResponsibility = () => {
+    updateContent({ boardResponsibilities: [...(content.boardResponsibilities || []), ''] });
+  };
+
+  const updateBoardResponsibility = (index: number, value: string) => {
+    const items = [...(content.boardResponsibilities || [])];
+    items[index] = value;
+    updateContent({ boardResponsibilities: items });
+  };
+
+  const removeBoardResponsibility = (index: number) => {
+    const items = content.boardResponsibilities?.filter((_, i) => i !== index) || [];
+    updateContent({ boardResponsibilities: items });
   };
 
   // Board Members Methods
@@ -423,6 +444,72 @@ export const AboutPageEditor: React.FC<AboutPageEditorProps> = ({ content, onCha
               onChange={(e) => updateContent({ boardTitle: e.target.value })}
               placeholder="Committed Board of Directors"
             />
+            {/* Board Intro */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Board Description</label>
+              <textarea
+                value={content.boardIntro || ''}
+                onChange={(e) => updateContent({ boardIntro: e.target.value })}
+                placeholder="The GETFund Board of Trustees comprises distinguished individuals..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">Introductory paragraph shown at the top of the Board of Trustees modal</p>
+            </div>
+
+            {/* Organizational Structure */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h4 className="font-semibold mb-3">Organizational Structure</h4>
+              <Input
+                label="Heading"
+                value={content.boardOrgStructureHeading || ''}
+                onChange={(e) => updateContent({ boardOrgStructureHeading: e.target.value })}
+                placeholder="Organizational Structure"
+              />
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={content.boardOrgStructureText || ''}
+                  onChange={(e) => updateContent({ boardOrgStructureText: e.target.value })}
+                  placeholder="The Board provides strategic oversight..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Key Responsibilities */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-semibold">Key Responsibilities</h4>
+                <Button onClick={addBoardResponsibility} variant="secondary" size="sm">
+                  + Add
+                </Button>
+              </div>
+              <Input
+                label="Heading"
+                value={content.boardResponsibilitiesHeading || ''}
+                onChange={(e) => updateContent({ boardResponsibilitiesHeading: e.target.value })}
+                placeholder="Key Responsibilities"
+              />
+              <div className="space-y-2 mt-3">
+                {(content.boardResponsibilities || []).map((item, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => updateBoardResponsibility(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter a responsibility"
+                    />
+                    <Button onClick={() => removeBoardResponsibility(index)} variant="secondary" size="sm">
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Board Members */}
             <div>
               <div className="flex justify-between items-center mb-3">
