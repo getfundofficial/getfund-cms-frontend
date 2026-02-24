@@ -10,6 +10,7 @@ interface PartnerModalProps {
   onClose: () => void;
   onSave: () => void;
   partner: Partner | null;
+  defaultCategory?: string;
 }
 
 export const PartnerModal: React.FC<PartnerModalProps> = ({
@@ -17,12 +18,14 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
   onClose,
   onSave,
   partner,
+  defaultCategory = '',
 }) => {
   const [formData, setFormData] = useState<CreatePartnerInput>({
     name: '',
     logo_url: '',
     website_url: '',
     description: '',
+    category: '',
     display_order: 0,
     is_active: true,
   });
@@ -38,6 +41,7 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
         logo_url: partner.logo_url,
         website_url: partner.website_url || '',
         description: partner.description || '',
+        category: partner.category || '',
         display_order: partner.display_order,
         is_active: partner.is_active,
       });
@@ -47,12 +51,13 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
         logo_url: '',
         website_url: '',
         description: '',
+        category: defaultCategory,
         display_order: 0,
         is_active: true,
       });
     }
     setErrors({});
-  }, [isOpen, partner]);
+  }, [isOpen, partner, defaultCategory]);
 
   const handleChange = (field: keyof CreatePartnerInput, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -272,6 +277,24 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
               rows={3}
               placeholder="Brief description of the partnership..."
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <select
+              value={formData.category || ''}
+              onChange={(e) => handleChange('category', e.target.value || undefined)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">General</option>
+              <option value="university">University</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              University partners appear on the Scholarships page
+            </p>
           </div>
 
           {/* Display Order */}
