@@ -8,7 +8,7 @@ import LoadingScreen from '../components/Common/LoadingScreen';
 import { CalendarWidget } from '../components/Dashboard/CalendarWidget';
 
 export const DashboardPage: React.FC = () => {
-  const { user, hasAdminPermission } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
