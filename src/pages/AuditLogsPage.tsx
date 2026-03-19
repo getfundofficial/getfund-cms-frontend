@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
-import axios from 'axios';
+import { api } from '../services/api';
 import LoadingScreen from '../components/Common/LoadingScreen';
 
 interface AuditLog {
@@ -29,8 +29,6 @@ interface ContentInfo {
   status: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-
 export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [contentDetails, setContentDetails] = useState<Record<string, ContentInfo>>({});
@@ -52,7 +50,6 @@ export const AuditLogsPage: React.FC = () => {
   const loadAuditLogs = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('accessToken');
       const offset = (currentPage - 1) * logsPerPage;
 
       const params: any = {
@@ -65,18 +62,9 @@ export const AuditLogsPage: React.FC = () => {
       if (filter.entity_type) params.entity_type = filter.entity_type;
       if (filter.user_id) params.user_id = filter.user_id;
 
-      console.log('Fetching audit logs with params:', params);
-      console.log('Token:', token ? 'Present' : 'Missing');
-      console.log('API URL:', `${API_URL}/audit-logs`);
-
-      const response = await axios.get<AuditLogsResponse>(`${API_URL}/audit-logs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await api.get<AuditLogsResponse>(`/audit-logs`, {
         params,
       });
-
-      console.log('Audit logs response:', response.data);
 
       const logsData = response.data?.logs || [];
       const totalData = response.data?.total || 0;
@@ -94,11 +82,7 @@ export const AuditLogsPage: React.FC = () => {
       await Promise.all(
         contentIds.map(async (id) => {
           try {
-            const contentRes = await axios.get(`${API_URL}/content/${id}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+            const contentRes = await api.get(`/content/${id}`);
             contentDetailsMap[id] = {
               id: contentRes.data.id,
               title: contentRes.data.title,

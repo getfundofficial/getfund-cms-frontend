@@ -23,6 +23,11 @@ interface NavItem {
   children?: NavChildItem[];
 }
 
+interface NavSection {
+  label?: string;
+  items: NavItem[];
+}
+
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout, hasNavPermission, hasAdminPermission } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +35,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
   const { counts } = useNotificationCount({
     enabled: hasAdminPermission('users'),
   });
@@ -42,6 +48,20 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const isMenuExpanded = (path: string) => {
     return expandedMenus.includes(path) || location.pathname.startsWith(path + '/');
+  };
+
+  const toggleSection = (label: string) => {
+    setCollapsedSections(prev =>
+      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
+    );
+  };
+
+  const isSectionCollapsed = (section: NavSection) => {
+    if (!section.label) return false;
+    // Don't collapse if the section contains the active route
+    const hasActiveItem = section.items.some(item => isActive(item.path));
+    if (hasActiveItem) return false;
+    return collapsedSections.includes(section.label);
   };
 
   const handleLogout = () => {
@@ -70,174 +90,225 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-  const navItems: NavItem[] = [
+  const navSections: NavSection[] = [
     {
-      path: '/admin/dashboard',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
-      label: 'Dashboard',
-      show: hasNavPermission('dashboard'),
-    },
-    {
-      path: '/admin/news',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
-      label: 'News Articles',
-      show: hasNavPermission('news'),
-    },
-    {
-      path: '/admin/pages',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-      ),
-      label: 'Pages',
-      show: hasNavPermission('pages'),
-    },
-    {
-      path: '/admin/review',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-      ),
-      label: 'Review Queue',
-      show: hasNavPermission('reviewQueue'),
-    },
-    {
-      path: '/admin/approval',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      label: 'Approval Queue',
-      show: hasNavPermission('approvalQueue'),
-    },
-    {
-      path: '/admin/media',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-        </svg>
-      ),
-      label: 'Media Library',
-      show: hasNavPermission('mediaLibrary'),
-    },
-    {
-      path: '/admin/impact-stats',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-      label: 'Impact Stats',
-      show: hasNavPermission('impactStats'),
-    },
-    {
-      path: '/admin/campaigns',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      label: 'Fundraising Campaigns',
-      show: hasNavPermission('campaigns'),
-    },
-    {
-      path: '/admin/lottery',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-        </svg>
-      ),
-      label: 'Lottery',
-      show: hasAdminPermission('lotteryConfig') || hasAdminPermission('lotteryEntries'),
-      children: [
-        { path: '/admin/lottery/config', label: 'Lottery Config' },
-        { path: '/admin/lottery/entries', label: 'Lottery Entries' },
+      items: [
+        {
+          path: '/admin/dashboard',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          ),
+          label: 'Dashboard',
+          show: hasNavPermission('dashboard'),
+        },
       ],
     },
     {
-      path: '/admin/footer-settings',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
-      ),
-      label: 'Footer Settings',
-      show: hasAdminPermission('footerSettings'),
+      label: 'News',
+      items: [
+        {
+          path: '/admin/news',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          ),
+          label: 'News Articles',
+          show: hasNavPermission('news'),
+        },
+        {
+          path: '/admin/review',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          ),
+          label: 'Review Queue',
+          show: hasNavPermission('reviewQueue'),
+        },
+        {
+          path: '/admin/approval',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          label: 'Approval Queue',
+          show: hasNavPermission('approvalQueue'),
+        },
+      ],
     },
     {
-      path: '/admin/pledges',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-      ),
-      label: 'Pledges',
-      show: hasAdminPermission('pledges'),
+      label: 'Content',
+      items: [
+        {
+          path: '/admin/pages',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          ),
+          label: 'Pages',
+          show: hasNavPermission('pages'),
+        },
+        {
+          path: '/admin/media',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          ),
+          label: 'Media Library',
+          show: hasNavPermission('mediaLibrary'),
+        },
+      ],
     },
     {
-      path: '/admin/donations',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      label: 'All Donations',
-      show: hasAdminPermission('donations'),
+      label: 'Fundraising',
+      items: [
+        {
+          path: '/admin/campaigns',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          label: 'Fundraising Campaigns',
+          show: hasNavPermission('campaigns'),
+        },
+        {
+          path: '/admin/pledges',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          ),
+          label: 'Pledges',
+          show: hasAdminPermission('pledges'),
+        },
+        {
+          path: '/admin/donations',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          label: 'All Donations',
+          show: hasAdminPermission('donations'),
+        },
+        {
+          path: '/admin/lottery',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+          ),
+          label: 'Lottery',
+          show: hasAdminPermission('lotteryConfig') || hasAdminPermission('lotteryEntries'),
+          children: [
+            { path: '/admin/lottery/config', label: 'Lottery Config' },
+            { path: '/admin/lottery/entries', label: 'Lottery Entries' },
+          ],
+        },
+      ],
     },
     {
-      path: '/admin/team-members',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      ),
-      label: 'Team Members',
-      show: hasNavPermission('teamMembers'),
+      label: 'Analytics',
+      items: [
+        {
+          path: '/admin/impact-stats',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          ),
+          label: 'Impact Stats',
+          show: hasNavPermission('impactStats'),
+        },
+      ],
     },
     {
-      path: '/admin/partners',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-        </svg>
-      ),
-      label: 'Partners',
-      show: true,
+      label: 'Organization',
+      items: [
+        {
+          path: '/admin/team-members',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          ),
+          label: 'Team Members',
+          show: hasNavPermission('teamMembers'),
+        },
+        {
+          path: '/admin/partners',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          ),
+          label: 'Partners',
+          show: true,
+        },
+      ],
     },
     {
-      path: '/admin/users',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
-      label: 'Users',
-      show: hasAdminPermission('users'),
-      badge: counts.passwordResetRequests,
-    },
-    {
-      path: '/admin/audit-logs',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      ),
-      label: 'Audit Logs',
-      show: hasAdminPermission('auditLogs'),
+      label: 'Settings',
+      items: [
+        {
+          path: '/admin/footer-settings',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          ),
+          label: 'Footer Settings',
+          show: hasAdminPermission('footerSettings'),
+        },
+        {
+          path: '/admin/users',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          ),
+          label: 'Users',
+          show: hasAdminPermission('users'),
+          badge: counts.passwordResetRequests,
+        },
+        {
+          path: '/admin/audit-logs',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          ),
+          label: 'Audit Logs',
+          show: hasAdminPermission('auditLogs'),
+        },
+      ],
     },
   ];
+
+  const navItems = navSections.flatMap(section => section.items);
+
+  const collapseAllExceptNews = () => {
+    const allLabels = navSections
+      .map(s => s.label)
+      .filter((label): label is string => !!label && label !== 'News');
+    setCollapsedSections(allLabels);
+  };
+
+  const expandAll = () => {
+    setCollapsedSections([]);
+  };
+
+  const isAllCollapsed = navSections
+    .filter(s => s.label && s.label !== 'News')
+    .every(s => collapsedSections.includes(s.label!));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
@@ -322,87 +393,180 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-          {navItems
-            .filter(item => item.show)
-            .map((item) => (
-              <div key={item.path}>
-                {item.children ? (
-                  // Collapsible menu item
+        {isSidebarOpen && (
+          <div className="px-3 pt-3 hidden lg:block">
+            <button
+              onClick={isAllCollapsed ? expandAll : collapseAllExceptNews}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {isAllCollapsed ? (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  Expand All
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.5 3.5M9 15v4.5M9 15H4.5M9 15l-5.5 5.5M15 9h4.5M15 9V4.5M15 9l5.5-5.5M15 15h4.5M15 15v4.5m0-4.5l5.5 5.5" />
+                  </svg>
+                  Collapse All
+                </>
+              )}
+            </button>
+          </div>
+        )}
+        {/* Mobile version */}
+        <div className="px-3 pt-3 lg:hidden">
+          <button
+            onClick={isAllCollapsed ? expandAll : collapseAllExceptNews}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            {isAllCollapsed ? (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+                Expand All
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.5 3.5M9 15v4.5M9 15H4.5M9 15l-5.5 5.5M15 9h4.5M15 9V4.5M15 9l5.5-5.5M15 15h4.5M15 15v4.5m0-4.5l5.5 5.5" />
+                </svg>
+                Collapse All
+              </>
+            )}
+          </button>
+        </div>
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {navSections.map((section, sectionIndex) => {
+            const visibleItems = section.items.filter(item => item.show);
+            if (visibleItems.length === 0) return null;
+            return (
+              <div key={section.label || sectionIndex}>
+                {section.label && (
                   <>
-                    <button
-                      onClick={() => toggleMenu(item.path)}
-                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                        isActive(item.path)
-                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md'
-                          : 'text-gray-700 hover:bg-gray-100 hover:shadow-sm'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={isActive(item.path) ? 'scale-110' : ''}>
-                          {item.icon}
-                        </span>
-                        <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
-                        {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
-                      </div>
-                      {isSidebarOpen && (
+                    {isSidebarOpen ? (
+                      <button
+                        onClick={() => toggleSection(section.label!)}
+                        className="w-full flex items-center justify-between px-4 pt-4 pb-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors lg:flex hidden group"
+                      >
+                        {section.label}
                         <svg
-                          className={`w-4 h-4 transition-transform ${isMenuExpanded(item.path) ? 'rotate-180' : ''}`}
+                          className={`w-3.5 h-3.5 transition-transform opacity-0 group-hover:opacity-100 ${isSectionCollapsed(section) ? '-rotate-90' : ''}`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
-                      )}
+                      </button>
+                    ) : (
+                      <div className="hidden lg:block border-t border-gray-200 mx-3 my-2" />
+                    )}
+                    <button
+                      onClick={() => toggleSection(section.label!)}
+                      className="w-full flex items-center justify-between px-4 pt-4 pb-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors lg:hidden group"
+                    >
+                      {section.label}
+                      <svg
+                        className={`w-3.5 h-3.5 transition-transform opacity-0 group-hover:opacity-100 ${isSectionCollapsed(section) ? '-rotate-90' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
                     </button>
-                    {isMenuExpanded(item.path) && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.path}
-                            to={child.path}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                              location.pathname === child.path
-                                ? 'bg-primary-100 text-primary-700 font-semibold'
-                                : 'text-gray-600 hover:bg-gray-100'
+                  </>
+                )}
+                {!isSectionCollapsed(section) && (
+                <div className="space-y-1">
+                  {visibleItems.map((item) => (
+                    <div key={item.path}>
+                      {item.children ? (
+                        // Collapsible menu item
+                        <>
+                          <button
+                            onClick={() => toggleMenu(item.path)}
+                            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                              isActive(item.path)
+                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md'
+                                : 'text-gray-700 hover:bg-gray-100 hover:shadow-sm'
                             }`}
                           >
-                            <span className="w-2 h-2 rounded-full bg-current opacity-50"></span>
-                            <span className="text-sm">{child.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // Regular menu item
-                  <Link
-                    to={item.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                      isActive(item.path)
-                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md scale-105'
-                        : 'text-gray-700 hover:bg-gray-100 hover:scale-102 hover:shadow-sm'
-                    }`}
-                  >
-                    <span className={isActive(item.path) ? 'scale-110' : ''}>
-                      {item.icon}
-                    </span>
-                    <span className={`text-sm font-medium lg:hidden flex-1`}>{item.label}</span>
-                    {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium flex-1">{item.label}</span>}
-                    {item.badge && item.badge > 0 ? (
-                      <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full ${
-                        isActive(item.path) ? 'bg-white/30 text-white' : 'bg-red-500 text-white'
-                      }`}>
-                        {item.badge > 99 ? '99+' : item.badge}
-                      </span>
-                    ) : null}
-                  </Link>
+                            <div className="flex items-center gap-3">
+                              <span className={isActive(item.path) ? 'scale-110' : ''}>
+                                {item.icon}
+                              </span>
+                              <span className={`text-sm font-medium lg:hidden`}>{item.label}</span>
+                              {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium">{item.label}</span>}
+                            </div>
+                            {isSidebarOpen && (
+                              <svg
+                                className={`w-4 h-4 transition-transform ${isMenuExpanded(item.path) ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                          </button>
+                          {isMenuExpanded(item.path) && (
+                            <div className="ml-4 mt-1 space-y-1">
+                              {item.children.map((child) => (
+                                <Link
+                                  key={child.path}
+                                  to={child.path}
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                                    location.pathname === child.path
+                                      ? 'bg-primary-100 text-primary-700 font-semibold'
+                                      : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  <span className="w-2 h-2 rounded-full bg-current opacity-50"></span>
+                                  <span className="text-sm">{child.label}</span>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        // Regular menu item
+                        <Link
+                          to={item.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                            isActive(item.path)
+                              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-md scale-105'
+                              : 'text-gray-700 hover:bg-gray-100 hover:scale-102 hover:shadow-sm'
+                          }`}
+                        >
+                          <span className={isActive(item.path) ? 'scale-110' : ''}>
+                            {item.icon}
+                          </span>
+                          <span className={`text-sm font-medium lg:hidden flex-1`}>{item.label}</span>
+                          {isSidebarOpen && <span className="hidden lg:inline text-sm font-medium flex-1">{item.label}</span>}
+                          {item.badge && item.badge > 0 ? (
+                            <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full ${
+                              isActive(item.path) ? 'bg-white/30 text-white' : 'bg-red-500 text-white'
+                            }`}>
+                              {item.badge > 99 ? '99+' : item.badge}
+                            </span>
+                          ) : null}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 )}
               </div>
-            ))}
+            );
+          })}
         </nav>
 
         {/* User Info */}
@@ -510,7 +674,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   <NotificationBell counts={counts} />
                 )}
                 <a
-                  href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund-website.vercel.app"}
+                  href={import.meta.env.VITE_PUBLIC_WEBSITE_URL || "https://getfund.gov.gh"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-xl transition-all hover:shadow-sm"

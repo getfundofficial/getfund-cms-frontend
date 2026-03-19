@@ -4,6 +4,7 @@ import { Input } from '../Common/Input';
 import { ImageInput } from '../Common/ImageInput';
 import { LinkInput } from '../Common/LinkInput';
 import { Plus, Trash2, MoveUp, MoveDown, ChevronDown, ChevronRight } from 'lucide-react';
+import mediaService from '../../services/mediaService';
 
 type FontSize = 'small' | 'medium' | 'large' | 'xlarge';
 type GradientDirection = 'to right' | 'to bottom' | 'to bottom right' | 'to top right';
@@ -113,10 +114,50 @@ interface HomePageEditorProps {
   onChange: (content: HomePageContent) => void;
 }
 
+// Default testimonials matching the website fallback content
+const defaultTestimonials: Testimonial[] = [
+  {
+    quote: "GETFund scholarship changed my life. I was able to complete my medical degree and now I'm serving my community as a doctor.",
+    authorName: "Dr. Ama Mensah",
+    authorRole: "GETFund Scholarship Beneficiary",
+    location: "Kumasi, Ghana",
+    authorImage: "/images/scholarship/OME1079.jpg"
+  },
+  {
+    quote: "Our school was transformed with new classrooms and a modern science laboratory. Our students now have the facilities they need to excel.",
+    authorName: "Mr. Kofi Asante",
+    authorRole: "School Headmaster",
+    location: "Northern Region",
+    authorImage: "/images/about/getfund-7th-board-inauguration.jpg"
+  },
+  {
+    quote: "Thanks to GETFund's infrastructure projects, our community now has access to quality education. The new school building has given our children hope.",
+    authorName: "Madam Efua Darko",
+    authorRole: "Community Leader",
+    location: "Western Region",
+    authorImage: "/images/hero/main-slider-3.jpg"
+  }
+];
+
 export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChange }) => {
   const [activeTab, setActiveTab] = useState<'hero' | 'achievements' | 'stats' | 'testimonials' | 'news'>('hero');
   const [expandedSlides, setExpandedSlides] = useState<Set<number>>(new Set());
   const [expandedSections, setExpandedSections] = useState<Record<number, Set<string>>>({});
+  // Merge defaults so CMS always shows what the website displays
+  const effectiveTestimonials = content.testimonials && content.testimonials.length > 0
+    ? content.testimonials
+    : defaultTestimonials;
+  const effectiveTestimonialsTitle = content.testimonialsTitle || 'What Our Beneficiaries Say';
+  const effectiveTestimonialsSubtitle = content.testimonialsSubtitle || 'Hear from students and communities whose lives have been transformed through GETFund support';
+
+  const updateContent = (updates: Partial<HomePageContent>) => {
+    // When saving any testimonial change, ensure defaults are persisted
+    const merged = { ...content, ...updates };
+    if (!merged.testimonialsTitle) merged.testimonialsTitle = effectiveTestimonialsTitle;
+    if (!merged.testimonialsSubtitle) merged.testimonialsSubtitle = effectiveTestimonialsSubtitle;
+    if (!merged.testimonials || merged.testimonials.length === 0) merged.testimonials = effectiveTestimonials;
+    onChange(merged);
+  };
 
   const toggleSlideExpanded = (index: number) => {
     const newExpanded = new Set(expandedSlides);
@@ -143,9 +184,6 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
     return expandedSections[slideIndex]?.has(section) || false;
   };
 
-  const updateContent = (updates: Partial<HomePageContent>) => {
-    onChange({ ...content, ...updates });
-  };
 
   // Font size options for dropdowns
   const fontSizeOptions: { value: FontSize; label: string }[] = [
@@ -1098,14 +1136,14 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Section Title"
-              value={content.testimonialsTitle || ''}
+              value={effectiveTestimonialsTitle}
               onChange={(e) => updateContent({ testimonialsTitle: e.target.value })}
               placeholder="What Our Beneficiaries Say"
             />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Section Subtitle</label>
               <textarea
-                value={content.testimonialsSubtitle || ''}
+                value={effectiveTestimonialsSubtitle}
                 onChange={(e) => updateContent({ testimonialsSubtitle: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 rows={2}
@@ -1123,7 +1161,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
               </div>
               <Button
                 onClick={() => {
-                  const testimonials = content.testimonials || [];
+                  const testimonials = [...effectiveTestimonials];
                   updateContent({
                     testimonials: [...testimonials, { quote: '', authorName: '', authorRole: '', location: '', authorImage: '' }]
                   });
@@ -1137,14 +1175,14 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
             </div>
 
             <div className="space-y-4">
-              {(content.testimonials || []).map((testimonial, index) => (
+              {effectiveTestimonials.map((testimonial, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-sm">Testimonial {index + 1}</span>
                     <button
                       type="button"
                       onClick={() => {
-                        const testimonials = content.testimonials?.filter((_, i) => i !== index) || [];
+                        const testimonials = effectiveTestimonials.filter((_, i) => i !== index);
                         updateContent({ testimonials });
                       }}
                       className="p-1 text-red-500 hover:text-red-700"
@@ -1158,7 +1196,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                     <textarea
                       value={testimonial.quote}
                       onChange={(e) => {
-                        const testimonials = [...(content.testimonials || [])];
+                        const testimonials = [...effectiveTestimonials];
                         testimonials[index] = { ...testimonial, quote: e.target.value };
                         updateContent({ testimonials });
                       }}
@@ -1173,7 +1211,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                       label="Author Name"
                       value={testimonial.authorName}
                       onChange={(e) => {
-                        const testimonials = [...(content.testimonials || [])];
+                        const testimonials = [...effectiveTestimonials];
                         testimonials[index] = { ...testimonial, authorName: e.target.value };
                         updateContent({ testimonials });
                       }}
@@ -1183,7 +1221,7 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                       label="Author Role"
                       value={testimonial.authorRole}
                       onChange={(e) => {
-                        const testimonials = [...(content.testimonials || [])];
+                        const testimonials = [...effectiveTestimonials];
                         testimonials[index] = { ...testimonial, authorRole: e.target.value };
                         updateContent({ testimonials });
                       }}
@@ -1196,28 +1234,40 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                       label="Location"
                       value={testimonial.location || ''}
                       onChange={(e) => {
-                        const testimonials = [...(content.testimonials || [])];
+                        const testimonials = [...effectiveTestimonials];
                         testimonials[index] = { ...testimonial, location: e.target.value };
                         updateContent({ testimonials });
                       }}
                       placeholder="Kumasi, Ghana"
                     />
-                    <ImageInput
-                      label="Author Image"
-                      value={testimonial.authorImage || ''}
-                      onChange={(value) => {
-                        const testimonials = [...(content.testimonials || [])];
-                        testimonials[index] = { ...testimonial, authorImage: value };
-                        updateContent({ testimonials });
-                      }}
-                      placeholder="/images/testimonials/author.jpg"
-                    />
+                    <div>
+                      <ImageInput
+                        label="Author Image"
+                        value={testimonial.authorImage || ''}
+                        onChange={(value) => {
+                          const testimonials = [...effectiveTestimonials];
+                          testimonials[index] = { ...testimonial, authorImage: value };
+                          updateContent({ testimonials });
+                        }}
+                        placeholder="/images/testimonials/author.jpg"
+                      />
+                      {testimonial.authorImage && (
+                        <div className="mt-2">
+                          <img
+                            src={mediaService.getFullUrl(testimonial.authorImage)}
+                            alt={testimonial.authorName || 'Author'}
+                            className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {(!content.testimonials || content.testimonials.length === 0) && (
+            {effectiveTestimonials.length === 0 && (
               <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed border-gray-300 rounded-lg">
                 No testimonials added yet. Click "Add Testimonial" to add beneficiary quotes.
               </div>
