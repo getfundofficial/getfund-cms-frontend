@@ -35,6 +35,7 @@ interface HeroSlide {
   blueBox?: BlueBoxSettings;
   mediaType?: 'image' | 'video';
   videoUrl?: string;
+  loop?: boolean;
 }
 
 interface Service {
@@ -407,6 +408,23 @@ export const HomePageEditor: React.FC<HomePageEditorProps> = ({ content, onChang
                             />
                             <p className="text-xs text-gray-500 mt-1">
                               Supports YouTube, Vimeo, or direct video files (.mp4, .webm)
+                            </p>
+                          </div>
+                        )}
+
+                        {slide.mediaType === 'video' && (
+                          <div>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={slide.loop ?? true}
+                                onChange={(e) => updateHeroSlide(index, { ...slide, loop: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 rounded"
+                              />
+                              <span className="text-sm text-gray-700">Loop video continuously</span>
+                            </label>
+                            <p className="text-xs text-gray-500 mt-1">
+                              When on, the video repeats for as long as the slide is shown. When off, it plays once.
                             </p>
                           </div>
                         )}
