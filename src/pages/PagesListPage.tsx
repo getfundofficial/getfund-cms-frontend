@@ -48,6 +48,7 @@ import {
   FolderTree,
   CornerDownRight
 } from 'lucide-react';
+import SiteSwitcher from '../components/SiteSwitcher';
 
 interface QuickLink {
   name: string;
@@ -445,6 +446,11 @@ export const PagesListPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Pages</h1>
             <p className="text-gray-500 mt-1">Manage website pages, navigation menu, and footer links</p>
+            {/* Both sites have an About, an Impact and a Contact, so which one
+                is being edited has to be visible before anything is clicked. */}
+            <div className="mt-3">
+              <SiteSwitcher onChange={() => loadPages()} />
+            </div>
           </div>
 
           <div className="flex items-center gap-3">

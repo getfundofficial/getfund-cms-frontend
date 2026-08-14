@@ -1,4 +1,5 @@
 import { api } from './api';
+import { siteParams } from './site';
 
 export interface Page {
   id: string;
@@ -125,12 +126,12 @@ export interface PagePermission {
 export const pageService = {
   // Pages
   async getAll(): Promise<Page[]> {
-    const response = await api.get('/pages');
+    const response = await api.get('/pages', { params: siteParams() });
     return response.data.pages;
   },
 
   async getBySlug(slug: string): Promise<Page> {
-    const response = await api.get(`/pages/${slug}`);
+    const response = await api.get(`/pages/${slug}`, { params: siteParams() });
     return response.data.page;
   },
 
@@ -142,7 +143,7 @@ export const pageService = {
     layout_template?: string;
     is_active?: boolean;
   }): Promise<Page> {
-    const response = await api.post('/pages', data);
+    const response = await api.post('/pages', data, { params: siteParams() });
     return response.data.page;
   },
 
@@ -155,32 +156,32 @@ export const pageService = {
       layout_template?: string;
     }
   ): Promise<Page> {
-    const response = await api.put(`/pages/${slug}`, data);
+    const response = await api.put(`/pages/${slug}`, data, { params: siteParams() });
     return response.data.page;
   },
 
   async delete(slug: string): Promise<void> {
-    await api.delete(`/pages/${slug}`);
+    await api.delete(`/pages/${slug}`, { params: siteParams() });
   },
 
   async publish(slug: string): Promise<Page> {
-    const response = await api.post(`/pages/${slug}/publish`);
+    const response = await api.post(`/pages/${slug}/publish`, undefined, { params: siteParams() });
     return response.data.page;
   },
 
   async unpublish(slug: string): Promise<Page> {
-    const response = await api.post(`/pages/${slug}/unpublish`);
+    const response = await api.post(`/pages/${slug}/unpublish`, undefined, { params: siteParams() });
     return response.data.page;
   },
 
   // Sections
   async getSections(slug: string): Promise<PageSection[]> {
-    const response = await api.get(`/pages/${slug}/sections`);
+    const response = await api.get(`/pages/${slug}/sections`, { params: siteParams() });
     return response.data.sections;
   },
 
   async getSection(slug: string, sectionKey: string): Promise<PageSection> {
-    const response = await api.get(`/pages/${slug}/sections/${sectionKey}`);
+    const response = await api.get(`/pages/${slug}/sections/${sectionKey}`, { params: siteParams() });
     return response.data.section;
   },
 
@@ -195,7 +196,7 @@ export const pageService = {
       is_active?: boolean;
     }
   ): Promise<PageSection> {
-    const response = await api.post(`/pages/${slug}/sections`, data);
+    const response = await api.post(`/pages/${slug}/sections`, data, { params: siteParams() });
     return response.data.section;
   },
 
@@ -209,12 +210,12 @@ export const pageService = {
       order_index?: number;
     }
   ): Promise<PageSection> {
-    const response = await api.put(`/pages/${slug}/sections/${sectionKey}`, data);
+    const response = await api.put(`/pages/${slug}/sections/${sectionKey}`, data, { params: siteParams() });
     return response.data.section;
   },
 
   async deleteSection(slug: string, sectionKey: string): Promise<void> {
-    await api.delete(`/pages/${slug}/sections/${sectionKey}`);
+    await api.delete(`/pages/${slug}/sections/${sectionKey}`, { params: siteParams() });
   },
 
   // Menu Configuration
@@ -228,13 +229,13 @@ export const pageService = {
       parent_page_id?: string | null;
     }
   ): Promise<Page> {
-    const response = await api.put(`/pages/${slug}/menu-config`, data);
+    const response = await api.put(`/pages/${slug}/menu-config`, data, { params: siteParams() });
     return response.data.page;
   },
 
   // Permissions
   async getPermissions(slug: string): Promise<PagePermission[]> {
-    const response = await api.get(`/pages/${slug}/permissions`);
+    const response = await api.get(`/pages/${slug}/permissions`, { params: siteParams() });
     return response.data.permissions;
   },
 
@@ -247,7 +248,7 @@ export const pageService = {
       permission_type: 'view' | 'edit' | 'publish';
     }
   ): Promise<PagePermission> {
-    const response = await api.post(`/pages/${slug}/permissions`, data);
+    const response = await api.post(`/pages/${slug}/permissions`, data, { params: siteParams() });
     return response.data.permission;
   },
 
