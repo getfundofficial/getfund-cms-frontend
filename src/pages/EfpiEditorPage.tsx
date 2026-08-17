@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Breadcrumb } from '../components/Common/Breadcrumb';
 import { Button } from '../components/Common/Button';
+import FieldInspector from '../components/Efpi/FieldInspector';
 import {
   EFPI_PAGES,
   EFPI_SITE_URL,
@@ -35,7 +36,6 @@ export default function EfpiEditorPage() {
   const [previewReady, setPreviewReady] = useState(false);
 
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const page = EFPI_PAGES.find((p) => p.slug === slug) ?? EFPI_PAGES[0];
 
@@ -86,16 +86,9 @@ export default function EfpiEditorPage() {
       const data = event.data;
       if (!data || data.source !== 'efpi-site') return;
       if (data.type === 'ready') setPreviewReady(true);
-      if (data.type === 'select' && typeof data.key === 'string') {
-        setSelected(data.key);
-        setSearch('');
-        // Wait for the filter to clear before scrolling to the field.
-        requestAnimationFrame(() => {
-          const el = fieldRefs.current[data.key];
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el?.querySelector<HTMLElement>('textarea, input')?.focus();
-        });
-      }
+      // The inspector focuses its own control when the selection changes,
+      // so selecting is all that needs doing here.
+      if (data.type === 'select' && typeof data.key === 'string') setSelected(data.key);
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
@@ -150,7 +143,7 @@ export default function EfpiEditorPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">EFPI website</h1>
             <p className="text-gray-500 text-sm mt-0.5">
-              Click any text in the preview to edit it, or search below.
+              Click any text or image on the page to change it.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -212,96 +205,67 @@ export default function EfpiEditorPage() {
             />
           </div>
 
-          {/* Fields */}
-          <div className="rounded-xl border border-gray-200 bg-white flex flex-col" style={{ height: 'calc(100vh - 210px)', minHeight: 520 }}>
-            <div className="p-3 border-b border-gray-100">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={`Search ${fields.length} fields on this page…`}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              {isLoading && <p className="text-sm text-gray-500">Loading…</p>}
-              {!isLoading && visible.length === 0 && (
-                <p className="text-sm text-gray-500">Nothing matches “{search}”.</p>
+          {/* Selected element */}
+          <div
+            className="rounded-xl border border-gray-200 bg-white flex flex-col overflow-hidden"
+            style={{ height: 'calc(100vh - 210px)', minHeight: 520 }}
+          >
+            <div className="flex-1 min-h-0">
+              {isLoading ? (
+                <p className="p-4 text-sm text-gray-500">Loading…</p>
+              ) : (
+                <FieldInspector
+                  field={fields.find((f) => f.key === selected) ?? null}
+                  isChanged={
+                    !!selected &&
+                    original[selected] !== undefined &&
+                    original[selected] !== fields.find((f) => f.key === selected)?.value
+                  }
+                  onChange={change}
+                  onRevertField={(key) => {
+                    const was = original[key];
+                    if (was === undefined) return;
+                    change(key, was);
+                  }}
+                />
               )}
-
-              {visible.map((field) => {
-                const isSelected = field.key === selected;
-                const isChanged = original[field.key] !== undefined && original[field.key] !== field.value;
-                return (
-                  <div
-                    key={field.key}
-                    ref={(el) => { fieldRefs.current[field.key] = el; }}
-                    className={`rounded-lg border p-2.5 transition-colors ${
-                      isSelected ? 'border-blue-500 bg-blue-50/40' : 'border-gray-200'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <button
-                        type="button"
-                        // Clicking the label walks the preview to this element —
-                        // the reverse of clicking the preview to reach the field.
-                        onClick={() => {
-                          setSelected(field.key);
-                          toPreview({ type: 'reveal', key: field.key });
-                        }}
-                        className="text-left text-xs font-medium text-gray-700 hover:text-blue-600 leading-snug"
-                        title="Show this on the page"
-                      >
-                        {labelFor(field)}
-                      </button>
-                      {isChanged && <span className="text-[10px] text-amber-600 shrink-0">edited</span>}
-                    </div>
-
-                    {field.kind === 'text' && (
-                      <input
-                        value={field.value}
-                        onChange={(e) => change(field.key, e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm"
-                      />
-                    )}
-
-                    {(field.kind === 'longtext' || field.kind === 'html') && (
-                      <textarea
-                        value={field.value}
-                        onChange={(e) => change(field.key, e.target.value)}
-                        rows={field.kind === 'html' ? 6 : 3}
-                        className={`w-full border border-gray-300 rounded px-2 py-1.5 text-sm ${
-                          field.kind === 'html' ? 'font-mono text-xs' : ''
-                        }`}
-                      />
-                    )}
-
-                    {field.kind === 'asset' && (
-                      <div className="space-y-1.5">
-                        {/\.(png|jpe?g|gif|svg|webp|avif)$/i.test(field.value) && (
-                          <img
-                            src={field.value.startsWith('http') ? field.value : `${EFPI_SITE_URL}${field.value}`}
-                            alt=""
-                            className="h-16 w-auto rounded border border-gray-200 bg-gray-50 object-contain"
-                          />
-                        )}
-                        <input
-                          value={field.value}
-                          onChange={(e) => change(field.key, e.target.value)}
-                          className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs font-mono"
-                        />
-                      </div>
-                    )}
-
-                    {field.kind === 'html' && (
-                      <p className="mt-1 text-[10px] text-gray-400">
-                        Contains formatting — keep the tags intact.
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
             </div>
+
+            {/*
+              A way in for the handful of items the preview cannot locate —
+              values that render into an attribute, or text that appears twice.
+              Collapsed, because it is the exception, not the way to work.
+            */}
+            <details className="border-t border-gray-100 shrink-0">
+              <summary className="px-4 py-2.5 text-xs text-gray-500 cursor-pointer select-none hover:bg-gray-50">
+                Can’t click it? Search all {fields.length} items
+              </summary>
+              <div className="px-3 pb-3">
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by its words…"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+                />
+                <div className="max-h-52 overflow-y-auto space-y-1">
+                  {visible.slice(0, 40).map((field) => (
+                    <button
+                      key={field.key}
+                      type="button"
+                      onClick={() => {
+                        setSelected(field.key);
+                        toPreview({ type: 'reveal', key: field.key });
+                      }}
+                      className={`block w-full text-left text-xs px-2 py-1.5 rounded hover:bg-gray-100 ${
+                        field.key === selected ? 'bg-blue-50 text-blue-700' : 'text-gray-600'
+                      }`}
+                    >
+                      {labelFor(field)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
           </div>
         </div>
       </div>
