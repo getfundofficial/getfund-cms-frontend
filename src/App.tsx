@@ -34,6 +34,7 @@ import { ImpactDonationsPage } from './pages/ImpactDonationsPage';
 import { DonationsPage } from './pages/DonationsPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
+import EfpiEditorPage from './pages/EfpiEditorPage';
 
 function App() {
   return (
@@ -263,6 +264,18 @@ function App() {
               <ProtectedRoute requiredRoles={['admin']} requiredAdminPermission="footerSettings">
                 <AdminLayout>
                   <FooterConfigEditor />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* EFPI website editor: preview on the left, its copy on the right */}
+          <Route
+            path="/admin/efpi"
+            element={
+              <ProtectedRoute requiredNavPermission="pages">
+                <AdminLayout>
+                  <EfpiEditorPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
