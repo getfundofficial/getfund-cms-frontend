@@ -35,6 +35,7 @@ import { DonationsPage } from './pages/DonationsPage';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { AdminLayout } from './components/Layout/AdminLayout';
 import EfpiEditorPage from './pages/EfpiEditorPage';
+import EfpiSubmissionsPage from './pages/EfpiSubmissionsPage';
 
 function App() {
   return (
@@ -276,6 +277,18 @@ function App() {
               <ProtectedRoute requiredNavPermission="pages">
                 <AdminLayout>
                   <EfpiEditorPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Enquiries from the EFPI site's contact, partner and factsheet forms */}
+          <Route
+            path="/admin/efpi/submissions"
+            element={
+              <ProtectedRoute requiredNavPermission="pages">
+                <AdminLayout>
+                  <EfpiSubmissionsPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
