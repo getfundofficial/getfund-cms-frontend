@@ -11,6 +11,7 @@ export interface Partner {
   category?: string;
   display_order: number;
   is_active: boolean;
+  show_on_efpi?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -23,6 +24,7 @@ export interface CreatePartnerInput {
   category?: string;
   display_order?: number;
   is_active?: boolean;
+  show_on_efpi?: boolean;
 }
 
 export interface UpdatePartnerInput {
@@ -33,6 +35,7 @@ export interface UpdatePartnerInput {
   category?: string;
   display_order?: number;
   is_active?: boolean;
+  show_on_efpi?: boolean;
 }
 
 export const partnersService = {
