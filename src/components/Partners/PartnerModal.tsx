@@ -28,6 +28,7 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
     category: '',
     display_order: 0,
     is_active: true,
+    show_on_efpi: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -44,6 +45,7 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
         category: partner.category || '',
         display_order: partner.display_order,
         is_active: partner.is_active,
+        show_on_efpi: partner.show_on_efpi ?? false,
       });
     } else if (isOpen && !partner) {
       setFormData({
@@ -54,6 +56,7 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
         category: defaultCategory,
         display_order: 0,
         is_active: true,
+        show_on_efpi: false,
       });
     }
     setErrors({});
@@ -329,6 +332,29 @@ export const PartnerModal: React.FC<PartnerModalProps> = ({
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => handleChange('is_active', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          {/* The two sites mean different things by "partner": GETFund's list is
+              mostly scholarship universities, EFPI's is who funds projects. So
+              this is chosen per partner rather than inferred, and starts off. */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Show on EFPI
+              </label>
+              <p className="text-xs text-gray-500">
+                Also list this partner on efpi.getfund.gov.gh
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.show_on_efpi}
+                onChange={(e) => handleChange('show_on_efpi', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
